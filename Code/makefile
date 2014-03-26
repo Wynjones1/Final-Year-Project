@@ -106,7 +106,7 @@ time: all
 
 clean:
 	@echo "Cleaning up."
-	@rm -rf *.pmap *.mode $(OBJDIR) $(DEPDIR) raytracer
+	@rm -rf *.bmp *.pmap *.mode $(OBJDIR) $(DEPDIR) raytracer
 
 log: all
 	./raytracer > log.txt
