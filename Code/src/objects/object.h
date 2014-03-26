@@ -15,7 +15,7 @@ typedef void (*normal_func)(object_t *o, intersection_t *info, double *normal);
 typedef void (*tex_func)(object_t *o, intersection_t *info, double *tex);
 typedef void (*print_func)(object_t *o);
 typedef void (*delete_func)(object_t *o);
-typedef void (*shade_func)( object_t *object, scene_t *scene, intersection_t *info, double colour_out[3]);
+typedef void (*shade_func)( object_t *object, scene_t *scene, intersection_t *info);
 
 #define CALL(object, func, ...) object->func(object, ##__VA_ARGS__)
 
@@ -34,18 +34,13 @@ struct object
 	OBJECT_DATA()
 };
 
-void object_calculate_reflected_colour( object_t *o, scene_t *s, ray_t *ray,
-										intersection_t *info, double colour_out[3]);
+void object_calculate_reflected_colour( object_t *o, scene_t *s, intersection_t *info);
+void object_calculate_refracted_colour( object_t *o, scene_t *s, intersection_t *info);
+void object_calculate_diffuse_colour(   object_t *o, scene_t *s, intersection_t *info);
+void object_calculate_pmedia_colour(    object_t *o, scene_t *s, intersection_t *info);
 
-void object_calculate_refracted_colour( object_t *o, scene_t *s, ray_t *ray,
-										intersection_t *info, double colour_out[3]);
+void object_calculate_texture_colour(   object_t *o, intersection_t *info, double colour_out[3]);
 
-void object_calculate_diffuse_colour( object_t *o, scene_t *s, ray_t *ray,
-									  intersection_t *info, double colour_out[3]);
-
-void object_calculate_pmedia_colour( object_t *o, scene_t *s, ray_t *ray,
-									  intersection_t *info, double colour_out[3]);
-
-void object_calculate_texture_colour( object_t *o, intersection_t *info, double colour_out[3]);
+void object_default_shade_func(object_t *o, scene_t *scene, intersection_t *info);
 
 #endif

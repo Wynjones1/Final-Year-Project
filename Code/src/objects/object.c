@@ -10,9 +10,9 @@
 #include "maths.h"
 #include <string.h>
 
-void object_calculate_reflected_colour( object_t *object, scene_t *scene, ray_t *ray,
-										intersection_t *info, double colour_out[3])
+void object_calculate_reflected_colour( object_t *object, scene_t *scene, intersection_t *info)
 {
+	ray_t *ray = &info->incident;
 	if(ray->depth)
 	{
 		double surface_normal[3];
@@ -25,18 +25,17 @@ void object_calculate_reflected_colour( object_t *object, scene_t *scene, ray_t 
 
 		if(intersection_ray_scene(&new_ray, scene, &temp))
 		{
-			memcpy(colour_out, temp.scene.colour, sizeof(double) * 3);
+			vector_copy(temp.scene.colour, info->scene.colour);
 		}
 		else
 		{
-			memset(colour_out, 0x00, sizeof(double) * 3);
+			memset(info->scene.colour, 0x00, sizeof(double) * 3);
 		}
 	}
 }
 
 
-void object_calculate_refracted_colour( object_t *object, scene_t *scene, ray_t *ray,
-										intersection_t *info, double colour_out[3])
+void object_calculate_refracted_colour( object_t *object, scene_t *scene, intersection_t *info)
 {
 	double refr_col[3] = {0.0, 0.0, 0.0};
 	double refl_col[3] = {0.0, 0.0, 0.0};
@@ -179,6 +178,8 @@ static void pmedia_calculate_radiance(object_t *o, scene_t *scene, double x[3], 
 {
 	double dist = 0.005 / vector_distance(x, l->origin);
 	out[0] += dist;
+	out[1] += dist;
+	out[2] += dist;
 }
 
 static void pmedia_calculate_direct_illumination(object_t *o, scene_t *scene, ray_t *ray, double t, double out[3])
@@ -202,8 +203,7 @@ static void pmedia_calculate_direct_illumination(object_t *o, scene_t *scene, ra
 	}
 }
 
-void object_calculate_pmedia_colour( object_t *o, scene_t *scene, ray_t *ray,
-									  intersection_t *info, double colour_out[3])
+void object_calculate_pmedia_colour( object_t *o, scene_t *scene, intesection_t *info)
 {
 	double x0[3];
 	maths_calculate_intersection(ray, info->t, x0, 1);
@@ -244,8 +244,7 @@ void object_calculate_pmedia_colour( object_t *o, scene_t *scene, ray_t *ray,
 	}
 }
 
-void object_calculate_diffuse_colour( object_t *object, scene_t *scene, ray_t *ray,
-									  intersection_t *info, double colour_out[3])
+void object_calculate_diffuse_colour( object_t *object, scene_t *scene, intersection_t *info)
 {
 	double tex[3];
 	memset(colour_out, 0x00, sizeof(double) * 3);
@@ -260,3 +259,19 @@ void object_calculate_diffuse_colour( object_t *object, scene_t *scene, ray_t *r
 	colour_out[2] *= tex[2];
 }
 
+void object_default_shade_func(object_t *o, scene_t *scene, intersection_t *info)
+{
+	double eps = randf(0.0, 1.0);
+	if(eps < mat->av_diff)
+	{
+		object_calculate_diffuse_colour(object, scene, info);
+	}
+	else if(eps < mat->av_diff + mat->av_refl)
+	{
+		object_calculate_reflected_colour(object, scene, info);
+	}
+	else if(eps < mat->av_diff + mat->av_refl + mat->av_refr)
+	{
+		object_calculate_refracted_colour(object, scene, info);
+	}
+}

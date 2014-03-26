@@ -96,7 +96,7 @@ static void *gui_thread(void *d)
 		abort();
 	}
 
-	g->window = SDL_CreateWindow("Raytracer", 100, 100, g->window_w, g->window_h, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+	g->window = SDL_CreateWindow("Raytracer", 800, 100, g->window_w, g->window_h, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
 	if(g->window == NULL)
 	{
 		fprintf(stderr, "Error creating sdl window.\n");
