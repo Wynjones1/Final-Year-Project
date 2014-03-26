@@ -175,11 +175,30 @@ void calculate_diffuse_caustic( object_t *object, scene_t *scene, ray_t *ray,
 #endif
 }
 
+static void pmedia_calculate_radiance(object_t *o, scene_t *scene, double x[3], light_t *l, double out[3])
+{
+	double dist = 0.005 / vector_distance(x, l->origin);
+	out[0] += dist;
+}
+
 static void pmedia_calculate_direct_illumination(object_t *o, scene_t *scene, ray_t *ray, double t, double out[3])
 {
-	double dx = 0.1;
+	double    dx         = 0.01;
+	int       num_lights = list_size(scene->lights);
+	light_t **lights     = list_data(scene->lights);
+	double x[3];
 	for(double t0 = 0.0; t0 < t; t0 += dx)
 	{
+		x[0] = ray->origin[0] + t0 * ray->normal[0];
+		x[1] = ray->origin[1] + t0 * ray->normal[1];
+		x[2] = ray->origin[2] + t0 * ray->normal[2];
+		double temp[3] = {0.0, 0.0, 0.0};
+		for(int i = 0; i < num_lights; i++)
+		{
+			pmedia_calculate_radiance(o, scene, x, lights[i], out);
+		}
+		//Attenuate the radiance.
+		vector_add(out, temp, out);
 	}
 }
 
@@ -192,6 +211,7 @@ void object_calculate_pmedia_colour( object_t *o, scene_t *scene, ray_t *ray,
 	vector_copy(x0, fog_ray.origin);
 	vector_copy(ray->normal, fog_ray.normal);
 	intersection_t temp;
+	//Calculate where we stop doing the marching.
 	if(intersection_photon_scene(&fog_ray, scene, &temp))
 	{
 		double x1[3];
@@ -232,8 +252,8 @@ void object_calculate_diffuse_colour( object_t *object, scene_t *scene, ray_t *r
 	object_calculate_texture_colour(object, info, tex);
 
 	calculate_diffuse_direct(object,   scene, ray, info, colour_out);
-//	calculate_diffuse_indirect(object, scene, ray, info, colour_out);
-//	calculate_diffuse_caustic(object,  scene, ray, info, colour_out);
+	calculate_diffuse_indirect(object, scene, ray, info, colour_out);
+	calculate_diffuse_caustic(object,  scene, ray, info, colour_out);
 
 	colour_out[0] *= tex[0];
 	colour_out[1] *= tex[1];
