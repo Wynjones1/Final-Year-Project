@@ -1,0 +1,4 @@
+file ./data/ply/sphere.ply
+colour 1.0 0.0 0.0
+refractivity 0.0
+reflectivity 1.0

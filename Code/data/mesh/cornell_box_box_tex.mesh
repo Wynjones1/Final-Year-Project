@@ -1,0 +1,4 @@
+file ./data/ply/cornell_box_box.ply
+texture ./data/tga/colour_grid.tga
+reflectivity 0
+colour 0.0 0.0 1.0

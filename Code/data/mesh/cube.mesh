@@ -1,0 +1,4 @@
+file ./data/ply/cube.ply
+material ./data/materials/diffuse_white.mat
+rotate y 45
+translate 0.5 -0.7 0

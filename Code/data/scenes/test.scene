@@ -1,0 +1,4 @@
+mesh ./data/mesh/tex_plane.mesh
+camera 0 0 2 0 0 -1 0 1 0
+light 0 0 0
+image out.bmp 3000 3000

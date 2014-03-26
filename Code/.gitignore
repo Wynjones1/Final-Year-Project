@@ -1,0 +1,11 @@
+*.txt
+*.log
+*.bmp
+*.out
+*.map
+*.pmap
+deps/
+obj/
+point_viewer/out
+*.mode
+raytracer

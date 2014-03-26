@@ -1,0 +1,5 @@
+file ./data/ply/cornell_box_ball2.ply
+colour 0.0 1.0 0.0
+reflectivity 1.0
+refractivity 0.0
+ior 3

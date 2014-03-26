@@ -1,0 +1,3 @@
+file ./data/ply/big_plane.ply
+material ./data/materials/diffuse_white.mat
+translate 0 -1 0

@@ -1,0 +1,3 @@
+file ./data/ply/tex_monkey.ply
+colour 1.0 0.0 0.0
+texture ./data/tga/colour_grid.tga

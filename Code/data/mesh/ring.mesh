@@ -1,0 +1,2 @@
+file ./data/ply/ring.ply
+material ./data/materials/mirror.mat

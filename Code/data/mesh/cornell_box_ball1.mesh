@@ -1,0 +1,2 @@
+file ./data/ply/cornell_box_ball1.ply
+material ./data/materials/diffuse_red.mat

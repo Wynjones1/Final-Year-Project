@@ -1,0 +1,5 @@
+mesh ./data/mesh/big_plane.mesh
+camera 0 0 2.0 0 0 -1 0 1 0
+#light area 0 0.1 0 0 -1 0 1 1
+light point 0 2 0
+image out.bmp 256 256

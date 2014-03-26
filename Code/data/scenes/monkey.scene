@@ -1,0 +1,4 @@
+mesh ./data/mesh/normal_monkey.mesh
+camera 0 0 1 0 0 -1 0 1 0
+light 0 0 0
+image out.bmp 512 512

@@ -1,0 +1,4 @@
+file ./data/ply/bunny.ply
+colour 1.0 0.0 0.0
+refractivity 1.0
+reflectivity 0.0
