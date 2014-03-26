@@ -1,0 +1,12 @@
+*.txt
+*.log
+diss.dvi
+diss.aux
+diss.bbl
+diss.lof
+diss.lot
+diss.toc
+diss.blg
+diss.pdf
+diss.out
+diss_defs.aux

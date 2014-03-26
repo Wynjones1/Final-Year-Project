@@ -1,0 +1,7 @@
+\subsection{Irradiance Caching}
+Along with the photon map, irradiance caching is a strategy to reduce the computation in order to
+produce a correct image, developed by Ward et al. \cite{Ward88}. The algorithm stored irradiance
+values calculated on lambertian diffuse surfaces in a data structure that allows for the values
+to be interpolated for other points on the surface, this is done with the assumption that the
+values will be slowly varing over the surface. A thorough explination of irradiance caching with
+respect to photon mapping can be found by Jensen \cite{JensenBook}
