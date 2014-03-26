@@ -1,0 +1,24 @@
+\section{Introduction}
+In this chapter I will discuss the design aspect of the project, this will include an overview of the
+architecture that I have decided upon and the rational behind it, I will then move to describe key components of
+the design and how they relate to the aims and goals of this project.
+
+\section{Architectural Overview}
+During the requirements analysis stage of this project it was clear that the project could be decomposed into
+two main sub-modules, a front-end that will perform the interaction with the user and the operating system and a
+back end that will process the user input in order to synthesis image this can be seen in 
+Figure~/ref{fig:design\_blocks}, the design of the project is such that the concerns of input and data processing
+are seperated allowing for a cleaner design within each of the blocks.
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.75]{./design/TopLevel.png}
+\caption{Top level block diagram of the system}
+\label{fig:design_blocks}
+\end{figure}
+
+\newpage
+\input{design/front_end.tex}
+\newpage
+\input{design/back_end.tex}
+

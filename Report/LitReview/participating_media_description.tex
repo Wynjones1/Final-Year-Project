@@ -1,0 +1,91 @@
+\section{Participating media.}
+Participating media are materials or objects that interact with light within the surface of the
+object, these interactions can create interesting visual effects that add to the realism of a 
+scene, a good example of participating media would be smoke, as light enters smoke it will
+experience scattering that will cause the path of the light to be altered. \cite{Blinn82}
+In order to render participating media a solution to the volume rendering equation must be found,
+this equation describes the light transfer within the participating media, Jensen presents a
+good explination \cite{JensenBook}.
+
+Participating media are generally split into two types, inhomogenios and homogenios, this describes
+if the properties of the participating media are constant, an example of a
+participating media that is homogenios would be a liquid such as milk, an example of a
+non-homogenios media woulf be smoke as the density of the smoke (and as a result how much it scatters
+light) is not constant.
+
+Early work in this area include work done by Blinn \cite{Blinn82}, in this paper a model for the
+scattering in clouds and other such media is given, this paper only considers single scattering
+in its approximation and as noted in \cite{Jensen98} only suitible for optically thin media.
+
+\subsection{Volume ray casting}
+Volume ray casting is a technique that is central to participating media as it allows rays to be
+seen as moving through a media, this is apposed to traditional raytracing where the ray will only
+interact at the point of intersection of an object. In ray casting the ray is "marched" through
+the medium, at each step in the process a calculation can be performed in order to decide if an
+action should be taken (i.e in or out scattering)
+
+\subsection{Volumetric Photon Mapping}
+
+One of the earliest applications of photon mapping to render participating media was \cite{Jensen98}
+in this paper the concept of volumetric photon mapping and the volume photon map was introduced,
+this photon map allows the interaction of light within a participating media to be taken into
+account, this could be one of the following, in-scattering, out-scattering, absorbsion or emmission.
+The volume map is a seperate map to the surface map usually used in the photon mapping algorithm,
+this is because the desity estimate is different as the sample of photons are taken from the volume
+enclosing $n$ photons and not the disk. The technique in this paper deals with the case of 
+homgenious and non-homogenious media as the volume map decouples the representation of the radiance 
+from the geometry of the media.
+
+Building the volumetric photon map is different to that of the surface volum map as the photons
+can interact anywhere within the definition of the volume, there is defined for the volumne a
+cumulatice probablility density function that defines the probability of an interaction at all
+points $x$ within the volume.
+
+\begin{equation}
+F(x) = 1 - \tau(x_{s}, s)
+\end{equation}
+
+where $\tau$ is the transmittance which is computed by ray marching.
+
+\begin{equation}
+\label{eq:radiance_volumn_estimate}
+L_{r}(x, \vec{\omega})
+\approx
+\frac
+{1}
+{\sigma(x)}
+\sum_{p=1}^n
+f_{r}(x,\vec{\omega}_{p}', \vec{\omega})
+\frac
+{
+	\Delta\Phi_{p}(x, \vec{\omega}_{p}')
+}
+{
+\frac{3}{4} \pi r^{3}
+}
+\end{equation}
+
+\subsection{Sub Surface Scattering}
+Sub surface scattering is caused by a class of participating media where the light transport of the
+material can be approximated by a function whereby the reflection of light at a point $x$ is
+reflected at another point $x'$ This causes a softening of the apperance of the material a common
+example of this is the human skin where a large amount of the reflected light by the skin undergoes
+some amount of sub surface scattering. The reason that this case of participating media is
+seperated from the general class is that their are specific properties of SSS that allow for
+the calcualtion of the light transport more efficiently. Subsurface scattering can be described by
+the bidirectional surface scattering function BDSSRF \cite{Jensen01}, this is a generalisation of 
+the BDRF and is given as:
+
+\begin{equation}
+\label{eq:bdssrf}
+	S(x_{i}, \vec{\omega}_{i};x_{o}, \vec{\omega}_{o}) =
+		\frac
+		{ dL_{o}(x_{o},\vec{\omega}_o)}
+		{d\Phi_{i}(x_{i}, \vec{\omega_{i}})}
+\end{equation}
+
+From Equation~\ref{eq:bdssrf} it can be seen that their are two points that needed to form the
+BDSSRF, the incidence location $x$ and the reflectance location $x'$, this can be seen as the
+light incident to $x$ being scattered within the surface of the material and being reflected at
+the point $x'$. The BDRF can be seen as a special case of this function where their is the
+assumption that the location of emmited radiance is the same as that of incidence irradiance.

@@ -1,0 +1,63 @@
+\section{The BDRF}
+\label{sec:bdrf}
+Most global illumination systems need to describe the radiance from an object, this includes the
+reflected radiance by an object from the scene.
+The bidirectinoal reflectance distribution function \cite{Nicodemus65}is a function that describes 
+the reflectance of a surface at point $x$ with respect to an outwards direction $\omega_{o}$, and 
+inwards direction $\omega_{i}$. The BDRF is commonly written as $f_{r}(x, \omega_{i},\omega_{o})$. 
+The BDRF is a vital part of computer graphics as it describes the reflectance of a surface which is 
+vital in global illumination as we need to consider reflectance from all objects in a scene.
+
+The BRDF is a mesure of the outgoing radiance $L$ in a given direction $\omega_{o}$ from an incoming
+irradiance $E$ from a direction $\omega_{i}$. The BRDF for a surface is given by:
+
+\begin{equation}
+f_{r}(\omega_{i}, \omega_{o}) = \frac{L_{\omega_{i}}}{E_{\omega{o}}}
+\end{equation}
+
+An example of a simple BDRF would be that of Lambertian reflection whereby the light is reflected
+in all directions equally, the BRDF for this is:
+
+\begin{equation}
+f_{r}(\omega_{i}, \omega_{o}) = \frac{\rho}{\pi}
+\end{equation}
+
+Where $\rho$ is the reflectivity of the surface, for physically based rendering this is a real
+number between zero and one.
+
+For the system that I am developing it is important to be able to specify the material of an
+object in the scene in a flexible manner, this will include a method of representing the BDRF of
+an object that can be easily configured.
+
+\section{The Rendering Equation}
+Central to most modern rendering systems is the rendering equation, the rendering equation is an
+approximation to the light transfer of a scene \cite{Kajiya86}. A frequency independant version of
+the rendering equation is given below.
+
+\begin{equation}
+L_{r}(x, \omega_{o}) = L_{e}(x, \omega_{o})
+					 + f(x)
+					   \int_{\Omega}
+					 		f_{r}(x, \omega_{i}, \omega_{o})
+							(\omega_{i} \cdot n)d\omega_{i}
+\end{equation}
+Where $L_{r}$ is the radiance from the surface at point x, $L_{e}$ the emmited radiance from the
+surface and $f_{r}$ is the BDRF as described in section~\ref{sec:bdrf}.
+
+There have been many developments within computer graphics that attempt to find approximations
+to the rendering equation, radiosity \cite{Goral85}which attempts to find the solution by splitting 
+the geometry of a scene into smaller patches and builds a system of linear equations that solve the 
+radiosity value for the patch, this technique is simple but sufferes from some problems, for one it 
+is only able to account for lambertian diffuse reflections from other object and so cannot be used
+to render specular reflections. Radiosity is still used within architectural applications as the
+radiometry is view independant and as such is well suited to applications such as walk-throughs.
+Monte-carlo methods are another method that is more general that radiometry, this method is a
+stocastic method that attempts to find the solution of the rendering equation by sampling the light
+transfer of a point untill a adequete approximation is found, a common form of this is distributed
+raytracing whereby raytracing as introduced by Whitted \cite{whitted79a} is performed but for each
+intersection the choice of reflecting, refracting or absoring is taken from a distribution as the
+number of rays emmited increases the image converges to the solution of the rendering equation.
+
+Understandind the motives of the rendering equation will be vital if I am to be sucsessfull in
+developing a photon mapping system, the solution that most rendering algorithms produce are an
+approximation to the rendering equation and as such will be the focus of my system.
