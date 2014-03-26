@@ -1,0 +1,84 @@
+\section{Tools} 
+
+\subsection{Implementation Language (0.5 pages)}
+The implementation language that I have chosen is C, specifically C11. The choice of C is because it it the
+language that I am most familiar with, also it is a language that offers performance benifits as it is a compiled
+language, this is of great advantage for a photon mapper as we will regularly be dealing with data structures
+that contain thousands to millions of elements (such as the photon map.) In addition to being a compiled language
+the memory managment of the program is left to the programmer, while this can cause issues such as buffer overflows
+it has the benifit of providing a great deal of control to the program writer as they can be aware of all memory
+that is used by the program, which, when dealing with data structures as large as the photon map is a large benifit.
+
+\subsection{Coding Style and Code Quality}
+\todo{This will need some citations at some point}
+With any piece of software it is important to impose restrictions on the way in which the code is written in order
+to reduce the effort that is needed to read the source. Some of conventions that I have used includes having a
+convention for any typedef such that a type can be easily deternimed (appeding \_t to the end of the typename),
+requiring that if a function is non-static that it begin with the name of the file or another prefix to prevent
+name clashing. Another convention that is used is the use of opaque pointers to data structures in order to
+hide the internal data representation of the types an example of this can be found in the source files \texttt{list.h/c}
+it can be seen that the header file does not expose the structure definition to any file that includes the header.
+
+Throughout the development of the system it was nessacarry to use a number of tools in order to ensure the
+quality of the code being produced.
+
+Another issue that is present in writting code for C is that the memory is managed by the programmer, as a
+result it is common for errors such as memory leaks to occur, in order to reduce the risk of this in the project
+I have utilised several programs that can identify issues.
+
+\subsection{Compilers}
+
+The first tool that I used was the compiler itself, there are several options available that will detect and report
+common error in C programs such as uninitialised variables.
+
+\subsection{Valgrind}
+In order to detect memory related bugs I used Valgrind which is a program that will track all memory allocations
+of a running program and is able to detect errors such as writes after a region of memory that has been allocated
+and lost pointers that result in memory leaks.
+
+\begin{figure}
+\lstinputlisting[language=C]{./implementation/val.log}
+\label{fig:valgrind_listing}
+\caption{Example Valgrind Output}
+\end{figure}
+
+\subsection{Static Analysis}
+Included with the clang compiler suite is the clang static analyser, this program will perform analysis on the
+source code of a program and will report certain types of errors such as performing memory accesses on variables
+that can potentially be NULL, while this may seem simalar to valgrind, this approach will detect errors such
+as this without running the program and can find issues that may only manigest in certain corder cases. Below
+is an example of a fix that was made that was the result of a warning from the static analyser that proved
+useful as the issue that was flaged and at first assumed to be impossible occured, this issue had the potential
+to be quite hard to find.
+
+\subsection{Source Control}
+In order to orginise the code that I have created I decided to use Git as a source control system for the project.
+Git has the concept of branches that allow development of seperate features concurrently in isolation and
+merged upon completion, incorperating branched into the development workflow proved to be a highly useful feature
+as it allows for work on a feature to continue even if another feature breaks parts of the system that would
+otherwise make continurd development impossible
+
+\subsection{Profiling}
+When writing software it is desirable to optimise it in order to improve the preformance of the code, this project
+is no different and there are many area that could be optimised, to quote Knuth
+
+\begin{quotation}
+{Premature optimization is the root of all evil ... in programming \cite{Knuth74a}}
+\end{quotation}
+
+This refers to the practice of optimising code that is not a bottleneck in the execution of the program, for instance
+reducing the running time of a function by $50\%$ that is only executed for a small preportion of the running time of
+the whole program in order to decide which parts of the code needs to be optimised we have used the combination of
+the compiler profiling flag and gprof, a program that will output profiling statistics for a run of the executable,
+this includes information such as the number of times a given function was called and the percentage of the run time
+taken by the function.
+
+\newpage
+\section{Front End (3 pages)}
+\input{./implementation/front_end.tex}
+\newpage
+\section{Back End 17 pages}
+\input{./implementation/back_end.tex}
+\newpage
+\section{Testing and Optimisations 3 pages}
+\input{./implementation/testing.tex}
