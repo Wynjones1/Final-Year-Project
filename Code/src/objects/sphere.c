@@ -71,12 +71,58 @@ static void delete(sphere_t *object)
 	free(object);
 }
 
-
-static int pmedia_intersection(ray_t *r, sphere_t *s, intersection_t *info)
+static double next_dist(double extinction)
 {
-	double temp[3];
-	info->t = 0.01;
-	return 1;
+	return -log(randf(0.0, 1.0)) / extinction;
+}
+
+static int pmedia_intersection(sphere_t *s, ray_t *r, intersection_t *info)
+{
+	//Are we inside the participating media?
+	if(vector_distance(r->origin, s->origin) < s->r)
+	{
+		info->t = next_dist(s->material.av_ext);
+		return 1;
+	}
+	else
+	{
+		return intersection(s, r, info);
+	}
+}
+
+static void pmedia_direct(object_t *object, double x[3], scene_t *scene, intersection_t *info)
+{
+	int num_lights   = list_size(scene->lights);
+	light_t **lights = list_data(scene->lights);
+	for(int i = 0; i < num_lights; i++)
+	{
+		double l = vector_distance(x, lights[i]->origin);
+		//TODO:Cae where we exit the medium
+		double atten = exp(-l * object->material.av_ext);
+		info->scene.colour[0] += object->material.v_ext * atten * lights[i]->power[0]/ (4 * PI * l * l);
+		info->scene.colour[1] += object->material.v_ext * atten * lights[i]->power[1]/ (4 * PI * l * l);
+		info->scene.colour[2] += object->material.v_ext * atten * lights[i]->power[2]/ (4 * PI * l * l);
+	}
+}
+
+static void pmedia_shade(object_t *object, scene_t *scene, intersection_t *info)
+{
+	//Step through the participating media.
+	ray_t new_ray;
+	new_ray.depth = info->incident.depth - 1;
+	memcpy(new_ray.normal, info->incident.normal, sizeof(double) * 3);
+	maths_calculate_intersection(&info->incident, info->t, new_ray.origin, 1);
+	intersection_t temp;
+	//Calculate the radiance from the light sources.
+	pmedia_direct(object, new_ray.origin, scene, info);
+	//Calculate the radiance along the path.
+	if(intersection_ray_scene(&new_ray, scene, &temp))
+	{
+		double attenuation = exp(- info->t * object->material.av_ext);
+		info->scene.colour[0] += attenuation * temp.scene.colour[0];
+		info->scene.colour[1] += attenuation * temp.scene.colour[1];
+		info->scene.colour[2] += attenuation * temp.scene.colour[2];
+	}
 }
 
 sphere_t *sphere_init(const char *str)
@@ -96,8 +142,8 @@ sphere_t *sphere_init(const char *str)
 	material_init(&out->material, mat_buf);
 	if(out->material.pmedia)
 	{
-		out->shade        = object_calculate_pmedia_colour;
-//		out->intersection = (intersection_func) pmedia_intersection;
+		out->shade        = (shade_func) pmedia_shade;
+		out->intersection = (intersection_func) pmedia_intersection;
 	}
 	return out;
 }
