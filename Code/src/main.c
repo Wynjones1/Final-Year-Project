@@ -14,7 +14,7 @@ int main(int argc, char **argv)
 	scene_t  *scene  = scene_read(g_config.scene_filename);
 
 #if GUI
-	gui_t *gui = gui_new(400, 400, g_config.width, g_config.height);
+	gui_t *gui = gui_new(800, 800, g_config.width, g_config.height);
 	gui_start(gui);
 	scene_register_pixel_update(scene, (pixel_update_func) gui_write, gui);
 #endif

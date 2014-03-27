@@ -12,6 +12,7 @@ int intersection_ray_scene(ray_t *ray, scene_t *scene, intersection_t *info)
 
 	for(int i = 0; i < num_objects; i++)
 	{
+		temp.pmedia = false;
 		if(CALL(objects[i], intersection, ray, &temp) && temp.t < info->t)
 		{
 			*info = temp;
@@ -24,13 +25,8 @@ int intersection_ray_scene(ray_t *ray, scene_t *scene, intersection_t *info)
 	memset(info->scene.colour, 0x00, sizeof(double) * 3);
 	if(retval) //Calculate the output colour.
 	{
-	#if 1
 		object_t *object =  info->scene.object;
 		CALL(object, shade, scene, info);
-	#else
-		object_t *object =  info->scene.object;
-		material_t *mat  = &object->material;
-	#endif
 	}
 	return retval;
 }

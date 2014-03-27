@@ -27,8 +27,7 @@ void object_calculate_reflected_colour( object_t *object, scene_t *scene, inters
 		{
 			vector_copy(temp.scene.colour, info->scene.colour);
 		}
-		else
-		{
+		else {
 			memset(info->scene.colour, 0x00, sizeof(double) * 3);
 		}
 	}
@@ -135,20 +134,22 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 		intersection_t temp;
 		if(intersection_photon_scene(&diffuse_ray, scene, &temp))
 		{
+			double tex[3];
+			object_calculate_texture_colour(object, info, tex);
 			maths_calculate_intersection(&diffuse_ray, temp.t, x, -1);
 			object_t *new_obj = temp.scene.object;
 			CALL(new_obj, get_normal, &temp, normal);
 			photon_map_estimate_radiance(scene->global, x, normal, inten);
 
-			sample_col[0] += inten[0];
-			sample_col[1] += inten[1];
-			sample_col[2] += inten[2];
+			sample_col[0] += tex[0] * inten[0];
+			sample_col[1] += tex[1] * inten[1];
+			sample_col[2] += tex[2] * inten[2];
 		}
 	}
 
-	colour_out[0] += sample_col[0] / num_samples;
-	colour_out[1] += sample_col[1] / num_samples;
-	colour_out[2] += sample_col[2] / num_samples;
+	colour_out[0] += sample_col[0] / (num_samples);
+	colour_out[1] += sample_col[1] / (num_samples);
+	colour_out[2] += sample_col[2] / (num_samples);
 #endif
 
 #endif
@@ -240,8 +241,6 @@ void object_calculate_pmedia_colour( object_t *o, scene_t *scene, intersection_t
 	}
 	else //Trace the ray normaly.
 	{
-		intersection_ray_scene(&fog_ray, scene, &temp);
-		vector_copy(temp.scene.colour, info->scene.colour);
 	}
 }
 

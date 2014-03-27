@@ -24,6 +24,7 @@ struct intersection
 	double t;
 	double point[3];//The point of the intersection.
 	ray_t  incident;
+	bool   pmedia;
 	struct
 	{
 		struct

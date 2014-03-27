@@ -72,6 +72,13 @@ static void delete(sphere_t *object)
 }
 
 
+static int pmedia_intersection(ray_t *r, sphere_t *s, intersection_t *info)
+{
+	double temp[3];
+	info->t = 0.01;
+	return 1;
+}
+
 sphere_t *sphere_init(const char *str)
 {
 	char mat_buf[1024];
@@ -87,5 +94,10 @@ sphere_t *sphere_init(const char *str)
 	out->get_tex      = (tex_func)tex;
 	out->delete       = (delete_func)delete;
 	material_init(&out->material, mat_buf);
+	if(out->material.pmedia)
+	{
+		out->shade        = object_calculate_pmedia_colour;
+//		out->intersection = (intersection_func) pmedia_intersection;
+	}
 	return out;
 }
