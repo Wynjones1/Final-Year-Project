@@ -9,12 +9,12 @@
 
 #define VECTOR_SIZE 3
 
-INLINE void vector_print(double *vector)
+INLINE void vector_print(vector_t vector)
 {
 	vector_fprint(stdout, vector);
 }
 
-INLINE void vector_fprint(FILE *fp, double *vector)
+INLINE void vector_fprint(FILE *fp, vector_t vector)
 {
 	FOUTPUT(fp,"[");	
 	int i;
@@ -31,7 +31,7 @@ INLINE void vector_fprint(FILE *fp, double *vector)
 		FOUTPUT(fp," %f]\n",vector[VECTOR_SIZE - 1]);
 }
 
-INLINE void vector_add(double *v1,double *v2,double *vout)
+INLINE void vector_add(vector_t v1,vector_t v2,vector_t vout)
 {
 	for(int i = 0;i < VECTOR_SIZE;i++)
 	{
@@ -39,7 +39,7 @@ INLINE void vector_add(double *v1,double *v2,double *vout)
 	}
 }
 
-INLINE void vector_sub(double *v1,double *v2,double *vout)
+INLINE void vector_sub(vector_t v1,vector_t v2,vector_t vout)
 {
 	for(int i = 0;i < VECTOR_SIZE;i++)
 	{
@@ -47,7 +47,7 @@ INLINE void vector_sub(double *v1,double *v2,double *vout)
 	}
 }
 
-INLINE void vector_mult(double c,double *v1,double *vout)
+INLINE void vector_mult(vector_float_t c,vector_t v1,vector_t vout)
 {
 	for(int i = 0;i < VECTOR_SIZE;i++)
 	{
@@ -55,7 +55,7 @@ INLINE void vector_mult(double c,double *v1,double *vout)
 	}
 }
 
-INLINE void vector_div(double c,double *v1,double *vout)
+INLINE void vector_div(vector_float_t c,vector_t v1,vector_t vout)
 {
 	for(int i = 0;i < VECTOR_SIZE;i++)
 	{
@@ -63,16 +63,16 @@ INLINE void vector_div(double c,double *v1,double *vout)
 	}
 }
 
-INLINE void vector_cross(double *v1,double *v2,double *vout)
+INLINE void vector_cross(vector_t v1,vector_t v2,vector_t vout)
 {
 	vout[0] = v1[1] * v2[2] - v1[2] * v2[1];
 	vout[1] = v1[2] * v2[0] - v1[0] * v2[2];
 	vout[2] = v1[0] * v2[1] - v1[1] * v2[0];
 }
 
-INLINE double vector_length(double *v1)
+INLINE vector_float_t vector_length(vector_t v1)
 {
-	double temp = 0.0;
+	vector_float_t temp = 0.0;
 	for(int i = 0;i < VECTOR_SIZE;i++)
 	{
 		temp += v1[i] * v1[i];
@@ -80,29 +80,29 @@ INLINE double vector_length(double *v1)
 	return sqrt(temp);
 }
 
-INLINE void vector_normal(double *v1,double *vout)
+INLINE void vector_normal(vector_t v1,vector_t vout)
 {
-	double temp = vector_length(v1);
+	vector_float_t temp = vector_length(v1);
 	vector_div(temp,v1,vout);
 }
 
-INLINE double vector_dot(double *v1,double *v2)
+INLINE vector_float_t vector_dot(vector_t v1,vector_t v2)
 {
 	return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
 }
 
-INLINE double vector_squared_dist(double *v1, double *v2)
+INLINE vector_float_t vector_squared_dist(vector_t v1, vector_t v2)
 {
-	double out = 0.0;
+	vector_float_t out = 0.0;
 	for(int i = 0; i < VECTOR_SIZE; i++)
 	{
-		double d = v1[i] - v2[i];
+		vector_float_t d = v1[i] - v2[i];
 		out += d * d;
 	}
 	return out;
 }
 
-INLINE void vector_neg(double *v1)
+INLINE void vector_neg(vector_t v1)
 {
 	for(int i = 0; i < VECTOR_SIZE; i++)
 	{
@@ -110,12 +110,12 @@ INLINE void vector_neg(double *v1)
 	}
 }
 
-INLINE void vector_copy(double *v1, double *v2)
+INLINE void vector_copy(vector_t v1, vector_t v2)
 {
-	memcpy(v2, v1, sizeof(double) * VECTOR_SIZE);
+	memcpy(v2, v1, sizeof(vector_float_t ) * VECTOR_SIZE);
 }
 
-INLINE void vector_addc(double *v1, double c, double *v2)
+INLINE void vector_addc(vector_t v1, vector_float_t c, vector_t v2)
 {
 	for(int i = 0; i < VECTOR_SIZE; i++)
 	{
@@ -123,7 +123,7 @@ INLINE void vector_addc(double *v1, double c, double *v2)
 	}
 }
 
-INLINE void vector_mult_const(double *v1, double c)
+INLINE void vector_mult_const(vector_t v1, vector_float_t c)
 {
 	for(int i = 0; i < 3; i++)
 	{
@@ -131,7 +131,7 @@ INLINE void vector_mult_const(double *v1, double c)
 	}
 }
 
-INLINE void vector_add_const(double *v1, double c)
+INLINE void vector_add_const(vector_t v1, vector_float_t c)
 {
 	for(int i = 0; i < 3; i++)
 	{
@@ -139,8 +139,9 @@ INLINE void vector_add_const(double *v1, double c)
 	}
 }
 
-INLINE double vector_distance(double v0[3], double v1[3]) {
-	double temp[] = {v0[0] - v1[0],
+INLINE vector_float_t vector_distance(vector_t v0, vector_t v1)
+{
+	vector_t temp = {v0[0] - v1[0],
 					 v0[1] - v1[1],
 					 v0[2] - v1[2]};
 	return vector_length(temp);

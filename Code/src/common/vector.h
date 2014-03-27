@@ -3,23 +3,25 @@
 #include <stdio.h>
 
 #define INLINE 
+typedef double         vector_float_t;
+typedef vector_float_t vector_t[3];
 
-INLINE void    vector_print(double *vector);
-INLINE void    vector_fprint(FILE *fp, double *vector);
-INLINE void    vector_add(double * v1,double * v2,double * vout);
-INLINE void    vector_sub(double * v1,double * v2,double * vout);
-INLINE void    vector_mult(double c,double * v1,double * vout);
-INLINE void    vector_div(double c,double * v1,double * vout);
-INLINE void    vector_cross(double * v1,double * v2,double * vout);
-INLINE double  vector_length(double * v1);
-INLINE void    vector_normal(double * v1,double * vout);
-INLINE double  vector_dot(double *v1,double *v2);
-INLINE double  vector_squared_dist(double *v1, double *v2);
-INLINE void    vector_neg(double *v1);
-INLINE void    vector_copy(double *v1, double *v2);
-INLINE void    vector_addc(double *v1, double c, double *v2);
-INLINE void    vector_mult_const(double *v1, double c);
-INLINE void    vector_add_const(double *v1, double c);
-INLINE double  vector_distance(double v0[3], double v1[3]);
+INLINE void            vector_print(vector_t vector);
+INLINE void            vector_fprint(FILE *fp, vector_t vector);
+INLINE void            vector_add(vector_t v1,vector_t v2,vector_t vout);
+INLINE void            vector_sub(vector_t v1,vector_t v2,vector_t vout);
+INLINE void            vector_mult(vector_float_t c,vector_t v1,vector_t vout);
+INLINE void            vector_div(vector_float_t c,vector_t v1,vector_t vout);
+INLINE void            vector_cross(vector_t v1,vector_t v2,vector_t vout);
+INLINE vector_float_t  vector_length(vector_t v1);
+INLINE void            vector_normal(vector_t v1,vector_t vout);
+INLINE vector_float_t  vector_dot(vector_t v1,vector_t v2);
+INLINE vector_float_t  vector_squared_dist(vector_t v1, vector_t v2);
+INLINE void            vector_neg(vector_t v1);
+INLINE void            vector_copy(vector_t v1, vector_t v2);
+INLINE void            vector_addc(vector_t v1, vector_float_t c, vector_t v2);
+INLINE void            vector_mult_const(vector_t v1, vector_float_t c);
+INLINE void            vector_add_const(vector_t v1, vector_float_t c);
+INLINE vector_float_t  vector_distance(vector_t v0, vector_t v1);
 
 #endif
