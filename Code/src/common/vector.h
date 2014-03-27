@@ -3,8 +3,9 @@
 #include <stdio.h>
 
 #define INLINE 
-typedef double         vector_float_t;
-typedef vector_float_t vector_t[3];
+typedef double          vector_float_t;
+typedef vector_float_t  vector_t[3];
+typedef vector_float_t *vector_ptr_t;
 
 INLINE void            vector_print(vector_t vector);
 INLINE void            vector_fprint(FILE *fp, vector_t vector);

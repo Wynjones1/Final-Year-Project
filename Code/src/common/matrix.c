@@ -4,7 +4,7 @@
 #include "utils.h"
 #include <stdlib.h>
 
-matrix_t matrix_translation(double *t)
+matrix_t matrix_translation(vector_t t)
 {
 #if MATRIX_ROW_MAJOR
 	matrix_t out = {.data = {1, 0, 0, t[0],
@@ -74,7 +74,7 @@ matrix_t matrix_rotation_z(double theta)
 	return out;
 }
 
-void matrix_translate(matrix_t *in, double *v0)
+void matrix_translate(matrix_t *in, vector_t v0)
 {
 	matrix_t translate = matrix_translation(v0);
 	matrix_mult(&translate, in, in);
@@ -116,7 +116,7 @@ void matrix_mult(matrix_t *a, matrix_t *b, matrix_t *out)
 	*out = temp;
 }
 
-void matrix_mult_vec(matrix_t *a, double *v0, double *v1)
+void matrix_mult_vec(matrix_t *a, vector_t v0, vector_t v1)
 {
 	double t[] = {v0[0], v0[1], v0[2], 1};
 	for(int i = 0; i < 3;i++)
@@ -129,7 +129,7 @@ void matrix_mult_vec(matrix_t *a, double *v0, double *v1)
 	}
 }
 
-void matrix_mult_norm(matrix_t *a, double *v0, double *v1)
+void matrix_mult_norm(matrix_t *a, vector_t v0, vector_t v1)
 {
 	double t[] = {v0[0], v0[1], v0[2], 0};
 	for(int i = 0; i < 3;i++)

@@ -8,12 +8,14 @@
 #include "config.h"
 
 
-camera_t *camera_init(double *origin, double *forward, double *up, double f, double aspect)
+camera_t *camera_init(vector_t origin, vector_t forward, vector_t up, double f, double aspect)
 {
 	camera_t *out = malloc(sizeof(camera_t));
-	memcpy(out->origin, origin, sizeof(out->origin));
-	memcpy(out->forward, forward, sizeof(out->forward));
-	memcpy(out->up, up, sizeof(out->up));
+
+	vector_copy(origin,  out->origin);
+	vector_copy(forward, out->forward);
+	vector_copy(up     , out->up);
+
 	vector_cross(up, forward, out->right);
 
 	out->f = f;
