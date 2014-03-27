@@ -76,6 +76,7 @@ sphere_t *sphere_init(const char *str)
 {
 	char mat_buf[1024];
 	sphere_t *out = malloc(sizeof(sphere_t));
+	object_init((object_t*)out);
 	if(sscanf(str, "sphere %lf %lf %lf %lf %s",
 			&out->r, out->origin, out->origin + 1, out->origin + 2, mat_buf) != 5)
 	{

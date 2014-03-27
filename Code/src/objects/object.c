@@ -42,16 +42,16 @@ void object_calculate_refracted_colour( object_t *object, scene_t *scene, inters
 	double normal[3];
 	ray_t  refracted_ray;
 	double r = 1.0;//reflectance.
-	double *incident = ray->normal;
-	if(ray->depth)
+	ray_t *incident = &info->incident;
+	if(incident->depth)
 	{
-		refracted_ray.depth = ray->depth - 1;
+		refracted_ray.depth = incident->depth - 1;
 		CALL(object, get_normal, info, normal);
-		if(maths_calculate_refracted_ray(incident, normal, 1.0, g_config.time, refracted_ray.normal))
+		if(maths_calculate_refracted_ray(incident->normal, normal, 1.0, g_config.time, refracted_ray.normal))
 		{
 			r = 0.0;
 			intersection_t refraction_info;
-			for(int i = 0; i < 3; i++)refracted_ray.origin[i] = ray->origin[i] + ray->normal[i] * (info->t + EPSILON);
+			for(int i = 0; i < 3; i++)refracted_ray.origin[i] = incident->origin[i] + incident->normal[i] * (info->t + EPSILON);
 			if(intersection_ray_scene(&refracted_ray, scene, &refraction_info))
 			{
 				vector_copy(refraction_info.scene.colour, refr_col);
@@ -59,12 +59,12 @@ void object_calculate_refracted_colour( object_t *object, scene_t *scene, inters
 		}
 		else
 		{
-			object_calculate_reflected_colour(object, scene, ray, info, refl_col);
+			object_calculate_reflected_colour(object, scene, info);
 		}
 
 		for(int i = 0; i < 3; i++)
 		{
-			colour_out[i] = (1.0 - r) * refr_col[i] + r * refl_col[i];
+			info->scene.colour[i] = (1.0 - r) * refr_col[i] + r * refl_col[i];
 		}
 	}
 }
@@ -203,13 +203,14 @@ static void pmedia_calculate_direct_illumination(object_t *o, scene_t *scene, ra
 	}
 }
 
-void object_calculate_pmedia_colour( object_t *o, scene_t *scene, intesection_t *info)
+void object_calculate_pmedia_colour( object_t *o, scene_t *scene, intersection_t *info)
 {
 	double x0[3];
-	maths_calculate_intersection(ray, info->t, x0, 1);
+	ray_t *incident = &info->incident;
+	maths_calculate_intersection(incident, info->t, x0, 1);
 	ray_t fog_ray;
 	vector_copy(x0, fog_ray.origin);
-	vector_copy(ray->normal, fog_ray.normal);
+	vector_copy(incident->normal, fog_ray.normal);
 	intersection_t temp;
 	//Calculate where we stop doing the marching.
 	if(intersection_photon_scene(&fog_ray, scene, &temp))
@@ -227,41 +228,44 @@ void object_calculate_pmedia_colour( object_t *o, scene_t *scene, intesection_t 
 		vector_copy(fog_ray.normal, exit_ray.normal);
 		if(intersection_ray_scene(&exit_ray, scene, &temp))
 		{
-			colour_out[0] = red * temp.scene.colour[0] + direct_illumination[0];
-			colour_out[1] = red * temp.scene.colour[1] + direct_illumination[1];
-			colour_out[2] = red * temp.scene.colour[2] + direct_illumination[2];
+			info->scene.colour[0] = red * temp.scene.colour[0] + direct_illumination[0];
+			info->scene.colour[1] = red * temp.scene.colour[1] + direct_illumination[1];
+			info->scene.colour[2] = red * temp.scene.colour[2] + direct_illumination[2];
 		}
 		else
 		{
 			intersection_ray_scene(&fog_ray, scene, &temp);
-			vector_copy(temp.scene.colour, colour_out);
+			vector_copy(temp.scene.colour, info->scene.colour);
 		}
 	}
 	else //Trace the ray normaly.
 	{
 		intersection_ray_scene(&fog_ray, scene, &temp);
-		vector_copy(temp.scene.colour, colour_out);
+		vector_copy(temp.scene.colour, info->scene.colour);
 	}
 }
 
 void object_calculate_diffuse_colour( object_t *object, scene_t *scene, intersection_t *info)
 {
 	double tex[3];
+	double *colour_out =  info->scene.colour;
+	ray_t  *incident   = &info->incident;
 	memset(colour_out, 0x00, sizeof(double) * 3);
 	object_calculate_texture_colour(object, info, tex);
 
-	calculate_diffuse_direct(object,   scene, ray, info, colour_out);
-	calculate_diffuse_indirect(object, scene, ray, info, colour_out);
-	calculate_diffuse_caustic(object,  scene, ray, info, colour_out);
+	calculate_diffuse_direct(object,   scene, incident, info, colour_out);
+	calculate_diffuse_indirect(object, scene, incident, info, colour_out);
+	calculate_diffuse_caustic(object,  scene, incident, info, colour_out);
 
 	colour_out[0] *= tex[0];
 	colour_out[1] *= tex[1];
 	colour_out[2] *= tex[2];
 }
 
-void object_default_shade_func(object_t *o, scene_t *scene, intersection_t *info)
+static void default_shade_func(object_t *object, scene_t *scene, intersection_t *info)
 {
 	double eps = randf(0.0, 1.0);
+	material_t *mat = &object->material;
 	if(eps < mat->av_diff)
 	{
 		object_calculate_diffuse_colour(object, scene, info);
@@ -274,4 +278,47 @@ void object_default_shade_func(object_t *o, scene_t *scene, intersection_t *info
 	{
 		object_calculate_refracted_colour(object, scene, info);
 	}
+}
+
+static int  default_intersection_func(object_t *o, ray_t *ray, intersection_t *info)
+{
+	ERROR("Object Function Not Implemented.\n");
+}
+
+static void default_bounds_func(object_t *o, aabb_t *bounds)
+{
+	ERROR("Object Function Not Implemented.\n");
+}
+
+static void default_normal_func(object_t *o, intersection_t *info, double *normal)
+{
+	ERROR("Object Function Not Implemented.\n");
+}
+
+static void default_tex_func(object_t *o, intersection_t *info, double *tex)
+{
+	ERROR("Object Function Not Implemented.\n");
+}
+
+static void default_print_func(object_t *o)
+{
+	ERROR("Object Function Not Implemented.\n");
+}
+
+static void default_delete_func(object_t *o)
+{
+	ERROR("Object Function Not Implemented.\n");
+}
+
+//Set the default function pointers
+void object_init(object_t *o)
+{
+	o->shade        = default_shade_func;
+	o->intersection = default_intersection_func;
+	o->get_bounds   = default_bounds_func;
+	o->get_normal   = default_normal_func;
+	o->get_tex      = default_tex_func;
+	o->shade        = default_shade_func;
+	o->print        = default_print_func;
+	o->delete       = default_delete_func;
 }

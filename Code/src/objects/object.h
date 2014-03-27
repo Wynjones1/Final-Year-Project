@@ -41,6 +41,6 @@ void object_calculate_pmedia_colour(    object_t *o, scene_t *s, intersection_t 
 
 void object_calculate_texture_colour(   object_t *o, intersection_t *info, double colour_out[3]);
 
-void object_default_shade_func(object_t *o, scene_t *scene, intersection_t *info);
+void object_init(object_t *o);
 
 #endif

@@ -397,6 +397,7 @@ mesh_t *mesh_read(const char *filename)
 {
 	FILE *fp = OPEN(filename, "r");
 	mesh_t *mesh = calloc(1, sizeof(mesh_t));
+	object_init((object_t*)mesh);
 	char buf[1024];
 	char mat_buffer[1024];
 	mesh->normals               = NULL;

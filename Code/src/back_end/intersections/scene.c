@@ -7,8 +7,8 @@ int intersection_ray_scene(ray_t *ray, scene_t *scene, intersection_t *info)
 	object_t **objects= (object_t**) list_data(scene->objects);
 	intersection_t temp;
 	int num_objects = list_size(scene->objects);
-	int retval = 0;
-	info->t = INFINITY;
+	int retval      = 0;
+	info->t         = INFINITY;
 
 	for(int i = 0; i < num_objects; i++)
 	{
@@ -20,6 +20,7 @@ int intersection_ray_scene(ray_t *ray, scene_t *scene, intersection_t *info)
 		}
 	}
 
+	info->incident  = *ray;
 	memset(info->scene.colour, 0x00, sizeof(double) * 3);
 	if(retval) //Calculate the output colour.
 	{
