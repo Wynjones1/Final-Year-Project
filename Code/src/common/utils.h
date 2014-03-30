@@ -36,4 +36,20 @@ FILE *open_file(const char *filename, const char *mode, const char *file, int li
 #define VERBOSE(format, ...) print_verbose(format, ##__VA_ARGS__);
 #define OPEN(filename, mode) open_file(filename, mode, __FILE__, __LINE__);
 
+/*
+#define BREAKPOINT(cond)              \
+	if(cond)                          \
+	{                                 \
+	asm("0:"                          \
+	".pushsection embed-breakpoints;" \
+	".quad 0b;"                       \
+	".popsection;")                   \
+	}
+*/
+
+#define BREAKPOINT(cond)\
+	if(cond)\
+	{\
+		asm volatile ("int3;");\
+	}
 #endif

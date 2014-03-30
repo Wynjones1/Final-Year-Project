@@ -1,6 +1,7 @@
 #include "sphere.h"
 #include <stdlib.h>
 #include "intersection.h"
+#include "photon.h"
 #include "vector.h"
 #include <math.h>
 #include "utils.h"
@@ -81,12 +82,28 @@ static int pmedia_intersection(sphere_t *s, ray_t *r, intersection_t *info)
 	//Are we inside the participating media?
 	if(vector_distance(r->origin, s->origin) < s->r)
 	{
-		info->t = next_dist(s->material.av_ext);
-		return 1;
+		double t = next_dist(s->material.av_ext);
+		double new_origin[] =
+		{
+			r->origin[0] + t * r->normal[0],
+			r->origin[1] + t * r->normal[1],
+			r->origin[2] + t * r->normal[2],
+		};
+		if(vector_distance(new_origin, s->origin) < s->r)
+		{
+			info->t = t;
+			return 1;
+		}
+		return 0;
 	}
 	else
 	{
-		return intersection(s, r, info);
+		if(intersection(s, r, info))
+		{
+			info->t += EPSILON;
+			return 1;
+		}
+		return 0;
 	}
 }
 
@@ -97,12 +114,23 @@ static void pmedia_direct(object_t *object, double x[3], scene_t *scene, interse
 	for(int i = 0; i < num_lights; i++)
 	{
 		double l = vector_distance(x, lights[i]->origin);
-		//TODO:Cae where we exit the medium
+		//TODO:Case where we exit the medium
 		double atten = exp(-l * object->material.av_ext);
-		info->scene.colour[0] += object->material.v_ext * atten * lights[i]->power[0]/ (4 * PI * l * l);
-		info->scene.colour[1] += object->material.v_ext * atten * lights[i]->power[1]/ (4 * PI * l * l);
-		info->scene.colour[2] += object->material.v_ext * atten * lights[i]->power[2]/ (4 * PI * l * l);
+		info->scene.colour[0] += info->t * object->material.av_ext * atten * lights[i]->power[0]/ (4 * PI * l * l);
+		info->scene.colour[1] += info->t * object->material.av_ext * atten * lights[i]->power[1]/ (4 * PI * l * l);
+		info->scene.colour[2] += info->t * object->material.av_ext * atten * lights[i]->power[2]/ (4 * PI * l * l);
 	}
+}
+
+static void pmedia_indirect(object_t *object, double x[3], scene_t *scene, intersection_t *info)
+{
+#if PMAP
+	double inten[] = {0.0, 0.0, 0.0};
+	photon_map_estimate_radiance_volume(scene->volume, x, info->incident.normal, inten);
+	info->scene.colour[0] += inten[0];
+	info->scene.colour[1] += inten[1];
+	info->scene.colour[2] += inten[2];
+#endif
 }
 
 static void pmedia_shade(object_t *object, scene_t *scene, intersection_t *info)
@@ -115,10 +143,12 @@ static void pmedia_shade(object_t *object, scene_t *scene, intersection_t *info)
 	intersection_t temp;
 	//Calculate the radiance from the light sources.
 	pmedia_direct(object, new_ray.origin, scene, info);
+	//Calculate the radiance from the photon map.
+	pmedia_indirect(object, new_ray.origin, scene, info);
 	//Calculate the radiance along the path.
 	if(intersection_ray_scene(&new_ray, scene, &temp))
 	{
-		double attenuation = exp(- info->t * object->material.av_ext);
+		double attenuation = exp(-info->t * object->material.av_ext);
 		info->scene.colour[0] += attenuation * temp.scene.colour[0];
 		info->scene.colour[1] += attenuation * temp.scene.colour[1];
 		info->scene.colour[2] += attenuation * temp.scene.colour[2];

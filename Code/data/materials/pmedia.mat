@@ -1,4 +1,4 @@
 pmedia 1
 diffuse 1.0 1.0 1.0
-scatter    0 0 0
-absorption 0.05 0.05 0.05
+scatter    1 1 1
+absorption 1 1 1

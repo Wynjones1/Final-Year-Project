@@ -118,8 +118,10 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 	maths_calculate_intersection(ray, info->t, diffuse_ray.origin, -1);
 #if FAST_DIFFUSE
 	double inten[3] = {0, 0, 0};
-	photon_map_estimate_radiance(scene->global, x, normal, inten);
-	vector_add(colour_out, inten, colour_out);
+	photon_map_estimate_radiance(scene->global, diffuse_ray.origin, normal, inten);
+	colour_out[0] += inten[0];
+	colour_out[1] += inten[1];
+	colour_out[2] += inten[2];
 #else
 	double sample_col[3] = {0, 0, 0};
 	int num_samples = 100;
@@ -173,75 +175,6 @@ void calculate_diffuse_caustic( object_t *object, scene_t *scene, ray_t *ray,
 	colour_out[1] += inten[1];
 	colour_out[2] += inten[2];
 #endif
-}
-
-static void pmedia_calculate_radiance(object_t *o, scene_t *scene, double x[3], light_t *l, double out[3])
-{
-	double dist = 0.005 / vector_distance(x, l->origin);
-	out[0] += dist;
-	out[1] += dist;
-	out[2] += dist;
-}
-
-static void pmedia_calculate_direct_illumination(object_t *o, scene_t *scene, ray_t *ray, double t, double out[3])
-{
-	double    dx         = 0.01;
-	int       num_lights = list_size(scene->lights);
-	light_t **lights     = list_data(scene->lights);
-	double x[3];
-	for(double t0 = 0.0; t0 < t; t0 += dx)
-	{
-		x[0] = ray->origin[0] + t0 * ray->normal[0];
-		x[1] = ray->origin[1] + t0 * ray->normal[1];
-		x[2] = ray->origin[2] + t0 * ray->normal[2];
-		double temp[3] = {0.0, 0.0, 0.0};
-		for(int i = 0; i < num_lights; i++)
-		{
-			pmedia_calculate_radiance(o, scene, x, lights[i], out);
-		}
-		//Attenuate the radiance.
-		vector_add(out, temp, out);
-	}
-}
-
-void object_calculate_pmedia_colour( object_t *o, scene_t *scene, intersection_t *info)
-{
-	double x0[3];
-	ray_t *incident = &info->incident;
-	maths_calculate_intersection(incident, info->t, x0, 1);
-	ray_t fog_ray;
-	vector_copy(x0, fog_ray.origin);
-	vector_copy(incident->normal, fog_ray.normal);
-	intersection_t temp;
-	//Calculate where we stop doing the marching.
-	if(intersection_photon_scene(&fog_ray, scene, &temp))
-	{
-		double x1[3];
-		maths_calculate_intersection(&fog_ray, temp.t, x1, 1);
-		double d = vector_distance(x0, x1);
-		double red = exp(-o->material.av_ext * d);
-
-		double direct_illumination[3] = {0.0, 0.0, 0.0};
-		pmedia_calculate_direct_illumination(o, scene, &fog_ray, temp.t, direct_illumination);
-
-		ray_t exit_ray;
-		vector_copy(x1, exit_ray.origin);
-		vector_copy(fog_ray.normal, exit_ray.normal);
-		if(intersection_ray_scene(&exit_ray, scene, &temp))
-		{
-			info->scene.colour[0] = red * temp.scene.colour[0] + direct_illumination[0];
-			info->scene.colour[1] = red * temp.scene.colour[1] + direct_illumination[1];
-			info->scene.colour[2] = red * temp.scene.colour[2] + direct_illumination[2];
-		}
-		else
-		{
-			intersection_ray_scene(&fog_ray, scene, &temp);
-			vector_copy(temp.scene.colour, info->scene.colour);
-		}
-	}
-	else //Trace the ray normaly.
-	{
-	}
 }
 
 void object_calculate_diffuse_colour( object_t *object, scene_t *scene, intersection_t *info)

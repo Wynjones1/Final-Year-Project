@@ -1,3 +1,2 @@
-file ./data/ply/big_plane.ply
-material ./data/materials/diffuse_white.mat
-translate 0 -1 0
+file ./data/ply/plane.ply
+material ./data/materials/checker_tex.mat

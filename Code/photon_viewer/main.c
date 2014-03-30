@@ -36,18 +36,14 @@ void Render(SDL_Renderer *displayRenderer, GLuint list)
 
 void ProcessEvents(void)
 {
-	while(SDL_PollEvent(&event))
-	{
-		switch(event.type)
+		SDL_Event ev;
+		while(SDL_PollEvent(&ev))
 		{
-			case SDL_QUIT:
-				SDL_Quit();
+			if((ev.type == SDL_KEYDOWN && ev.key.keysym.sym == SDLK_ESCAPE) || ev.type == SDL_QUIT)
+			{
 				exit(0);
-				break;
-			default:
-				break;
+			}
 		}
-	}
 }
 
 void MainLoop(SDL_Renderer *r, int n, float *points)
@@ -65,7 +61,7 @@ void MainLoop(SDL_Renderer *r, int n, float *points)
 int main(int argc, char *argv[])
 {
 	int num = 0;
-	char *filename = "../photon_map0.pmap";
+	char *filename = "../photon_map2.pmap";
 	float *points = reader_points(filename, &num);
 	SDL_Renderer *render = initGL();
 	MainLoop(render, num, points);

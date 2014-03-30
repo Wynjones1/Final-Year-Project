@@ -46,6 +46,7 @@ static void store_photon(intersection_t *info, ray_t *ray, int light, double pow
 	output_data.diffuse       = diffuse;
 	output_data.last          = false;
 	output_data.photon.light  = light;
+	output_data.volume        = false;
 	queue_write(output, &output_data);
 }
 
@@ -103,6 +104,7 @@ static void store_photon_volume(ray_t *ray, int light, double power[0], queue_t 
 
 	output_data.specular      = true;
 	output_data.diffuse       = true;
+	output_data.volume        = true;
 	output_data.last          = false;
 	output_data.photon.light  = light;
 	queue_write(output, &output_data);
@@ -111,6 +113,7 @@ static void store_photon_volume(ray_t *ray, int light, double power[0], queue_t 
 //TODO: make general and move to object files.
 int point_in_object(object_t *o, double x[3])
 {
+	return 0;
 	sphere_t *s = (sphere_t *)o;
 	double v[3];
 	v[0] = x[0] - s->origin[0];
@@ -119,63 +122,51 @@ int point_in_object(object_t *o, double x[3])
 	return vector_length(v) < s->r;
 }
 
-static double next_dist(double extinction)
+double next_dist(double extinction)
 {
 	return -log(randf(0.0, 1.0)) / extinction;
 }
 
+/* Called when a photon interacts with a participating media */
 static int trace_pmedia(scene_t *scene, intersection_t *info, ray_t *ray, object_t *o, int light,
 						   double power[3], bool specular, bool diffuse, bool specular_only, queue_t *output)
 {
 	ray_t new;
-	intersection_t temp;
 	memcpy(new.normal, ray->normal, sizeof(double) * 3);
 	new.depth = ray->depth - 1;
-	maths_calculate_intersection(ray, info->t, new.origin, 1);
-	int num_scatters = 10;
-	int n = 0;
-	if(intersection_photon_scene(&new, scene, &temp))
-	{
-		material_t *m = &o->material;
-		double ext = (m->extinction[0] + m->extinction[1] + m->extinction[2]) / 3.0;
-		double albedo = m->av_albedo;
-		albedo = 0.5;
-		ext = 1.0;
-		double dx = next_dist(ext);
-		while(num_scatters && point_in_object(o, new.origin))
-		{
-			//Store the photon in the map.
-			store_photon_volume(&new, light, power, output);
-			n++;
-			//Increment the location
-			new.origin[0] = new.origin[0] + dx * new.normal[0];
-			new.origin[1] = new.origin[1] + dx * new.normal[1];
-			new.origin[2] = new.origin[2] + dx * new.normal[2];
+	maths_calculate_intersection(ray, info->t, new.origin, 0);
 
-			if(point_in_object(o, new.origin))
-			{
-				//Decide if we absorb or scatter.
-				double eps = randf(0.0, 1.0);
-				if(eps <= albedo)
-				{
-					//Create a new direction according the the phase function.
-					//Scale the photon power.
-					phase_function(new.normal, new.normal);
-					num_scatters -= 1;
-					dx = next_dist(ext);
-				}
-				else
-				{
-					return n;
-				}
-			}
-			else
-			{
-				//Trace the ray as usual.
-				return trace_photon(scene, &new, light, power, specular, true, specular_only, output);
-			}
-		}
-		return n;
+	static FILE *fp;
+	if(!fp)
+	{
+		fp = fopen("debug.txt", "w");
+	}
+
+	vector_fprint(fp, ray->origin);
+	fflush(fp);
+
+	//We assume the point is in the pmedia at this point.
+	material_t *m = &o->material;
+	double albedo = m->av_albedo;
+	//Store the photon in the map.
+	store_photon_volume(&new, light, power, output);
+
+	//BREAKPOINT(fabs(new.origin[0]) > 0.5 || fabs(new.origin[1]) > 0.5 || fabs(new.origin[2] > 0.5));
+	//Decide if we absorb or scatter.
+	double eps = randf(0.0, 1.0);
+	if(eps <= albedo)
+	{
+		//Create a new direction according the the phase function.
+		double new_power[3];
+		vector_copy(power, new_power);
+		phase_function(new.normal, new.normal);
+		//TODO:Scale the photon power.
+		//Continue the ray on its path.
+		return 1 + trace_photon(scene, &new, light, power, specular, true, specular_only, output);
+	}
+	else
+	{
+		return 1;
 	}
 	return 0;
 }

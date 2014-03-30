@@ -38,6 +38,7 @@ struct pmap_data
 {
 	list_t *global;
 	list_t *caustic;
+	list_t *volume;
 };
 
 
@@ -145,8 +146,11 @@ static void gen_photon_map(scene_t *scene, int num_to_gen, bool caustic, struct 
 		}
 		else
 		{
-		#if 1
-			if(caustic)
+			if(output.volume)
+			{
+				list_push(out->volume, &output.photon);
+			}
+			else if(caustic)
 			{
 				list_push(out->caustic, &output.photon);
 			}
@@ -154,19 +158,6 @@ static void gen_photon_map(scene_t *scene, int num_to_gen, bool caustic, struct 
 			{
 				list_push(out->global, &output.photon);
 			}
-		#else
-			if(output.specular && !output.diffuse)
-			{
-				list_push(out->caustic, &output.photon);
-			}
-			else if(1)//output.diffuse)
-			{
-				list_push(out->global, &output.photon);
-			}
-			static int count;
-			progress_bar(count, g_config.photons, 40);
-			count++;
-		#endif
 		}
 	}
 
@@ -183,6 +174,7 @@ struct pmap_data gen_photons(scene_t *scene, int num_photons)
 	struct pmap_data out;
 	out.global  = list(photon_t);
 	out.caustic = list(photon_t);
+	out.volume  = list(photon_t);
 
 	int num_lights = list_size(scene->lights);
 	int emitted_count[num_lights];
@@ -191,6 +183,7 @@ struct pmap_data gen_photons(scene_t *scene, int num_photons)
 	memset(emitted_count, 0x00, sizeof(int) * num_lights);
 	gen_photon_map(scene, g_config.photons, false, &out, emitted_count);
 	scale_photons(out.global , emitted_count);
+	scale_photons(out.volume, emitted_count);
 
 #if CAUSTICS
 	VERBOSE("Generating Caustic Photon Map.\n");
@@ -209,6 +202,7 @@ void photon_map_build(scene_t *scene, int num_photons)
 	struct pmap_data photons = gen_photons(scene, num_photons);
 	scene->global            = photon_map_balance(photons.global);
 	scene->caustic           = photon_map_balance(photons.caustic);
+	scene->volume            = photon_map_balance(photons.volume);
 }
 
 void photon_delete(photon_t *photon)

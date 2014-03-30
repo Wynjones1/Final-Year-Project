@@ -19,6 +19,7 @@ struct scene
 	camera_t     *camera;
 	photon_map_t *global;
 	photon_map_t *caustic;
+	photon_map_t *volume;
 };
 
 typedef void (*pixel_update_func)(void *data, int x, int y, uint32_t rgb);

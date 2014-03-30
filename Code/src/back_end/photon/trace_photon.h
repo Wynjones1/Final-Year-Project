@@ -8,9 +8,10 @@
 
 struct thread_output_data
 {
-	int      last     : 1;
-	int      diffuse  : 1;
-	int      specular : 1;
+	char     last     : 1;
+	char     diffuse  : 1;
+	char     specular : 1;
+	char     volume   : 1;
 	photon_t photon;
 };
 

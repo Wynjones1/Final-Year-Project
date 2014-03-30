@@ -1,4 +1,5 @@
 #include "photon.h"
+#include "utils.h"
 
 void photon_map_estimate_radiance(photon_map_t *map, double x[3], double normal[3], double radiance[3])
 {
@@ -37,6 +38,7 @@ void photon_map_estimate_radiance_volume(photon_map_t *map, double x[3], double 
 
 		double dist = photons[n - 1].dist;
 		double inv_pi_dist = (4.0  / 3.0) * (PI * dist * sqrt(dist));
+		//phase function TODO:Add generic phase function.
 		radiance[0] *= inv_pi_dist;
 		radiance[1] *= inv_pi_dist;
 		radiance[2] *= inv_pi_dist;
