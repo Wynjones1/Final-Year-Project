@@ -13,7 +13,13 @@ static int trace_reflected(scene_t *scene, intersection_t *info, ray_t *ray, obj
 	reflected_ray.depth = ray->depth - 1;
 	maths_calculate_intersection(ray, info->t, reflected_ray.origin, -1);
 	maths_calculate_reflected_ray(ray->normal, normal, reflected_ray.normal);
-	return trace_photon(scene, &reflected_ray, light, power, true, diffuse, specular_only, output);
+	//Scale the power of the photon.
+	double temp[3];
+	material_t *mat = &o->material;
+	temp[0] = power[0] * (mat->reflectivity[0] / mat->av_refl);
+	temp[1] = power[1] * (mat->reflectivity[1] / mat->av_refl);
+	temp[2] = power[2] * (mat->reflectivity[2] / mat->av_refl);
+	return trace_photon(scene, &reflected_ray, light, temp, true, diffuse, specular_only, output);
 }
 
 static int trace_refracted(scene_t *scene, intersection_t *info, ray_t *ray, object_t *o, int light,
@@ -26,7 +32,13 @@ static int trace_refracted(scene_t *scene, intersection_t *info, ray_t *ray, obj
 	maths_calculate_intersection(ray, info->t, refracted_ray.origin, 1);
 	if(maths_calculate_refracted_ray(ray->normal, normal, 1.0, g_config.time, refracted_ray.normal))
 	{
-		return trace_photon(scene, &refracted_ray, light, power, true, diffuse, specular_only, output);
+		//Scale the power of the photon.
+		double temp[3];
+		material_t *mat = &o->material;
+		temp[0] = power[0] * (mat->refractivity[0] / mat->av_refr);
+		temp[1] = power[1] * (mat->refractivity[1] / mat->av_refr);
+		temp[2] = power[2] * (mat->refractivity[2] / mat->av_refr);
+		return trace_photon(scene, &refracted_ray, light, temp, true, diffuse, specular_only, output);
 	}
 	else
 	{
@@ -54,12 +66,9 @@ static int trace_diffuse(scene_t *scene, intersection_t *info, ray_t *ray, objec
 						   double power[3], bool specular, bool diffuse, bool specular_only, queue_t *output)
 {
 	int ret = 0;
-	//Russian roulette
-	//TODO:Remove the random stuff, its handled above.
 	double col[3];
 	double normal[3];
 	object_calculate_texture_colour(o, info, col);
-	double e = randf(0.0, 1.0);
 	double pref = (col[0] + col[1] + col[2]) / 3.0;
 
 	//Store the photon.
@@ -69,23 +78,30 @@ static int trace_diffuse(scene_t *scene, intersection_t *info, ray_t *ray, objec
 		ret += 1;
 	}
 
-	//Send the next bounce
-	if(e < pref && !specular_only)
-	{
-		CALL(o, get_normal, info, normal);
-		ray_t diffuse_ray;
-		maths_calculate_intersection(ray, info->t, diffuse_ray.origin, -1);
-		sample_hemi_cosine(normal, diffuse_ray.normal);
-		diffuse_ray.depth = ray->depth - 1;
-		double temp_col[3];
-		memcpy(temp_col, power, sizeof(double) * 3);
-		temp_col[0] *= col[0] / pref;
-		temp_col[1] *= col[1] / pref;
-		temp_col[2] *= col[2] / pref;
-		ret += trace_photon(scene, &diffuse_ray, light, temp_col, specular, true, specular_only, output);
-	}
+	CALL(o, get_normal, info, normal);
+	ray_t diffuse_ray;
+	maths_calculate_intersection(ray, info->t, diffuse_ray.origin, -1);
+	sample_hemi_cosine(normal, diffuse_ray.normal);
+	diffuse_ray.depth = ray->depth - 1;
+	double temp_col[3];
+	memcpy(temp_col, power, sizeof(double) * 3);
+	temp_col[0] *= col[0] / pref;
+	temp_col[1] *= col[1] / pref;
+	temp_col[2] *= col[2] / pref;
+	ret += trace_photon(scene, &diffuse_ray, light, temp_col, specular, true, specular_only, output);
 
 	return ret;
+}
+
+static int absorb_photon(scene_t *scene, intersection_t *info, ray_t *ray, object_t *o, int light,
+						   double power[3], bool specular, bool diffuse, bool specular_only, queue_t *output)
+{
+	if(!specular_only || specular)
+	{
+		store_photon(info, ray, light, power, specular, diffuse, output);
+		return 1;
+	}
+	return 0;
 }
 
 static void phase_function(double dir[3], double out[3])
@@ -136,15 +152,6 @@ static int trace_pmedia(scene_t *scene, intersection_t *info, ray_t *ray, object
 	new.depth = ray->depth - 1;
 	maths_calculate_intersection(ray, info->t, new.origin, 0);
 
-	static FILE *fp;
-	if(!fp)
-	{
-		fp = fopen("debug.txt", "w");
-	}
-
-	vector_fprint(fp, ray->origin);
-	fflush(fp);
-
 	//We assume the point is in the pmedia at this point.
 	material_t *m = &o->material;
 	double albedo = m->av_albedo;
@@ -160,7 +167,6 @@ static int trace_pmedia(scene_t *scene, intersection_t *info, ray_t *ray, object
 		double new_power[3];
 		vector_copy(power, new_power);
 		phase_function(new.normal, new.normal);
-		//TODO:Scale the photon power.
 		//Continue the ray on its path.
 		return 1 + trace_photon(scene, &new, light, power, specular, true, specular_only, output);
 	}
@@ -182,6 +188,11 @@ int trace_photon(scene_t *scene, ray_t *ray, int light, double power[3], bool sp
 		{
 			object_t *o = info.scene.object;
 			material_t *mat = &o->material;
+
+			double col[3];
+			object_calculate_texture_colour(o, &info, col);
+			double pref = (col[0] + col[1] + col[2]) / 3.0;
+
 			if(mat->pmedia)
 			{
 				ret += trace_pmedia(scene, &info, ray, o, light, power, specular, diffuse, specular_only, output);
@@ -197,9 +208,13 @@ int trace_photon(scene_t *scene, ray_t *ray, int light, double power[3], bool sp
 				{
 					ret += trace_refracted(scene, &info, ray, o, light, power, diffuse, specular_only, output);
 				}
-				else if(eps < (mat->av_refl + mat->av_refr + mat->av_diff))
+				else if(eps < (mat->av_refl + mat->av_refr + pref))
 				{
 					ret += trace_diffuse(scene, &info, ray, o, light, power, specular, diffuse, specular_only, output);
+				}
+				else
+				{
+					ret += absorb_photon(scene, &info, ray, o, light, power, specular, diffuse, specular_only, output);
 				}
 			}
 		}

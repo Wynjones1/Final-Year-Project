@@ -59,7 +59,7 @@ void maths_calculate_intersection(ray_t *ray, double t, double out[3], int offse
 	assert(-1 <= offset && offset <= 1);
 	for(int i = 0; i < 3; i++)
 	{
-		out[i] = ray->origin[i] + ray->normal[i] * (t + offset * BIG_EPSILON);
+		out[i] = ray->origin[i] + ray->normal[i] * (t + offset * EPSILON);
 	}
 }
 

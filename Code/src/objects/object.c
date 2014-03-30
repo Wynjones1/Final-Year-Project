@@ -124,7 +124,7 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 	colour_out[2] += inten[2];
 #else
 	double sample_col[3] = {0, 0, 0};
-	int num_samples = 100;
+	int num_samples = 25;
 
 	for(int i = 0; i < num_samples; i++)
 	{
@@ -143,9 +143,9 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 			CALL(new_obj, get_normal, &temp, normal);
 			photon_map_estimate_radiance(scene->global, x, normal, inten);
 
-			sample_col[0] += tex[0] * inten[0];
-			sample_col[1] += tex[1] * inten[1];
-			sample_col[2] += tex[2] * inten[2];
+			sample_col[0] += (tex[0] / PI) * inten[0];
+			sample_col[1] += (tex[1] / PI) * inten[1];
+			sample_col[2] += (tex[2] / PI) * inten[2];
 		}
 	}
 
@@ -171,9 +171,9 @@ void calculate_diffuse_caustic( object_t *object, scene_t *scene, ray_t *ray,
 	//We are directly sampling the radiance due to caustics.
 	photon_map_estimate_radiance(scene->caustic, x, normal, inten);
 
-	colour_out[0] += inten[0];
-	colour_out[1] += inten[1];
-	colour_out[2] += inten[2];
+	colour_out[0] += inten[0] / PI;
+	colour_out[1] += inten[1] / PI;
+	colour_out[2] += inten[2] / PI;
 #endif
 }
 
@@ -185,7 +185,9 @@ void object_calculate_diffuse_colour( object_t *object, scene_t *scene, intersec
 	memset(colour_out, 0x00, sizeof(double) * 3);
 	object_calculate_texture_colour(object, info, tex);
 
+#if !FAST_DIFFUSE
 	calculate_diffuse_direct(object,   scene, incident, info, colour_out);
+#endif
 	calculate_diffuse_indirect(object, scene, incident, info, colour_out);
 	calculate_diffuse_caustic(object,  scene, incident, info, colour_out);
 
