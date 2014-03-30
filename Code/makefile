@@ -19,8 +19,8 @@ endif
 ###################################
 #     Photon mapping defines.     #
 ###################################
-FAST_DIFFUSE      := 0
-CAUSTICS          := 1
+FAST_DIFFUSE      := 1
+CAUSTICS          := 0
 
 ifeq ($(FAST_DIFFUSE), 1)
 	CFLAGS += -DFAST_DIFFUSE

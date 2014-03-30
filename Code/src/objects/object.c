@@ -100,6 +100,9 @@ void calculate_diffuse_direct( object_t *object, scene_t *scene, ray_t *ray,
 	for(int i = 0; i < num_lights; i++)
 	{
 		light_calculate_radiance(lights[i], scene, x, n, radiance);
+		radiance[0] /= PI;
+		radiance[1] /= PI;
+		radiance[2] /= PI;
 		vector_add(colour_out, radiance, colour_out);
 	}
 }
@@ -118,10 +121,10 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 	maths_calculate_intersection(ray, info->t, diffuse_ray.origin, -1);
 #if FAST_DIFFUSE
 	double inten[3] = {0, 0, 0};
-	photon_map_estimate_radiance(scene->global, diffuse_ray.origin, normal, inten);
-	colour_out[0] += inten[0];
-	colour_out[1] += inten[1];
-	colour_out[2] += inten[2];
+	photon_map_estimate_radiance(scene->global, diffuse_ray.origin, diffuse_ray.normal, inten);
+	colour_out[0] += inten[0] / PI;
+	colour_out[1] += inten[1] / PI;
+	colour_out[2] += inten[2] / PI;
 #else
 	double sample_col[3] = {0, 0, 0};
 	int num_samples = 25;

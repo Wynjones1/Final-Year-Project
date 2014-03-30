@@ -188,6 +188,10 @@ int trace_photon(scene_t *scene, ray_t *ray, int light, double power[3], bool sp
 		{
 			object_t *o = info.scene.object;
 			material_t *mat = &o->material;
+#if 0
+			absorb_photon(scene, &info, ray, o, light, power, specular, diffuse, specular_only, output);
+			return 1;
+#endif
 
 			double col[3];
 			object_calculate_texture_colour(o, &info, col);
