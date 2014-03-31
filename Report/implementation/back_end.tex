@@ -1,155 +1,33 @@
 As the back end is responsible for performing the image synthesis it contains the majority of the code that requires disscussion.
+\input{./implementation/photon_map.tex}
 
-\subsection{Photon Emission(3 pages)}
-Once the scene data has been created it is passed to the back-end, the first step that is performed is photon gathering,
-in this stage photons are emmited from all light sources in the scene and are stored in one of the photon maps for use
-in the raytracing stage of the algoithm, as discussed in the design chapter the emission of the photons is performed in
-parralell using pthreads, each thread is started with a data structure that contains the scene into which the photons
-are being emmited from and the number of photons the thread is responsible for storing in the photon map, for each photon
-that is to be stored we write to a queue that is read by the main thread. along with the photon traced a summary of the
-path of the photon is written in the queue. Once all of the photons have been emitted a flag is set to inform that the
-thread is finished, this is sent along the same channel as the photons. The number of photons that are emmited is determined
-by the power of each of the lights, as a result lights with higher power will have more photons emitted for that light as
-we need to be able to calculate the contribution from these light sources with more accuracy than lights with lower power
-as they contribure more to the illuminaion of the scene.
-
-\subsection{Photon Generation}
-In order to emit photons into the scene we need a method of creating photons, this is implemented in the light defintion,
-each light object has a associated function that will produce a random photon from the light that is consitent with the
-type of light, for instance a point light will generate a photon with origin exactlu at the origin of the light source and
-in a random direction, an area light produces a photon with origin on the area of the light with direction taken from a
-cosine weighted hemisphere distribution in the direction of the normal of the light. Each photon that is emitted from the
-light sources begin with the full power of the light source, this will be scaled by the number of emitted photons after
-all photons have been gathered.
-
-As discussed in \todo{Jensen Citation} at each interaction with a non-specular surface the power of the reflected photon
-needs to be scaled by the reflectance of the surface, this would insert many low power into the photon map, he suggests
-using monte carlo sampling and russian roulette to create a photon with probablilty proportional to the reflectance
-of the surface.
-
-Storing the photons is performed at each interaction with a non specular surface, the reason for not storing at specular
-surface is that specular BRDFs contain the dirac delta function as a result the photon map cannot be used to evaluate the
-radiance at this point, we use traditional raytracing to perform the radiance at specular surfaces.
-
-\subsection{Volume Photon Map}
-When tracing the photons through the scene and it intersects with a participating media we begin by transmitting the
-photon into the media based on the surface properties of the media, after this we iterativly scatter the photon in the
-media storing the photon at each of the points of scattering, the scattering is determined by the scattering and
-absorbtion coefficients of the media, the media has a component for each of the colour components, when moving through
-the volume the power of the photon is reduced much like the reduction for reflections at surfaces, like surfaces this
-would end with many low power photons in the map instead we perform importance sampling by modifiing the distance that
-the photon moves through the media inbetween interactions with the media, equation \todo{Add the fucntion and a citation}
-is used for the importance sampling.
-
-\missingfigure{Volume Photon Map}
-
-\missingfigure{Surface Photon Map}
-
-\begin{figure}
-\begin{lstlisting}
-struct thread_output_data
-{
-	char last      : 1;
-	char diffuse   : 1;
-	char specular  : 1;
-	char light     : 5;
-	union
-	{
-		photon_t photon;
-		int      emitted;
-	};
-};
-\end{lstlisting}
-\caption{Output of photon emittion threads}
-\end{figure}
-
-\subsubsection{Algorithmic Overview}
-
-\begin{algorithm}[h!]
-	\KwData{Scene Description}
-	\KwResult{Photon paps for input scene}
-	\For{each light in scene}
-	{
-		TracePhoton(photon);
-	}
-	\caption{Photon mapping algothm}
-\end{algorithm}
-
-\begin{algorithm}[h!]
-	\KwData{Scene Description, Photon}
-	\KwResult{Photon added to photon map}
-	\eIf{photon intersects scene}
-	{
-	
-	}
-	{
-		Discard photon;
-	}
-\caption{TracePhoton}
-\end{algorithm}
-
-\subsection{Photon Data Structure (0.5 page)}
-As noted by Jensen \todo{cite} the need for a compact representation of the individual photons in the photon map is vital
-as it is typical for their to be many thousands to millions of photons in order to perform accurate radiance estimates,
-the initial implementation of the photon map included a naive implementation that used double width floating point values.
-\todo{Analysis for speed}
-
-\subsection{K-D Tree Balancing (1 page)}
-When performing radiance estimations with the photon map we will be performing nearest neighbour searches on points within
-the map, this requires the photon map to be arrainged in a manner such that this search can be performed efficiently.
-In order to do this we store the photon map in a left-balanced k-d tree. A left balanced tree is a tree structure where
-at each level of the tree the depth of the children differs by at most one, \todo{finish the explination of the LEFT balanced tree}
-this allows us to store the photon map in an array with the location of the children in the photon map known implicitly,
-for a photon in position $i$ the children of the photon can be found at the $(2i + 1)^{th}$ and $(2i + 2)^{th}$
-location for the left and right tree respectivly.
-
-\todo{Add the median of median algorithm here}
-
-\begin{figure}
-\centering
-\includegraphics[scale=0.75]{./implementation/left-balanced-tree.png}
-\caption{Left balanced tree and its memory layout}
-\end{figure}
-
-\subsection{Selection Statistic}
-During the balancing procedure we need to partition the tree such that half the elements are less than the median
-this can be seen as finding the $i/2^{th}$ largest element in the list, this can be performed in linear time by using
-the median of medians algorithm \todo{cite}. Below is a comparison for the runnning time of the balancing procedure for
-the nieve selection algorithm and the median of medians algorithm. As we are left-balancing the tree we also cannot
-just take the median of the data, we must adjust the median such that the left half of the tree will fill before the right.
-
-\missingfigure{times for median of median compared}
-
-\subsection{Photon Termination}
-During the photon tracing stage at each of the intersections that are found we must make a choice whether to refect absorb or transmit
-the photon, for purely specular materials the choice is simple, that is we will reflect the photon. For materials that are not purely
-specular such as diffuse materials the choice is less clear, we must take into account the BDRF of the material.
 
 \section{Raytracing (10 pages)}
-\begin{algorithm}[H]
-\For{each pixel in output image}
-{
-	send pixel x, y to thread queue;
-}
-
-finish\_count := 0;
-
-\While{finish\_count != thread\_count}
-{
-	data := read from output queue
-
-	\If{data == pixel\_data}
-	{
-		send pixel data back to front end
-	}
-	\Else
-	{
-		finish\_count := finish\_count + 1;
-	}
-}
-
-\caption{Raytracing Algorithm}
-\end{algorithm}
+\todo{Add the algorithm back in}
+%\begin{algorithm}[H]
+%\For{each pixel in output image}
+%{
+%	send pixel x, y to thread queue;
+%}
+%
+%finish\_count := 0;
+%
+%\While{finish\_count != thread\_count}
+%{
+%	data := read from output queue
+%
+%	\If{data == pixel\_data}
+%	{
+%		send pixel data back to front end
+%	}
+%	\Else
+%	{
+%		finish\_count := finish\_count + 1;
+%	}
+%}
+%
+%\caption{Raytracing Algorithm}
+%\end{algorithm}
 
 \subsection{Algorithmic Overview}
 
@@ -209,8 +87,14 @@ will interpolate the barycentric coordinates for the triangle of intersection, s
 spherical coordinates to generate u,v values.
 
 \subsubsection{Mesh}
+The mesh type is defnined as a list of vertices and triangles constisting of indices into the list of vertices.
+
 \subsubsection{Sphere}
+The sphere type is simply defined as a origin point and radius.
+
 \subsubsection{Participating Media}
+The participating media type is created by applying a participating media materail property to an object, this allows
+for arbitrary geometry to be used as a participating media.
 
 \subsection{K-D Tree Construction}
 In order to satisy requirement TODO:Add the requirement bruteforce methods for raytracing are not acceptable, in order to reduce
@@ -229,6 +113,13 @@ an extensive treatment of the intersection tests mearly a listing of the most no
 \item[kD-tree] As described in TODO:
 \end{description}
 
+\subsection{volume intersection}
+Unlike intersection with all other object types the intersection with a participating media is non deterministic, this is
+due to the fact that the intersection of the ray is determined by the extinction coefficient which gives a probablilty
+of interaction, the depth of the interaction is calculated with equation \todo{add equation}, performing this non-deterministic
+intersection test allows for objects within the medium to be interacted with when performing ray-marching.
+
+\missingfigure{Non-deterministic intersection test}
 \subsection{Photon Mapping}
 For each of the intersection points that are found as a result of the raytracing algorithm we must calculate the global
 illumination at the point, this is performed with the photon maps that are associated with the scene.

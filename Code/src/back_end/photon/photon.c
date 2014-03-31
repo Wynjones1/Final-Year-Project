@@ -200,8 +200,11 @@ void photon_map_build(scene_t *scene, int num_photons)
 {
 	//Create a list of photons for the tree.
 	struct pmap_data photons = gen_photons(scene, num_photons);
+	VERBOSE("Balancing Global Photon Map\n");
 	scene->global            = photon_map_balance(photons.global);
+	VERBOSE("Balancing Caustic Photon Map\n");
 	scene->caustic           = photon_map_balance(photons.caustic);
+	VERBOSE("Balancing Volume Photon Map\n");
 	scene->volume            = photon_map_balance(photons.volume);
 }
 

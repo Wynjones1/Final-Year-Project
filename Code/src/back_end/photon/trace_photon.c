@@ -148,8 +148,8 @@ static int trace_pmedia(scene_t *scene, intersection_t *info, ray_t *ray, object
 						   double power[3], bool specular, bool diffuse, bool specular_only, queue_t *output)
 {
 	ray_t new;
-	memcpy(new.normal, ray->normal, sizeof(double) * 3);
 	new.depth = ray->depth - 1;
+	vector_copy(ray->normal, new.normal);
 	maths_calculate_intersection(ray, info->t, new.origin, 0);
 
 	//We assume the point is in the pmedia at this point.
@@ -176,6 +176,7 @@ static int trace_pmedia(scene_t *scene, intersection_t *info, ray_t *ray, object
 	}
 	return 0;
 }
+
 
 int trace_photon(scene_t *scene, ray_t *ray, int light, double power[3], bool specular,
 				 bool diffuse, bool specular_only, queue_t *output)

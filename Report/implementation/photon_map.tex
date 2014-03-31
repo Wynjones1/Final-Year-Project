@@ -1,0 +1,99 @@
+\section{Photon Map Generation}
+As thousands of photons can potentially be created it makes sense to utilise the hardware that the system is running on, this
+includes multiple cores, the photon emiition is as a result designed to run on multiple threads.
+
+Each thread is responsible for producing a certain proportion of the photons in the scene, once a thread has processed all
+of these photons it will signal to the main thread that it has finished by sending a flag to the output queue the thread also
+updates a global light emission count include the photons that the thread emitted for each of the lights, a seperate count for
+each of the counts is kept as the processing of the threads may not happen at the same time.
+
+\subsection{Photon Emission}
+In order to trace photons into the scene we first need a method of creating photons, this is implemented in the light 
+defintion, each light object has a associated function that will produce a random photon from the light that is consitent with 
+the type of light, for instance a point light will generate a photon with origin exactlu at the origin of the light source and
+in a random direction, an area light produces a photon with origin on the area of the light with direction taken from a
+cosine weighted hemisphere distribution in the direction of the normal of the light. Each photon that is emitted from the
+light sources begin with the full power of the light source, this will be scaled by the number of emitted photons after
+all photons have been gathered.
+
+\subsection{Photon Tracing}
+Photons are traced much like a ray in traditional raytracing, first we calculate the closest intersection point of the photon
+once found the photon interacts with the surface of the object at the point of intersection this interaction can be specular 
+reflection , specular transmission, diffuse reflection or absorbtion, the decision is performed by sampling the reflectance
+properties of the surface. given thre specular reflection, transmission and diffuse reflectance coefficients
+$\rho_{s}, \rho_{t}, \rho_{d}$ of the object we can create a distribution of photon emittion paths (Figure~\ref{fig:rr_dist}) 
+we then take a uniform variable $\xi$ in the range [0, 1).
+
+\begin{figure}
+\includegraphics{./images/russian_roulette_distribution.png}
+\label{fig:rr_dist}
+\caption{Russian roulette distribution}
+\end{figure}
+
+If the photon intersects a surface with non-specular components the photon is stored in the photon map, in the multithreaded
+design this is implemented as writing the photon to the output queue to be handled by the processing thread, this will include
+flags to describe the path that the photon has taken so that the main thread can correctly insert the photon into one of the
+photon maps.
+
+For specular reflection and transmission a photon is created at the point of intersection that has normal in the reflected
+or transmitted direction, as noted by \todo{Jensen Ciration} storing photons at specular surfaces does not add any useful
+information for rendering as the probability of the photon being used in the radiance estimate is zero due to the
+delta function in specular BRDF's
+
+If the photon interacts with a participating medium the photon will begin a random walk inside the medium, this walk
+is determined by the properties of the medium, these being the scattering and absorbtion coefficient, the sum of which
+is called the extinction coefficient, at each point in the random walk the photon is stored and then can either be
+scattered or absorbed, the probability of being scattered is determined by the Albedo $\Lambda$
+
+\missingfigure{random walk}
+
+\begin{equation}
+\Lambda = \frac{\sigma_s}{\sigma_e}
+%\caption{Participating Media Albedo}
+\end{equation}
+
+As discussed by Jensen \todo{cite} the marching can be performed with a set distance and scaling of the photons at each
+step, a more efficient method is to importance sample the distance $\Delta x$ of the next interaction with 
+Equation~\ref{eq:volume_dist_importance}, the scattering of the photon continues until the photon is absorbed, intersects
+with an object in the medium or exits the medium.
+
+\begin{equation}
+\Delta x = \frac{-log(\xi)}{\sigma_t(x)}
+%\caption{Photon marching importance function}
+\label{eq:volum_dist_importance}
+\end{equation}
+
+\subsection{Photon Processing}
+As each thread produces photons they write the photons to a queue, this queue is subsequently read by the main thread where
+the photons will be places into a list bases upon the path that the photon took, for purly specular paths the photons
+will be added to the caustinc photon map, for paths that end with an interaction with a participating media they will be
+added to the volume photon map, all other paths are added to the global photon map. Once all photons have been collected
+into the lists the main thread iterates over the photons and adjusts the photon power by the number of photons emitted by
+the light that emitted the photon. \todo{clean up}
+
+\subsection{K-D Tree Balancing (1 page)}
+When performing radiance estimations with the photon map we will be performing nearest neighbour searches on points within
+the map, this requires the photon map to be arrainged in a manner such that this search can be performed efficiently.
+In order to do this we store the photon map in a left-balanced k-d tree. A left balanced tree is a tree structure where
+at each level of the tree the depth of the children differs by at most one, \todo{finish the explination of the LEFT balanced tree}
+this allows us to store the photon map in an array with the location of the children in the photon map known implicitly,
+for a photon in position $i$ the children of the photon can be found at the $(2i + 1)^{th}$ and $(2i + 2)^{th}$
+location for the left and right tree respectivly.
+
+\missingfigure{KDBalance Algorithm}
+\todo{Add the median of median algorithm here}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.75]{./implementation/left-balanced-tree.png}
+\caption{Left balanced tree and its memory layout}
+\end{figure}
+
+\subsection{Selection Statistic}
+During the balancing procedure we need to partition the tree such that half the elements are less than the median
+this can be seen as finding the $i/2^{th}$ largest element in the list, this can be performed in linear time by using
+the median of medians algorithm \todo{cite}. Below is a comparison for the runnning time of the balancing procedure for
+the nieve selection algorithm and the median of medians algorithm. As we are left-balancing the tree we also cannot
+just take the median of the data, we must adjust the median such that the left half of the tree will fill before the right.
+
+\missingfigure{times for median of median compared}

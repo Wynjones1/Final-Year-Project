@@ -113,7 +113,6 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 #if PMAP
 	//Simulate the first diffuse bounce of the light to estimate the radiance at the point.
 	double normal[3];
-	double x[3];
 	CALL(object, get_normal, info, normal);
 
 	ray_t diffuse_ray;
@@ -128,6 +127,7 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 #else
 	double sample_col[3] = {0, 0, 0};
 	int num_samples = 25;
+	double x[3];
 
 	for(int i = 0; i < num_samples; i++)
 	{
