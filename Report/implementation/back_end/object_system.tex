@@ -1,0 +1,29 @@
+\section{Object System}
+In order to meet requirement \todo(find requirement to ref) the system needs to be able support arbitrary objects descriptions
+that can be traced in the scene, this is implementatied as a structure that contains function pointers that perform functions
+that must be supported by all raytracable objects and the data related to the individual object.
+
+\begin{description}
+\item[normal] returns the normal at a point of intersection.
+\item[bounds] return the bounds for the object.
+\item[texture] return the texture coordinates at a point of intersection
+\item[intersection] returns if a ray intersects a given object.
+\end{description}
+
+By encapsulating the data and the functions performed by the object it is possible to create algorithms on objects in the
+abstract such that the details of the object can be ignored, for instance calculating a reflected ray at a point if intersection
+is a function of only the surface normal at that point, wheither it is a triangle mesh or sphere the same ray will be calculated.
+
+\subsection{Mesh}
+\subsection{Sphere}
+
+\subsection{Participating Media}
+
+\subsection{K-D Tree Construction}
+In order to satisy requirement TODO:Add the requirement bruteforce methods for raytracing are not acceptable, in order to reduce
+to number of intersection tests that are performed I have decided to use the kdtree for the accelleration structure. The
+construction of the kdtree is performed during the initialiseation of the triangle meshes as it is a static data structure, due
+to it being a static data structure their is an advantage to performing more extensive computation in the construction in
+order to create a higher quality of kdtree. TODO:Add sah and analysis. The construction of the tree is 
+
+\subsection{Material Properties}

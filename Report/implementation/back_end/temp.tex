@@ -1,0 +1,51 @@
+\section{Raytracing (10 pages)}
+\todo{Add the algorithm back in}
+%\begin{algorithm}[H]
+%\For{each pixel in output image}
+%{
+%	send pixel x, y to thread queue;
+%}
+%
+%finish\_count := 0;
+%
+%\While{finish\_count != thread\_count}
+%{
+%	data := read from output queue
+%
+%	\If{data == pixel\_data}
+%	{
+%		send pixel data back to front end
+%	}
+%	\Else
+%	{
+%		finish\_count := finish\_count + 1;
+%	}
+%}
+%
+%\caption{Raytracing Algorithm}
+%\end{algorithm}
+
+\subsection{Algorithmic Overview}
+
+\subsection{Threading Model (0.5 pages)}
+As noted in the design section of this document raytracing related rendering methods are inherently easily parrelised as each
+ray can be traced in its own thread, the method that the system uses to distribute the work that is needed to be done is
+based on a producer consumer model whereby the work is fed into a queue of work items that can be read by any of the worker
+threads, in order to perform this a queue implementation was needed, this can be found in the \texttt{queue.c} source file,
+this queue is thread-safe and as such is suitable for this use case. When working with multiple threads it is important
+to prevent as much global state as possible, within the system this is no different and as a rule global variables are not used
+with the exception of the configuration structure, this is due to the fact that after the initial setup of the scene the data
+during the start of the programs execution no data within the structure is permitted to be modified and as such can be read
+safety from any thread. In order to inform each thread that all pixels have been processed a dummy input is sent to each of the
+threads, on reading this input the thread will return.
+
+\missingfigure{Threading Model}
+
+The choice of mulitthreading library that I have used is pthreads. Posix threads are a definition
+of a threading model that allows C programs to be run on muliple threads, pthreads are defined for unix like systems so
+linux and mac os are supported so partially fulfills requirement \todo{add requerement refs}: as windows does not have native
+support for pthreads, there is however an implementation that uses native Windows threads to present the types and functions defined
+by pthreads. As I am using C11 it could be possible to use the threading functionallity that is defined in the standard,
+unfortunatally the support for this feature is largly unsupported (as of \today).
+
+
