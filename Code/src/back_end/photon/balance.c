@@ -96,7 +96,7 @@ void inc_count()
 	pthread_mutex_unlock(&g_count_mutex);
 }
 
-static void *balance_thread(void *_data)
+void *balance_thread(void *_data)
 {
 	queue_t *q = (queue_t*)_data;
 	balance_data_t data;
@@ -117,7 +117,6 @@ static void *balance_thread(void *_data)
 			data.out[data.index].axis      = axis;
 			data.out[data.index].has_left  = left_index  <= data.max_index;
 			data.out[data.index].has_right = right_index <= data.max_index;
-			bounds_t box;
 			if(data.out[data.index].has_left)
 			{
 				out.p             = data.p;

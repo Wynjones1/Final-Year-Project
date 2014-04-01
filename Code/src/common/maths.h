@@ -18,6 +18,9 @@ void   maths_calculate_intersection(ray_t *ray, double t, double out[3], int off
 double maths_calculate_normal(double A[3], double B[3], double out[3]);
 double maths_calculate_t(double origin, double normal, double pos);
 
+void maths_spherical_to_vector(double theta, double phi, double out[3]);
+void maths_vector_to_spherical(double in[3], double *theta, double *phi);
+
 double randf(double min, double max);
 
 #endif

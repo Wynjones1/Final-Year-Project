@@ -42,7 +42,8 @@ static int trace_refracted(scene_t *scene, intersection_t *info, ray_t *ray, obj
 	}
 	else
 	{
-		return trace_reflected(scene, info, ray, o, light, power, diffuse, specular_only, output);
+//		return trace_reflected(scene, info, ray, o, light, power, diffuse, specular_only, output);
+		return 0;
 	}
 }
 
@@ -53,7 +54,10 @@ static void store_photon(intersection_t *info, ray_t *ray, int light, double pow
 
 	vector_copy(ray->normal, output_data.photon.incident);
 	vector_copy(power      , output_data.photon.power);
-
+	static FILE *fp;
+	if(!fp) fp = fopen("debug.txt", "w");
+	vector_fprint(fp, power);
+	fflush(fp);
 	output_data.specular      = specular;
 	output_data.diffuse       = diffuse;
 	output_data.last          = false;

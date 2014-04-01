@@ -98,3 +98,21 @@ double randf(double min, double max)
 #endif
 	return (r * ( max - min) / RAND_MAX) + min;
 }
+
+void maths_spherical_to_vector(double theta, double phi, double out[3])
+{
+	double cp = cosf(phi);
+	double ct = cosf(theta);
+	double sp = sinf(phi);
+	double st = sinf(theta);
+
+	out[0] = st * cp;
+	out[1] = st * sp;
+	out[2] = ct;
+}
+
+void maths_vector_to_spherical(double in[3], double *theta, double *phi)
+{
+	*phi   = atan2(in[1], in[0]);
+	*theta = acos(in[2]);
+}

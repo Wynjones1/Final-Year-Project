@@ -5,6 +5,7 @@
 #include "gui.h"
 #include <stdlib.h>
 
+
 int main(int argc, char **argv)
 {
 	VERBOSE("Starting Raytracer.\n");

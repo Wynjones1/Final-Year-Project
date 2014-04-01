@@ -1,0 +1,29 @@
+\section{Spherical Coordinates}
+\section{Solid Angle}
+\section{Radiance}
+Radiance commonly referers to two quantities, incident radiance and exitance radiance, incident radiance being the radiance
+that fall on a surface, exitance radiance being radiance from a surface (either from reflection or emission)
+
+\section{BRDF}
+\section{The Rendering Equation}
+\section{Lambertian Surfaces}
+\section{Monte-Carlo Methods}
+The rendering equation describes the light transfer as an integral of all directions above the point being evaluated, this
+integral cannot be solved with a closed form solution, as a result we must approximate the value of the integral, to do this
+we use monte-carlo methods. \todo{Add a citation}
+
+\section{Importance Sampling}
+When sampling in order to evaluate integrals such as in the previous subsection we can reduce the variance in the estimate by
+sampling based on the importance of the distribution such that directions that 
+
+\todo{Motivations}
+\section{Reflection and Refraction}
+\section{Intersection Tests}
+\subsection{Triangle}
+\subsection{Sphere}
+\subsection{K-D Tree}
+In order to accelerate the intersection of meshes that contain many traingles we use a k-d tree to spacially divide the mesh,
+this structure facilitates an efficient intersection tests that calculates the path that the ray travels in order to perform
+a front to back tests, this allows for an early exit of the intersection test when an intersection is found in a partition,
+
+\todo{Expand}

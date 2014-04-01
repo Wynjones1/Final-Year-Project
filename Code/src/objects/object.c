@@ -34,37 +34,83 @@ void object_calculate_reflected_colour( object_t *object, scene_t *scene, inters
 }
 
 
+double fresnel(double n1, double n2, double cost)
+{
+	double r0 = (n1 - n2) / (n1 + n2);
+	r0 *= r0;
+
+	double t = 1 - cost;
+	return r0 + (1.0 - r0) * t * t * t * t * t;
+}
+
+/* Returns the transmittance and sets the refracted ray */
+double refracted(double incident[3], double normal[3], double ior, double out[3])
+{
+	double cosi = -vector_dot(incident, normal);
+	double n1 = 1.0;
+	double n2 = ior;
+	double n[3] = {normal[0], normal[1], normal[2]};
+	if(cosi < 0.0)
+	{
+		n1 = ior;
+		n2 = 1.0;
+		cosi = -cosi;
+		n[0] = -normal[0];
+		n[1] = -normal[1];
+		n[2] = -normal[2];
+	}
+
+	double nn = n1 / n2;
+
+	double sin2t = nn * nn * (1 - cosi * cosi);
+	double cost = sqrt(1 - sin2t);
+	if(sin2t >= 1.0) return 0;
+	out[0] = nn * incident[0] + (nn * cosi - cost) * n[0];
+	out[1] = nn * incident[1] + (nn * cosi - cost) * n[1];
+	out[2] = nn * incident[2] + (nn * cosi - cost) * n[2];
+	if(n1 <= n2)
+	{
+		return 1.0 - fresnel(n1, n2, cosi);
+	}
+	else
+	{
+		return 1.0 - fresnel(n1, n2, cost);
+	}
+}
+
 void object_calculate_refracted_colour( object_t *object, scene_t *scene, intersection_t *info)
 {
 	double refr_col[3] = {0.0, 0.0, 0.0};
 	double refl_col[3] = {0.0, 0.0, 0.0};
 	double normal[3];
 	ray_t  refracted_ray;
-	double r = 1.0;//reflectance.
 	ray_t *incident = &info->incident;
 	if(incident->depth)
 	{
 		refracted_ray.depth = incident->depth - 1;
 		CALL(object, get_normal, info, normal);
-		if(maths_calculate_refracted_ray(incident->normal, normal, 1.0, g_config.time, refracted_ray.normal))
+		double t = refracted(incident->normal, normal, object->material.ior, refracted_ray.normal);
+		if(t > 0.0)
 		{
-			r = 0.0;
 			intersection_t refraction_info;
-			for(int i = 0; i < 3; i++)refracted_ray.origin[i] = incident->origin[i] + incident->normal[i] * (info->t + EPSILON);
+			maths_calculate_intersection(&info->incident, info->t, refracted_ray.origin, 1);
+
 			if(intersection_ray_scene(&refracted_ray, scene, &refraction_info))
 			{
 				vector_copy(refraction_info.scene.colour, refr_col);
 			}
+			object_calculate_reflected_colour(object, scene, info);
+			vector_copy(info->scene.colour, refl_col);
+			for(int i = 0; i < 3; i++)
+			{
+				info->scene.colour[i] = t * refr_col[i] + (1.0 - t) * refl_col[i];
+			}
 		}
-		else
+		else //TIR
 		{
 			object_calculate_reflected_colour(object, scene, info);
 		}
 
-		for(int i = 0; i < 3; i++)
-		{
-			info->scene.colour[i] = (1.0 - r) * refr_col[i] + r * refl_col[i];
-		}
 	}
 }
 
@@ -134,7 +180,7 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 		double inten[] = {0, 0, 0};
 		diffuse_ray.depth = ray->depth;
 		//Sample the BRDF (TODO: Add general BRDF computation)
-		sample_hemi(normal, diffuse_ray.normal);
+		sample_hemi_cosine(normal, diffuse_ray.normal);
 
 		intersection_t temp;
 		if(intersection_photon_scene(&diffuse_ray, scene, &temp))

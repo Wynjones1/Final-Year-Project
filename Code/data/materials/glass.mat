@@ -1,2 +1,3 @@
 refractivity 1.0 1.0 1.0
+ior 1.5
 texture ./data/tga/colour_grid.tga

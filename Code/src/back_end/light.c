@@ -61,7 +61,7 @@ void area_generate_ray(light_t *l, ray_t *out)
 	out->origin[1] = l->origin[1];
 	out->origin[2] = l->origin[2] + y;
 
-	sample_hemi(l->normal, out->normal);
+	sample_hemi_cosine(l->normal, out->normal);
 }
 
 void light_generate_ray(light_t *l, ray_t *out)
