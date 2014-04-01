@@ -80,8 +80,6 @@ double refracted(double incident[3], double normal[3], double ior, double out[3]
 
 void object_calculate_refracted_colour( object_t *object, scene_t *scene, intersection_t *info)
 {
-	double refr_col[3] = {0.0, 0.0, 0.0};
-	double refl_col[3] = {0.0, 0.0, 0.0};
 	double normal[3];
 	ray_t  refracted_ray;
 	ray_t *incident = &info->incident;
@@ -90,23 +88,18 @@ void object_calculate_refracted_colour( object_t *object, scene_t *scene, inters
 		refracted_ray.depth = incident->depth - 1;
 		CALL(object, get_normal, info, normal);
 		double t = refracted(incident->normal, normal, object->material.ior, refracted_ray.normal);
-		if(t > 0.0)
+		double e = randf(0, 1.0);
+		if(e < t)
 		{
 			intersection_t refraction_info;
 			maths_calculate_intersection(&info->incident, info->t, refracted_ray.origin, 1);
 
 			if(intersection_ray_scene(&refracted_ray, scene, &refraction_info))
 			{
-				vector_copy(refraction_info.scene.colour, refr_col);
-			}
-			object_calculate_reflected_colour(object, scene, info);
-			vector_copy(info->scene.colour, refl_col);
-			for(int i = 0; i < 3; i++)
-			{
-				info->scene.colour[i] = t * refr_col[i] + (1.0 - t) * refl_col[i];
+				vector_copy(refraction_info.scene.colour, info->scene.colour);
 			}
 		}
-		else //TIR
+		else
 		{
 			object_calculate_reflected_colour(object, scene, info);
 		}
