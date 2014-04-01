@@ -4,15 +4,20 @@ DEPDIR            := deps/
 SRCDIR            := src/
 STD               := gnu11
 INCLUDEDIRS       := -I./src/front_end -I./src/back_end -I./src/objects -I./src/objects/material -I./src/common/ -I./src/back_end/intersections/ -I ./src/back_end/photon/
-CFLAGS            := --std=$(STD) -Wall -D__STDC_FORMAT_MACROS -D_USE_MATH_DEFINES=1 $(INCLUDEDIRS) $(shell sdl2-config --cflags)
-LIBS              := -lm -lpthread -lGL $(shell sdl2-config --libs)
-GUI               := 1
+CFLAGS            := --std=$(STD) -Wall -D__STDC_FORMAT_MACROS -D_USE_MATH_DEFINES=1 $(INCLUDEDIRS)
+LIBS              := -lm -lpthread -static
+GUI               := 0
 PMAP              := 1
 OUTPUT_PHOTON_MAP := 1
 VERBOSE           := 1
 SANITIZE          := 0
 
 CFLAGS += -DSINGLE_THREAD
+
+ifeq ($(GUI), 1)
+	LIBS   += $(shell sdl2-config --libs) -lGL
+	CFLAGS += $(shell sdl2-config --cflags)
+endif
 
 ifeq ($(SANITIZE), 1)
 	CFLAGS  += -fsanitize=address -fno-omit-frame-pointer
