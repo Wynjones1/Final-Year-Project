@@ -34,49 +34,6 @@ void object_calculate_reflected_colour( object_t *object, scene_t *scene, inters
 }
 
 
-double fresnel(double n1, double n2, double cost)
-{
-	double r0 = (n1 - n2) / (n1 + n2);
-	r0 *= r0;
-
-	double t = 1 - cost;
-	return r0 + (1.0 - r0) * t * t * t * t * t;
-}
-
-/* Returns the transmittance and sets the refracted ray */
-double refracted(double incident[3], double normal[3], double ior, double out[3])
-{
-	double cosi = -vector_dot(incident, normal);
-	double n1 = 1.0;
-	double n2 = ior;
-	double n[3] = {normal[0], normal[1], normal[2]};
-	if(cosi < 0.0)
-	{
-		n1 = ior;
-		n2 = 1.0;
-		cosi = -cosi;
-		n[0] = -normal[0];
-		n[1] = -normal[1];
-		n[2] = -normal[2];
-	}
-
-	double nn = n1 / n2;
-
-	double sin2t = nn * nn * (1 - cosi * cosi);
-	double cost = sqrt(1 - sin2t);
-	if(sin2t >= 1.0) return 0;
-	out[0] = nn * incident[0] + (nn * cosi - cost) * n[0];
-	out[1] = nn * incident[1] + (nn * cosi - cost) * n[1];
-	out[2] = nn * incident[2] + (nn * cosi - cost) * n[2];
-	if(n1 <= n2)
-	{
-		return 1.0 - fresnel(n1, n2, cosi);
-	}
-	else
-	{
-		return 1.0 - fresnel(n1, n2, cost);
-	}
-}
 
 void object_calculate_refracted_colour( object_t *object, scene_t *scene, intersection_t *info)
 {
@@ -87,7 +44,7 @@ void object_calculate_refracted_colour( object_t *object, scene_t *scene, inters
 	{
 		refracted_ray.depth = incident->depth - 1;
 		CALL(object, get_normal, info, normal);
-		double t = refracted(incident->normal, normal, object->material.ior, refracted_ray.normal);
+		double t = maths_calculate_refracted_ray(incident->normal, normal, object->material.ior, refracted_ray.normal);
 		double e = randf(0, 1.0);
 		if(e < t)
 		{

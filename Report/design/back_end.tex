@@ -85,6 +85,19 @@ objects in a scene are the same, for example finding a refracted
 ray is only dependant on the surface noraml at a point of intersection
 for this reason the system abstracts any object that can be intersected
 must implement certain functions, this is a form of object orentation.
-e
+
 \subsection{Materials}
+Each object has associated a material property that determines how light interacts with the surface of the
+object, in this system we consider diffuse and perfectly specular materials componenets that will contribute
+to the reflectance of the object, each term is split into three turns for red, green and blue components.
+\todo{improve the phrasing of this}
+
 \subsection{Participating Media}
+In a simple raytracer as a ray is traced through a scene the radiance is assumed to be constant along the path,
+in the real world this is not true due to lights interaction with particals in the air, these interactions
+are commonly refered to as scattering, two types of scattering are possible, in and out scattering, the latter
+causes a decrease in the radiance along a path and the former an increase in the scattering, this effect is
+responsible for blue skies as light is scattered different amounts dependant on the frequency. In this project
+the system is able to simulate this effect by applying a participating media to an object, We will only consider
+the effect of scattering in three colour bands. two components are used to describe the
+properties of a participating media, the scattering and absorbtion coefficient. \todo{Add some citations}

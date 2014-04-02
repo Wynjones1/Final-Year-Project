@@ -1,13 +1,16 @@
 #include "scene.h"
 #include "render.h"
 #include "utils.h"
+#include "sampler.h"
 #include "config.h"
 #include "gui.h"
 #include <stdlib.h>
+#include "projection.h"
 
 
 int main(int argc, char **argv)
 {
+#if 1
 	VERBOSE("Starting Raytracer.\n");
 
 	config_read("./data/settings.cfg", argc, argv);
@@ -30,6 +33,28 @@ int main(int argc, char **argv)
 	bmp_delete(bmp);
 #if GUI
 	gui_wait(gui);
+#endif
+#else
+	double x[3];
+	double y[3];
+	double z[3] = {1, 1, 1};
+	vector_normal(z, z);
+	maths_basis(z, x, y);
+
+
+	FILE *fp = OPEN("photon_map0.pmap", "w");
+	g_config.samples = 2;
+	fprintf(fp, "%d\n", g_config.samples * g_config.samples);
+	double out[3];
+	for(int i = 0; i < g_config.samples; i++)
+	{
+		for(int j = 0; j < g_config.samples; j++)
+		{
+			sample_hemi_jitter(z, x, y, i, j, out);
+			fprintf(fp, "%lf %lf %lf 1 1 1\n", out[0], out[1], out[2]);
+		}
+	}
+	fclose(fp);
 #endif
 	return 0;
 }

@@ -9,8 +9,8 @@ integrals, for all other coordinated standard carteisian coordinates will be use
 
 \section{Flux}
 The photon mapping algorithm is based around emitting photons from light sources, the unit of measurement of a photon is
-Radiant flux $\Phi$ the exact definition of flux is not relivant to the disscussion of the product but it is used extentivly
-as part of the derivation of the radiance estimate for the photon map.
+Radiant flux $\Phi$ the exact definition of flux is not relivant to the disscussion of this project but it is used extentivly
+as part of the derivation of the radiance estimate for the photon map in \todo{cite}
 
 \section{Radiance}
 Radiance commonly referers to two quantities, incident radiance and exitance radiance, incident radiance being the radiance
@@ -21,11 +21,21 @@ that fall on a surface, exitance radiance being radiance from a surface (either 
 \section{Monte-Carlo Methods}
 The rendering equation describes the light transfer as an integral of all directions above the point being evaluated, this
 integral cannot be solved with a closed form solution, as a result we must approximate the value of the integral, to do this
-we use monte-carlo methods. \todo{Add a citation}
+we use monte-carlo methods. \todo{Add a citation}. Monte carlo methods allow us to estimate the value of an integral at a point
+by sampling the 
+
+\begin{equation}
+E\left(g\left(X\right)\right) = \sum\limits_{x \in X} g\left(x\right)f_X\left(x\right)
+\end{equation}
+
+\section{Path Notation}
+\todo{Fill In}
 
 \section{Importance Sampling}
-When sampling in order to evaluate integrals such as in the previous subsection we can reduce the variance in the estimate by
-sampling based on the importance of the distribution such that directions that 
+Importance sampling is a statistical technique that allows us to concentrate computational effort when sampling a distribution
+to areas of the distribution that contribute most to the average, for instance sampling incident radiance at a point on a lambertian
+surface where the reflected radiance is preportional to the cosine of the incoming direction, by using a cosine weighted distribution
+we can gain a better estimate for the radiance.
 
 \todo{Motivations}
 
@@ -49,3 +59,5 @@ In this section we will give a detailed description of the photon mapping algori
 The photon mapping is seperated into two stages, preprocessing the photon map and raytracing utiliseing the information from the photon
 map. The preoprocessing stage is conceptually creating a data structure that approximates the light transfer of the scene, this is done
 by tracing photons from each of the light sources with a distribution consistent with the description of the scene.
+
+\section{Uniform Sampling}

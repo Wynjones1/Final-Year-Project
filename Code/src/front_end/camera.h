@@ -5,9 +5,9 @@
 struct camera
 {
 	double   origin[3];
-	double   up[3];
-	double   forward[3];
-	double   right[3];
+	double   x[3];
+	double   y[3];
+	double   z[3];
 	double   f;
 	double   aspect;
 	matrix_t transform;
@@ -16,8 +16,8 @@ struct camera
 typedef struct camera camera_t;
 typedef struct ray    ray_t;
 
-camera_t *camera_init(double *origin, double *forward, 
-				double *up, double f, double aspect);
+camera_t *camera_init(double origin[3], double lookat[3], double up[3], double f);
+camera_t *camera_init_string(const char *string);
 
 void      camera_free(camera_t *camera);
 

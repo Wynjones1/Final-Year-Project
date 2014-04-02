@@ -37,7 +37,7 @@ scene_t *scene_read(const char *filename)
 	scene_t *out       = malloc(sizeof(scene_t));	
 	out->objects       = list(object_t *);
 	out->lights        = list(light_t*);
-	out->camera        = camera_default();
+	out->camera        = NULL;
 	out->pixel_outputs = list(struct pixel_update_data);
 
 	FILE *fp = OPEN(filename, "r");
@@ -57,17 +57,17 @@ scene_t *scene_read(const char *filename)
 		}
 		else if(BUFCMP(buf, "camera") == 0)
 		{
-			camera_t *camera = out->camera;
-			sscanf(buf, "camera %lf %lf %lf %lf %lf %lf %lf %lf %lf", 
-					camera->origin,  camera->origin  + 1, camera->origin  + 2,
-					camera->forward, camera->forward + 1, camera->forward + 2,
-					camera->up,      camera->up      + 1, camera->up      + 2);
+			out->camera = camera_init_string(buf);
 		}
 		else if(BUFCMP(buf, "sphere") == 0)
 		{
 			sphere_t *sphere = sphere_init(buf);
 			list_push(out->objects, &sphere);
 		}
+	}
+	if(!out->camera)
+	{
+		out->camera = camera_default();
 	}
 
 	fclose(fp);

@@ -1,6 +1,7 @@
 #include "sampler.h"
 #include <stdlib.h>
 #include "vector.h"
+#include "config.h"
 #include "maths.h"
 
 enum sampler_type
@@ -91,4 +92,30 @@ void sample_sphere(double out[3])
 	out[0] = 2 * x1 * sq;
 	out[1] = 2 * x2 * sq;
 	out[2] = 1 - 2 * sum_sq;
+}
+
+/* Sample uniformly from the hemishere */
+void sample_hemi_jitter(double normal[3], double x[3], double y[3], int xsample, int ysample, double out[3])
+{
+#if JITTER
+	double sx = xsample + randf(0, 1);
+	double sy = ysample + randf(0, 1);
+#else
+	double sx = xsample + 0.5;
+	double sy = ysample + 0.5;
+#endif
+	//Map to 0, 1
+	sx /= g_config.samples;
+	sy /= g_config.samples;
+
+	double phi = 2 * PI * sx;
+	double theta = acos(1 - sy);
+	double st = sinf(theta);
+	double sp = sinf(phi);
+	double ct = cosf(theta);
+	double cp = cosf(phi);
+	for(int i = 0; i < 3; i++)
+	{
+		out[i] = st * cp * x[i] + st * sp * y[i] + ct * normal[i];
+	}
 }

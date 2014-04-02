@@ -29,12 +29,14 @@ static int trace_refracted(scene_t *scene, intersection_t *info, ray_t *ray, obj
 	CALL(o, get_normal, info, normal);
 	ray_t refracted_ray;
 	refracted_ray.depth = ray->depth - 1;
+	material_t *mat = &o->material;
 	maths_calculate_intersection(ray, info->t, refracted_ray.origin, 1);
-	if(maths_calculate_refracted_ray(ray->normal, normal, 1.0, g_config.time, refracted_ray.normal))
+	double t = maths_calculate_refracted_ray(ray->normal, normal, mat->ior, refracted_ray.normal);
+	double e = randf(0.0, 1.0);
+	double temp[3];
+	if(e < t)
 	{
 		//Scale the power of the photon.
-		double temp[3];
-		material_t *mat = &o->material;
 		temp[0] = power[0] * (mat->refractivity[0] / mat->av_refr);
 		temp[1] = power[1] * (mat->refractivity[1] / mat->av_refr);
 		temp[2] = power[2] * (mat->refractivity[2] / mat->av_refr);
@@ -42,8 +44,10 @@ static int trace_refracted(scene_t *scene, intersection_t *info, ray_t *ray, obj
 	}
 	else
 	{
-//		return trace_reflected(scene, info, ray, o, light, power, diffuse, specular_only, output);
-		return 0;
+		double normal[3];
+		maths_calculate_intersection(ray, info->t, refracted_ray.origin, -1);
+		maths_calculate_reflected_ray(ray->normal, normal, refracted_ray.normal);
+		return trace_photon(scene, &refracted_ray, light, temp, true, diffuse, specular_only, output);
 	}
 }
 

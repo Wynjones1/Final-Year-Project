@@ -13,34 +13,49 @@ void maths_calculate_reflected_ray(double incident[3], double normal[3], double 
 	vector_mult_const(out, dot * 2);
 	vector_add(out, incident, out);
 }
-
-/* Returns 0 for TIR and 1 otherwise. */
-int maths_calculate_refracted_ray(double incident[3], double normal[3], double n1, double n2, double out[3])
+double fresnel(double n1, double n2, double cost)
 {
-	double dot = vector_dot(incident, normal);
-	double fac = 0.0;
-	double n   = 0.0;
-	//If the dot is positive we are inside the mesh so we need to swap n1 n2
-	if(dot > 0.0)
+	double r0 = (n1 - n2) / (n1 + n2);
+	r0 *= r0;
+
+	double t = 1 - cost;
+	return r0 + (1.0 - r0) * t * t * t * t * t;
+}
+
+double maths_calculate_refracted_ray(double incident[3], double normal[3], double ior, double out[3])
+{
+	double cosi = -vector_dot(incident, normal);
+	double n1 = 1.0;
+	double n2 = ior;
+	double n[3] = {normal[0], normal[1], normal[2]};
+	if(cosi < 0.0)
 	{
-		n = n2 / n1;
-		fac = 1.0 - n * n * (1.0 - dot * dot);
-		if(fac <= 0.0) return 0;
-		fac =  (n * -dot) + sqrt(fac);
+		n1 = ior;
+		n2 = 1.0;
+		cosi = -cosi;
+		n[0] = -normal[0];
+		n[1] = -normal[1];
+		n[2] = -normal[2];
+	}
+
+	double nn = n1 / n2;
+
+	double sin2t = nn * nn * (1 - cosi * cosi);
+	double cost = sqrt(1 - sin2t);
+	if(sin2t >= 1.0) return 0;
+	out[0] = nn * incident[0] + (nn * cosi - cost) * n[0];
+	out[1] = nn * incident[1] + (nn * cosi - cost) * n[1];
+	out[2] = nn * incident[2] + (nn * cosi - cost) * n[2];
+	if(n1 <= n2)
+	{
+		return 1.0 - fresnel(n1, n2, cosi);
 	}
 	else
 	{
-		n = n1 / n2;
-		fac = 1.0 - n * n * (1.0 - dot * dot);
-		if(fac <= 0.0) return 0;
-		fac =  (n * -dot) - sqrt(fac);
+		return 1.0 - fresnel(n1, n2, cost);
 	}
-	for(int i = 0; i < 3; i++)
-	{
-		out[i] = n * incident[i] + fac * normal[i];
-	}
-	return 1;
 }
+
 
 double maths_calculate_reflectance(double normal[3], double incident[3], double n1, double n2)
 {
@@ -115,4 +130,23 @@ void maths_vector_to_spherical(double in[3], double *theta, double *phi)
 {
 	*phi   = atan2(in[1], in[0]);
 	*theta = acos(in[2]);
+}
+
+void maths_basis(double z[3], double x[3], double y[3])
+{
+	if(z[0] != 0)
+	{
+		y[0] = z[1];
+		y[1] = -z[0];
+		y[2] = 0;
+	}
+	else
+	{
+		y[0] = 0;
+		y[1] = z[2];
+		y[2] = -z[1];
+	}
+	vector_normal(y, y);
+
+	vector_cross(z, y, x);
 }
