@@ -26,11 +26,10 @@ int intersection_ray_mesh( ray_t *ray, mesh_t *mesh, intersection_t *info)
 		{
 			if(tri_info.t < info->t)
 			{
-				info->triangle.u  = tri_info.triangle.u;
-				info->triangle.v  = tri_info.triangle.v;
-				info->t  = tri_info.t;
+				info->triangle.u    = tri_info.triangle.u;
+				info->triangle.v    = tri_info.triangle.v;
+				info->t             = tri_info.t;
 				info->mesh.triangle = i;
-				memcpy(info->point, trie_info.point, sizeof(double) * 3);
 			}
 			retval = 1;
 		}

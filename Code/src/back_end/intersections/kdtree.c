@@ -50,7 +50,7 @@ int traverse(kdtree_node_t *tree, mesh_t *mesh,ray_t *ray, box_t box, intersecti
 			if(intersection_ray_tri(ray, tri, &info))
 			{
 				double temp[3];
-				maths_calculate_intersection(ray, info.t, temp, false);
+				for(int i = 0; i < 3; i++)temp[i] = ray->origin[i] + ray->normal[i] * info.t;
 				if( contains_point(box.min, box.max, temp) && info.t < info_out->t)
 				{
 					retval = 1;

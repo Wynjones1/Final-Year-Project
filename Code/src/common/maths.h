@@ -14,7 +14,6 @@ typedef struct ray ray_t;
 double maths_calculate_refracted_ray(double incident[3], double normal[3], double ior, double out[3]);
 void   maths_calculate_reflected_ray(double incident[3], double normal[3], double out[3]);
 double maths_calculate_reflectance(double normal[3], double incident[3], double n1, double n2);
-void   maths_calculate_intersection(ray_t *ray, double t, double out[3], int offset);
 double maths_calculate_normal(double A[3], double B[3], double out[3]);
 double maths_calculate_t(double origin, double normal, double pos);
 

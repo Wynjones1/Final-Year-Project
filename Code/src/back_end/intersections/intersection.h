@@ -23,6 +23,7 @@ struct intersection
 	enum intersection_type type;
 	double t;
 	double point[3];//The point of the intersection.
+	double normal[3];
 	ray_t  incident;
 	bool   pmedia;
 	struct

@@ -13,7 +13,9 @@ int intersection_ray_scene(ray_t *ray, scene_t *scene, intersection_t *info)
 	for(int i = 0; i < num_objects; i++)
 	{
 		temp.pmedia = false;
-		if(CALL(objects[i], intersection, ray, &temp) && temp.t < info->t)
+		if(CALL(objects[i], intersection, ray, &temp)
+			&& temp.t < info->t
+			&& (temp.t < -EPSILON || temp.t > EPSILON))
 		{
 			*info = temp;
 			info->scene.object = objects[i];
@@ -26,6 +28,11 @@ int intersection_ray_scene(ray_t *ray, scene_t *scene, intersection_t *info)
 	if(retval) //Calculate the output colour.
 	{
 		object_t *object =  info->scene.object;
+		for(int i = 0; i < 3; i++)
+		{
+			info->point[i] = ray->origin[i] + ray->normal[i] * info->t;
+		}
+		CALL(object, get_normal, info, info->normal);
 		CALL(object, shade, scene, info);
 	}
 	return retval;
@@ -40,7 +47,7 @@ int intersection_photon_scene(ray_t *ray, scene_t *scene, intersection_t *info)
 	info->t = INFINITY;
 	for(int i = 0; i < num_objects; i++)
 	{
-		if(CALL(objects[i], intersection, ray, &temp) && temp.t < info->t)
+		if(CALL(objects[i], intersection, ray, &temp) && temp.t < info->t && (temp.t < -EPSILON || temp.t > EPSILON))
 		{
 			*info = temp;
 			info->scene.object = objects[i];
@@ -60,7 +67,7 @@ int intersection_ray_scene_bf(ray_t *ray, scene_t *scene, int depth, intersectio
 
 	for(int i = 0; i < num_objects; i++)
 	{
-		if(CALL(objects[i], intersection, ray, &temp) && temp.t < info->t)
+		if(CALL(objects[i], intersection, ray, &temp) && temp.t < info->t && (temp.t < -EPSILON || temp.t > EPSILON))
 		{
 			*info = temp;
 			info->scene.object= objects[i];
@@ -80,7 +87,7 @@ int intersection_ray_scene_before(ray_t *ray, scene_t *scene, double t)
 	int num_objects= list_size(scene->objects);
 	for(int i = 0; i < num_objects; i++)
 	{
-		if(CALL(objects[i], intersection, ray, &temp) && temp.t < t)
+		if(CALL(objects[i], intersection, ray, &temp) && (temp.t + EPSILON) < t && (temp.t < -EPSILON || temp.t > EPSILON))
 			return 1;
 	}
 	return 0;

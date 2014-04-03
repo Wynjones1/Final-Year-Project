@@ -11,7 +11,7 @@ static int trace_reflected(scene_t *scene, intersection_t *info, ray_t *ray, obj
 	CALL(o, get_normal, info, normal);
 	ray_t reflected_ray;
 	reflected_ray.depth = ray->depth - 1;
-	maths_calculate_intersection(ray, info->t, reflected_ray.origin, -1);
+	vector_copy(info->point, reflected_ray.origin);
 	maths_calculate_reflected_ray(ray->normal, normal, reflected_ray.normal);
 	//Scale the power of the photon.
 	double temp[3];
@@ -30,7 +30,7 @@ static int trace_refracted(scene_t *scene, intersection_t *info, ray_t *ray, obj
 	ray_t refracted_ray;
 	refracted_ray.depth = ray->depth - 1;
 	material_t *mat = &o->material;
-	maths_calculate_intersection(ray, info->t, refracted_ray.origin, 1);
+	vector_copy(info->point, refracted_ray.origin);
 	double t = maths_calculate_refracted_ray(ray->normal, normal, mat->ior, refracted_ray.normal);
 	double e = randf(0.0, 1.0);
 	double temp[3];
@@ -45,7 +45,7 @@ static int trace_refracted(scene_t *scene, intersection_t *info, ray_t *ray, obj
 	else
 	{
 		double normal[3];
-		maths_calculate_intersection(ray, info->t, refracted_ray.origin, -1);
+		vector_copy(info->point, refracted_ray.origin);
 		maths_calculate_reflected_ray(ray->normal, normal, refracted_ray.normal);
 		return trace_photon(scene, &refracted_ray, light, temp, true, diffuse, specular_only, output);
 	}
@@ -54,8 +54,7 @@ static int trace_refracted(scene_t *scene, intersection_t *info, ray_t *ray, obj
 static void store_photon(intersection_t *info, ray_t *ray, int light, double power[3], bool specular, bool diffuse, queue_t *output)
 {
 	struct thread_output_data output_data;
-	maths_calculate_intersection(ray, info->t, output_data.photon.origin, 0);
-
+	vector_copy(info->point, output_data.photon.origin);
 	vector_copy(ray->normal, output_data.photon.incident);
 	vector_copy(power      , output_data.photon.power);
 	static FILE *fp;
@@ -88,7 +87,7 @@ static int trace_diffuse(scene_t *scene, intersection_t *info, ray_t *ray, objec
 
 	CALL(o, get_normal, info, normal);
 	ray_t diffuse_ray;
-	maths_calculate_intersection(ray, info->t, diffuse_ray.origin, -1);
+	vector_copy(info->point, diffuse_ray.origin);
 	sample_hemi_cosine(normal, diffuse_ray.normal);
 	diffuse_ray.depth = ray->depth - 1;
 	double temp_col[3];
@@ -158,7 +157,7 @@ static int trace_pmedia(scene_t *scene, intersection_t *info, ray_t *ray, object
 	ray_t new;
 	new.depth = ray->depth - 1;
 	vector_copy(ray->normal, new.normal);
-	maths_calculate_intersection(ray, info->t, new.origin, 0);
+	vector_copy(info->point, new.origin);
 
 	//We assume the point is in the pmedia at this point.
 	material_t *m = &o->material;

@@ -138,8 +138,8 @@ static void pmedia_shade(object_t *object, scene_t *scene, intersection_t *info)
 	//Step through the participating media.
 	ray_t new_ray;
 	new_ray.depth = info->incident.depth - 1;
-	memcpy(new_ray.normal, info->incident.normal, sizeof(double) * 3);
-	maths_calculate_intersection(&info->incident, info->t, new_ray.origin, 1);
+	vector_copy(info->incident.normal, new_ray.normal);
+	vector_copy(info->point, new_ray.origin);
 	intersection_t temp;
 	//Calculate the radiance from the light sources.
 	pmedia_direct(object, new_ray.origin, scene, info);

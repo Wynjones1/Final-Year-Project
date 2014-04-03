@@ -69,15 +69,6 @@ double maths_calculate_reflectance(double normal[3], double incident[3], double 
 	return max(0.0, min(1.0,(rorth * rorth + rpar * rpar) / 2.0));
 }
 
-void maths_calculate_intersection(ray_t *ray, double t, double out[3], int offset)
-{
-	assert(-1 <= offset && offset <= 1);
-	for(int i = 0; i < 3; i++)
-	{
-		out[i] = ray->origin[i] + ray->normal[i] * (t + offset * EPSILON);
-	}
-}
-
 double maths_calculate_normal(double A[3], double B[3], double out[3])
 {
 	double ret;

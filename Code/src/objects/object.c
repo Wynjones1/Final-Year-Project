@@ -19,9 +19,8 @@ void object_calculate_reflected_colour( object_t *object, scene_t *scene, inters
 		intersection_t temp;
 		ray_t new_ray;
 		new_ray.depth = ray->depth - 1;
-		maths_calculate_intersection(ray, info->t, new_ray.origin, -1);
-		CALL(object, get_normal, info, surface_normal);
-		maths_calculate_reflected_ray(ray->normal, surface_normal, new_ray.normal);
+		vector_copy(info->point, new_ray.origin);
+		maths_calculate_reflected_ray(ray->normal, info->normal, new_ray.normal);
 
 		if(intersection_ray_scene(&new_ray, scene, &temp))
 		{
@@ -51,7 +50,7 @@ void object_calculate_refracted_colour( object_t *object, scene_t *scene, inters
 			if(e < t)
 			{
 				intersection_t refraction_info;
-				maths_calculate_intersection(&info->incident, info->t, refracted_ray.origin, 1);
+				vector_copy(info->point, refracted_ray.origin);
 
 				if(intersection_ray_scene(&refracted_ray, scene, &refraction_info))
 				{
@@ -66,7 +65,7 @@ void object_calculate_refracted_colour( object_t *object, scene_t *scene, inters
 		else
 		{
 			intersection_t refraction_info;
-			maths_calculate_intersection(&info->incident, info->t, refracted_ray.origin, 1);
+			vector_copy(info->point, refracted_ray.origin);
 
 			intersection_ray_scene(&refracted_ray, scene, &refraction_info);
 
@@ -105,7 +104,7 @@ void calculate_diffuse_direct( object_t *object, scene_t *scene, ray_t *ray,
 	light_t **lights = list_data(scene->lights);
 	int num_lights   = list_size(scene->lights);
 
-	maths_calculate_intersection(ray, info->t, x, -1);
+	vector_copy(info->point, x);
 
 	double radiance[3];
 	memset(radiance, 0x00, sizeof(double) * 3);
