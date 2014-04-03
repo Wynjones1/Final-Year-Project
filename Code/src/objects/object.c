@@ -45,20 +45,36 @@ void object_calculate_refracted_colour( object_t *object, scene_t *scene, inters
 		refracted_ray.depth = incident->depth - 1;
 		CALL(object, get_normal, info, normal);
 		double t = maths_calculate_refracted_ray(incident->normal, normal, object->material.ior, refracted_ray.normal);
-		double e = randf(0, 1.0);
-		if(e < t)
+		if(incident->depth != 10 && incident->depth != 9)
 		{
-			intersection_t refraction_info;
-			maths_calculate_intersection(&info->incident, info->t, refracted_ray.origin, 1);
-
-			if(intersection_ray_scene(&refracted_ray, scene, &refraction_info))
+			double e = randf(0, 1.0);
+			if(e < t)
 			{
-				vector_copy(refraction_info.scene.colour, info->scene.colour);
+				intersection_t refraction_info;
+				maths_calculate_intersection(&info->incident, info->t, refracted_ray.origin, 1);
+
+				if(intersection_ray_scene(&refracted_ray, scene, &refraction_info))
+				{
+					vector_copy(refraction_info.scene.colour, info->scene.colour);
+				}
+			}
+			else
+			{
+				object_calculate_reflected_colour(object, scene, info);
 			}
 		}
 		else
 		{
+			intersection_t refraction_info;
+			maths_calculate_intersection(&info->incident, info->t, refracted_ray.origin, 1);
+
+			intersection_ray_scene(&refracted_ray, scene, &refraction_info);
+
 			object_calculate_reflected_colour(object, scene, info);
+			for(int i = 0; i < 3; i++)
+			{
+				info->scene.colour[i] = (1 - t) * info->scene.colour[i] + t * refraction_info.scene.colour[i];
+			}
 		}
 
 	}
@@ -122,35 +138,42 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 	colour_out[2] += inten[2] / PI;
 #else
 	double sample_col[3] = {0, 0, 0};
-	int num_samples = 25;
+	int num_samples = 10;
 	double x[3];
+
+	double basisx[3];
+	double basisy[3];
+	maths_basis(normal, basisy, basisy);
 
 	for(int i = 0; i < num_samples; i++)
 	{
-		double inten[] = {0, 0, 0};
-		diffuse_ray.depth = ray->depth;
-		//Sample the BRDF (TODO: Add general BRDF computation)
-		sample_hemi_cosine(normal, diffuse_ray.normal);
-
-		intersection_t temp;
-		if(intersection_photon_scene(&diffuse_ray, scene, &temp))
+		for(int j = 0; j < num_samples; j++)
 		{
-			double tex[3];
-			object_calculate_texture_colour(object, info, tex);
-			maths_calculate_intersection(&diffuse_ray, temp.t, x, -1);
-			object_t *new_obj = temp.scene.object;
-			CALL(new_obj, get_normal, &temp, normal);
-			photon_map_estimate_radiance(scene->global, x, normal, inten);
+			double inten[] = {0, 0, 0};
+			diffuse_ray.depth = ray->depth;
+			//Sample the BRDF (TODO: Add general BRDF computation)
+			sample_hemi_cosine(normal, diffuse_ray.normal);
 
-			sample_col[0] += (tex[0] / PI) * inten[0];
-			sample_col[1] += (tex[1] / PI) * inten[1];
-			sample_col[2] += (tex[2] / PI) * inten[2];
+			intersection_t temp;
+			if(intersection_photon_scene(&diffuse_ray, scene, &temp))
+			{
+				double tex[3];
+				object_calculate_texture_colour(object, info, tex);
+				maths_calculate_intersection(&diffuse_ray, temp.t, x, -1);
+				object_t *new_obj = temp.scene.object;
+				CALL(new_obj, get_normal, &temp, normal);
+				photon_map_estimate_radiance(scene->global, x, normal, inten);
+
+				sample_col[0] += (tex[0] / PI) * inten[0];
+				sample_col[1] += (tex[1] / PI) * inten[1];
+				sample_col[2] += (tex[2] / PI) * inten[2];
+			}
 		}
 	}
 
-	colour_out[0] += sample_col[0] / (num_samples);
-	colour_out[1] += sample_col[1] / (num_samples);
-	colour_out[2] += sample_col[2] / (num_samples);
+	colour_out[0] += sample_col[0] / (num_samples * num_samples);
+	colour_out[1] += sample_col[1] / (num_samples * num_samples);
+	colour_out[2] += sample_col[2] / (num_samples * num_samples);
 #endif
 
 #endif

@@ -134,7 +134,7 @@ void maths_vector_to_spherical(double in[3], double *theta, double *phi)
 
 void maths_basis(double z[3], double x[3], double y[3])
 {
-	if(z[0] != 0)
+	if(z[0] > 0.1 || z[0] < -0.1)
 	{
 		y[0] = z[1];
 		y[1] = -z[0];
@@ -143,10 +143,10 @@ void maths_basis(double z[3], double x[3], double y[3])
 	else
 	{
 		y[0] = 0;
-		y[1] = z[2];
-		y[2] = -z[1];
+		y[1] = -z[2];
+		y[2] = z[1];
 	}
 	vector_normal(y, y);
 
-	vector_cross(z, y, x);
+	vector_cross(y, z, x);
 }

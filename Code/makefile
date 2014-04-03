@@ -30,7 +30,7 @@ endif
 ###################################
 #     Photon mapping defines.     #
 ###################################
-FAST_DIFFUSE      := 1
+FAST_DIFFUSE      := 0
 CAUSTICS          := 1
 
 ifeq ($(FAST_DIFFUSE), 1)
