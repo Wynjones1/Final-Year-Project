@@ -188,7 +188,7 @@ struct pmap_data gen_photons(scene_t *scene, int num_photons)
 #if CAUSTICS
 	VERBOSE("Generating Caustic Photon Map.\n");
 	memset(emitted_count, 0x00, sizeof(int) * num_lights);
-	gen_photon_map(scene, g_config.photons, true,  &out, emitted_count);
+	gen_photon_map(scene, g_config.photons / 10, true,  &out, emitted_count);
 	scale_photons(out.caustic, emitted_count);
 #endif
 

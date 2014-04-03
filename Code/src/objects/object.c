@@ -137,6 +137,7 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 	colour_out[1] += inten[1] / PI;
 	colour_out[2] += inten[2] / PI;
 #else
+#if 0
 	double sample_col[3] = {0, 0, 0};
 	int num_samples = 10;
 	double x[3];
@@ -175,6 +176,7 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 	colour_out[1] += sample_col[1] / (num_samples * num_samples);
 	colour_out[2] += sample_col[2] / (num_samples * num_samples);
 #endif
+#endif
 
 #endif
 }
@@ -208,10 +210,10 @@ void object_calculate_diffuse_colour( object_t *object, scene_t *scene, intersec
 	object_calculate_texture_colour(object, info, tex);
 
 #if !FAST_DIFFUSE
-	calculate_diffuse_direct(object,   scene, incident, info, colour_out);
+//	calculate_diffuse_direct(object,   scene, incident, info, colour_out);
 #endif
 	calculate_diffuse_indirect(object, scene, incident, info, colour_out);
-	calculate_diffuse_caustic(object,  scene, incident, info, colour_out);
+//	calculate_diffuse_caustic(object,  scene, incident, info, colour_out);
 
 	colour_out[0] *= tex[0];
 	colour_out[1] *= tex[1];

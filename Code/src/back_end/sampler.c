@@ -121,11 +121,17 @@ void sample_hemi_jitter(double n[3], double _x[3], double _y[3], int xsample, in
 	vector_copy(n, y);
 	vector_copy(n, h);
 	if (fabs(h[0])<=fabs(h[1]) && fabs(h[0])<=fabs(h[2]))
-	h[0]= 1.0;
+	{
+		h[0]= 1.0;
+	}
 	else if (fabs(h[1])<=fabs(h[0]) && fabs(h[1])<=fabs(h[2]))
-	h[1]= 1.0;
+	{
+		h[1]= 1.0;
+	}
 	else
-	h[2]= 1.0;
+	{
+		h[2]= 1.0;
+	}
 
 	vector_cross(h, y, x);
 	vector_normal(x, x);
