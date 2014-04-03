@@ -17,6 +17,23 @@ Radiance commonly referers to two quantities, incident radiance and exitance rad
 that fall on a surface, exitance radiance being radiance from a surface (either from reflection or emission)
 
 \section{The Rendering Equation}
+\missingfigure{rendering equation visual representation}
+
+\subsection{Path Notation}
+The radiance estimate on the right hand side of the rendering equation is typically evaluated by a recursive call to the
+procedure that evaluates radiance at a point in the direction $\omega'$, as we perform more evaluation we create a path
+from the eye to the final destination of the ray, it is frequently convienient to refer to these paths by the interaction
+that the ray has with surfaces along the path, we use a regular expression language to express these paths, tokens in the
+language include:
+\begin{description}
+\item[E] The eye or camera
+\item[D] A diffuse surface
+\item[S] A specular surface.
+\item[L] A light
+\end{description}
+
+Paths begin with the eye and end at a light, a full solution to the rendering equation will evaluate the radiance due
+to all paths \textbf{E(S\textbar D)*L}, raytracing evaluates all paths \textbf{ES*DL}
 
 \section{Monte-Carlo Methods}
 The rendering equation describes the light transfer as an integral of all directions above the point being evaluated, this
@@ -28,8 +45,6 @@ by sampling the
 E\left(g\left(X\right)\right) = \sum\limits_{x \in X} g\left(x\right)f_X\left(x\right)
 \end{equation}
 
-\section{Path Notation}
-\todo{Fill In}
 
 \section{Importance Sampling}
 Importance sampling is a statistical technique that allows us to concentrate computational effort when sampling a distribution

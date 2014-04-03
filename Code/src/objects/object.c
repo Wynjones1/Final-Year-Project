@@ -127,9 +127,6 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 	double normal[3];
 	CALL(object, get_normal, info, normal);
 
-	ray_t diffuse_ray;
-	//TODO:Use the sample count;
-	maths_calculate_intersection(ray, info->t, diffuse_ray.origin, -1);
 #if FAST_DIFFUSE
 	double inten[3] = {0, 0, 0};
 	photon_map_estimate_radiance(scene->global, diffuse_ray.origin, diffuse_ray.normal, inten);
@@ -137,7 +134,7 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 	colour_out[1] += inten[1] / PI;
 	colour_out[2] += inten[2] / PI;
 #else
-#if 0
+#if 1
 	double sample_col[3] = {0, 0, 0};
 	int num_samples = 10;
 	double x[3];
@@ -145,6 +142,9 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 	double basisx[3];
 	double basisy[3];
 	maths_basis(normal, basisy, basisy);
+
+	ray_t diffuse_ray;
+	maths_calculate_intersection(ray, info->t, diffuse_ray.origin, -1);
 
 	for(int i = 0; i < num_samples; i++)
 	{
@@ -159,15 +159,16 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 			if(intersection_photon_scene(&diffuse_ray, scene, &temp))
 			{
 				double tex[3];
+				double intersection_normal[3];
 				object_calculate_texture_colour(object, info, tex);
 				maths_calculate_intersection(&diffuse_ray, temp.t, x, -1);
 				object_t *new_obj = temp.scene.object;
-				CALL(new_obj, get_normal, &temp, normal);
-				photon_map_estimate_radiance(scene->global, x, normal, inten);
+				CALL(new_obj, get_normal, &temp, intersection_normal);
+				photon_map_estimate_radiance(scene->global, x, intersection_normal, inten);
 
-				sample_col[0] += (tex[0] / PI) * inten[0];
-				sample_col[1] += (tex[1] / PI) * inten[1];
-				sample_col[2] += (tex[2] / PI) * inten[2];
+				sample_col[0] += (tex[0]) * inten[0] * vector_dot(normal, diffuse_ray.normal);
+				sample_col[1] += (tex[1]) * inten[1] * vector_dot(normal, diffuse_ray.normal);
+				sample_col[2] += (tex[2]) * inten[2] * vector_dot(normal, diffuse_ray.normal);
 			}
 		}
 	}
@@ -210,10 +211,10 @@ void object_calculate_diffuse_colour( object_t *object, scene_t *scene, intersec
 	object_calculate_texture_colour(object, info, tex);
 
 #if !FAST_DIFFUSE
-//	calculate_diffuse_direct(object,   scene, incident, info, colour_out);
+	calculate_diffuse_direct(object,   scene, incident, info, colour_out);
 #endif
 	calculate_diffuse_indirect(object, scene, incident, info, colour_out);
-//	calculate_diffuse_caustic(object,  scene, incident, info, colour_out);
+	calculate_diffuse_caustic(object,  scene, incident, info, colour_out);
 
 	colour_out[0] *= tex[0];
 	colour_out[1] *= tex[1];

@@ -5,7 +5,10 @@ for the preprocessing step that creates the photon maps used to estimate the rad
 is responsible for computing the colour of each of the pixels in the output image, this will use the data
 that was read into from the front end and the photon maps that were created by the photon map module. The
 output of the raytracing block is sent to the front end which will use the data to present or save the final
-image.
+image. The design of these blocks is that of a pipeline where certain procedures are performed on the scene
+data and the results of the process is passed to the next stage, both pipelines contain a stage whereby
+data can be passed to multiple threads to be process, each of these threads communicate to the next
+stage in the pipeline through a queue that acts as the inter-thread communication method.
 
 \subsection{Photon Emmition and Photon Map Construction (1 page)}
 This block contains two stages, the photon emmition stage which traces photons through the scene and stores
@@ -101,3 +104,10 @@ responsible for blue skies as light is scattered different amounts dependant on 
 the system is able to simulate this effect by applying a participating media to an object, We will only consider
 the effect of scattering in three colour bands. two components are used to describe the
 properties of a participating media, the scattering and absorbtion coefficient. \todo{Add some citations}
+
+\subsection{Shading}
+Each thread is responsible for performing that shading at the intersection of eye rays, for specular reflection
+and transmission this results in an additional raytrace be performed to determin the shading colour, for diffuse
+surfaces a direct illumination calculationn is performed, additionally the photon map is queried to determin
+the indirect lighting. For participating media, the radiance is calculated by performing by a ray-marching
+procedure.

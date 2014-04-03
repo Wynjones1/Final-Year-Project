@@ -66,6 +66,12 @@ drawable surfaces, OpenGL support and user input, SDL is written in C and provid
 In order to retain responsivness of the GUI while rendering it is desirable to run the GUI on a seperate thread, the GUI
 should also only redraw the screen when a pixel has updated its colour, this is to reduce the amount of processing that
 the GUI is performing that could be used to create images, on the other had the GUI should respond to events that are pushed
-to its internal event queue such as key presses and window system events.
+to its internal event queue such as key presses and window system events, Figure~\ref{fig:gui_screenshot} demonstrates the
+gui running.
 
-\missingfigure{GUI Running}
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.3]{./images/gui_screenshot.png}
+\label{fig:gui_screenshot}
+\caption{Screenshot of render in progress}
+\end{figure}
