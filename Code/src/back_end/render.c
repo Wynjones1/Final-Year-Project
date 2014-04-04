@@ -120,6 +120,7 @@ void trace_pixel(void)
 	ray_t ray;
 	camera_create_initial_ray(scene->camera, g_config.trace_pixel_x, g_config.trace_pixel_y, 0, 0, &ray);
 	process_initial_ray(scene, &ray, colour_out);
+	vector_print(colour_out);
 }
 
 void render(scene_t *scene_in)

@@ -7,12 +7,10 @@
 static int trace_reflected(scene_t *scene, intersection_t *info, ray_t *ray, object_t *o, int light,
 						   double power[3], bool diffuse, bool specular_only, queue_t *output)
 {
-	double normal[3];
-	CALL(o, get_normal, info, normal);
 	ray_t reflected_ray;
 	reflected_ray.depth = ray->depth - 1;
 	vector_copy(info->point, reflected_ray.origin);
-	maths_calculate_reflected_ray(ray->normal, normal, reflected_ray.normal);
+	maths_calculate_reflected_ray(ray->normal, info->normal, reflected_ray.normal);
 	//Scale the power of the photon.
 	double temp[3];
 	material_t *mat = &o->material;
@@ -25,13 +23,11 @@ static int trace_reflected(scene_t *scene, intersection_t *info, ray_t *ray, obj
 static int trace_refracted(scene_t *scene, intersection_t *info, ray_t *ray, object_t *o, int light,
 						   double power[3], bool diffuse, bool specular_only, queue_t *output)
 {
-	double normal[3];
-	CALL(o, get_normal, info, normal);
 	ray_t refracted_ray;
 	refracted_ray.depth = ray->depth - 1;
 	material_t *mat = &o->material;
 	vector_copy(info->point, refracted_ray.origin);
-	double t = maths_calculate_refracted_ray(ray->normal, normal, mat->ior, refracted_ray.normal);
+	double t = maths_calculate_refracted_ray(ray->normal, info->normal, mat->ior, refracted_ray.normal);
 	double e = randf(0.0, 1.0);
 	double temp[3];
 	if(e < t)
@@ -44,10 +40,9 @@ static int trace_refracted(scene_t *scene, intersection_t *info, ray_t *ray, obj
 	}
 	else
 	{
-		double normal[3];
 		vector_copy(info->point, refracted_ray.origin);
-		maths_calculate_reflected_ray(ray->normal, normal, refracted_ray.normal);
-		return trace_photon(scene, &refracted_ray, light, temp, true, diffuse, specular_only, output);
+		maths_calculate_reflected_ray(ray->normal, info->normal, refracted_ray.normal);
+		return trace_photon(scene, &refracted_ray, light, power, true, diffuse, specular_only, output);
 	}
 }
 
@@ -66,6 +61,10 @@ static void store_photon(intersection_t *info, ray_t *ray, int light, double pow
 	output_data.last          = false;
 	output_data.photon.light  = light;
 	output_data.volume        = false;
+	if(power[0] < 0 || power[1] < 0 || power[2] < 0)
+	{
+		vector_print(power);
+	}
 	queue_write(output, &output_data);
 }
 
@@ -74,7 +73,6 @@ static int trace_diffuse(scene_t *scene, intersection_t *info, ray_t *ray, objec
 {
 	int ret = 0;
 	double col[3];
-	double normal[3];
 	object_calculate_texture_colour(o, info, col);
 	double pref = (col[0] + col[1] + col[2]) / 3.0;
 
@@ -85,10 +83,9 @@ static int trace_diffuse(scene_t *scene, intersection_t *info, ray_t *ray, objec
 		ret += 1;
 	}
 
-	CALL(o, get_normal, info, normal);
 	ray_t diffuse_ray;
 	vector_copy(info->point, diffuse_ray.origin);
-	sample_hemi_cosine(normal, diffuse_ray.normal);
+	sample_hemi_cosine(info->normal, diffuse_ray.normal);
 	diffuse_ray.depth = ray->depth - 1;
 	double temp_col[3];
 	memcpy(temp_col, power, sizeof(double) * 3);

@@ -47,12 +47,25 @@ int intersection_photon_scene(ray_t *ray, scene_t *scene, intersection_t *info)
 	info->t = INFINITY;
 	for(int i = 0; i < num_objects; i++)
 	{
-		if(CALL(objects[i], intersection, ray, &temp) && temp.t < info->t && (temp.t < -EPSILON || temp.t > EPSILON))
+		if(CALL(objects[i], intersection, ray, &temp)
+			&& temp.t < info->t
+			&& (temp.t < -EPSILON || temp.t > EPSILON))
 		{
 			*info = temp;
 			info->scene.object = objects[i];
 			retval             = 1;	
 		}
+	}
+
+	info->incident  = *ray;
+	if(retval) //Calculate the output colour.
+	{
+		object_t *object =  info->scene.object;
+		for(int i = 0; i < 3; i++)
+		{
+			info->point[i] = ray->origin[i] + ray->normal[i] * info->t;
+		}
+		CALL(object, get_normal, info, info->normal);
 	}
 	return retval;
 }
@@ -73,6 +86,17 @@ int intersection_ray_scene_bf(ray_t *ray, scene_t *scene, int depth, intersectio
 			info->scene.object= objects[i];
 			retval = 1;	
 		}
+	}
+	info->incident  = *ray;
+	if(retval) //Calculate the output colour.
+	{
+		object_t *object =  info->scene.object;
+		for(int i = 0; i < 3; i++)
+		{
+			info->point[i] = ray->origin[i] + ray->normal[i] * info->t;
+		}
+		CALL(object, get_normal, info, info->normal);
+		CALL(object, shade, scene, info);
 	}
 	return retval;
 }

@@ -36,14 +36,12 @@ void object_calculate_reflected_colour( object_t *object, scene_t *scene, inters
 
 void object_calculate_refracted_colour( object_t *object, scene_t *scene, intersection_t *info)
 {
-	double normal[3];
 	ray_t  refracted_ray;
 	ray_t *incident = &info->incident;
 	if(incident->depth)
 	{
 		refracted_ray.depth = incident->depth - 1;
-		CALL(object, get_normal, info, normal);
-		double t = maths_calculate_refracted_ray(incident->normal, normal, object->material.ior, refracted_ray.normal);
+		double t = maths_calculate_refracted_ray(incident->normal, info->normal, object->material.ior, refracted_ray.normal);
 		if(incident->depth != 10 && incident->depth != 9)
 		{
 			double e = randf(0, 1.0);
@@ -96,21 +94,15 @@ void object_calculate_texture_colour( object_t *object, intersection_t *info, do
 void calculate_diffuse_direct( object_t *object, scene_t *scene, ray_t *ray,
 									  intersection_t *info, double colour_out[3])
 {
-	double x[3];
-	double n[3];
-
-	CALL(object, get_normal, info, n);
 
 	light_t **lights = list_data(scene->lights);
 	int num_lights   = list_size(scene->lights);
-
-	vector_copy(info->point, x);
 
 	double radiance[3];
 	memset(radiance, 0x00, sizeof(double) * 3);
 	for(int i = 0; i < num_lights; i++)
 	{
-		light_calculate_radiance(lights[i], scene, x, n, radiance);
+		light_calculate_radiance(lights[i], scene, info->point, info->normal, radiance);
 		radiance[0] /= PI;
 		radiance[1] /= PI;
 		radiance[2] /= PI;
@@ -123,12 +115,9 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 {
 #if PMAP
 	//Simulate the first diffuse bounce of the light to estimate the radiance at the point.
-	double normal[3];
-	CALL(object, get_normal, info, normal);
-
 #if FAST_DIFFUSE
 	double inten[3] = {0, 0, 0};
-	photon_map_estimate_radiance(scene->global, diffuse_ray.origin, diffuse_ray.normal, inten);
+	photon_map_estimate_radiance(scene->global, info->point, ray->normal, inten);
 	colour_out[0] += inten[0] / PI;
 	colour_out[1] += inten[1] / PI;
 	colour_out[2] += inten[2] / PI;
@@ -140,10 +129,10 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 
 	double basisx[3];
 	double basisy[3];
-	maths_basis(normal, basisy, basisy);
+	maths_basis(info->normal, basisy, basisy);
 
 	ray_t diffuse_ray;
-	maths_calculate_intersection(ray, info->t, diffuse_ray.origin, -1);
+	vector_copy(info->point, diffuse_ray.origin);
 
 	for(int i = 0; i < num_samples; i++)
 	{
@@ -152,22 +141,19 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 			double inten[] = {0, 0, 0};
 			diffuse_ray.depth = ray->depth;
 			//Sample the BRDF (TODO: Add general BRDF computation)
-			sample_hemi_cosine(normal, diffuse_ray.normal);
+			sample_hemi_cosine(info->normal, diffuse_ray.normal);
 
 			intersection_t temp;
 			if(intersection_photon_scene(&diffuse_ray, scene, &temp))
 			{
 				double tex[3];
-				double intersection_normal[3];
 				object_calculate_texture_colour(object, info, tex);
-				maths_calculate_intersection(&diffuse_ray, temp.t, x, -1);
 				object_t *new_obj = temp.scene.object;
-				CALL(new_obj, get_normal, &temp, intersection_normal);
-				photon_map_estimate_radiance(scene->global, x, intersection_normal, inten);
+				photon_map_estimate_radiance(scene->global, temp.point, temp.normal, inten);
 
-				sample_col[0] += (tex[0]) * inten[0] * vector_dot(normal, diffuse_ray.normal);
-				sample_col[1] += (tex[1]) * inten[1] * vector_dot(normal, diffuse_ray.normal);
-				sample_col[2] += (tex[2]) * inten[2] * vector_dot(normal, diffuse_ray.normal);
+				sample_col[0] += (tex[0]) * inten[0] * vector_dot(info->normal, diffuse_ray.normal);
+				sample_col[1] += (tex[1]) * inten[1] * vector_dot(info->normal, diffuse_ray.normal);
+				sample_col[2] += (tex[2]) * inten[2] * vector_dot(info->normal, diffuse_ray.normal);
 			}
 		}
 	}
@@ -187,13 +173,9 @@ void calculate_diffuse_caustic( object_t *object, scene_t *scene, ray_t *ray,
 {
 #if PMAP
 	double inten[] = {0, 0, 0};
-	double normal[3];
-	double x[3];
-	CALL(object, get_normal, info, normal);
-	maths_calculate_intersection(ray, info->t, x, 0);
 
 	//We are directly sampling the radiance due to caustics.
-	photon_map_estimate_radiance(scene->caustic, x, normal, inten);
+	photon_map_estimate_radiance(scene->caustic, info->point, info->normal, inten);
 
 	colour_out[0] += inten[0] / PI;
 	colour_out[1] += inten[1] / PI;
