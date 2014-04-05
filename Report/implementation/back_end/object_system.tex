@@ -4,10 +4,18 @@ that can be traced in the scene, this is implementatied as a structure that cont
 that must be supported by all raytracable objects and the data related to the individual object.
 
 \begin{description}
-\item[normal] returns the normal at a point of intersection.
-\item[bounds] return the bounds for the object.
-\item[texture] return the texture coordinates at a point of intersection
-\item[intersection] returns if a ray intersects a given object.
+\item[int  (*intersection\_func)(object\_t *o, ray\_t *ray, intersection\_t *info)] \hfill \\
+	Tests if the input ray intersectes with the object, returns the result and any other information is stored in the input variable info
+\item[void (*bounds\_func)(object\_t *o, aabb\_t *bounds)] \hfill \\
+	Returns the bounds of the object which is used during the scene-ray intersection test.
+\item[void (*normal\_func)(object\_t *o, intersection\_t *info, double *normal)] \hfill \\
+	Returns the normal of an object at a given intersection point defined in info.
+\item[void (*tex\_func)(object\_t *o, intersection\_t *info, double *tex)] \hfill \\
+	Returns 2-d texture coordinates in tex of the object at the point of intersection info.
+\item[void (*delete\_func)(object\_t *o)] \hfill \\
+	Frees any memory used by the object and any other resources.
+\item[void (*shade\_func)( object\_t *object, scene\_t *scene, intersection\_t *info)] \hfill \\
+	Returns the colour at the surface of the object at the intersection point defined in info the result is stored in info.
 \end{description}
 
 By encapsulating the data and the functions performed by the object it is possible to create algorithms on objects in the

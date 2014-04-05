@@ -17,12 +17,34 @@ light sources begin with the full power of the light source, this will be scaled
 all photons have been gathered.
 
 \subsection{Photon Tracing}
+Once we have created a photon from a light source we now need to trace the photon through the scene and record the interactions
+of the photon until it is absorbed or leaves the scene, the function that performes this function is \texttt{trace\_photon} the
+declaration of this function is given below.
+
+\texttt{int trace\_photon(scene\_t *scene, ray\_t *ray, int light, double power[3], bool specular, bool diffuse, bool specular\_only};
+
+The parameters ray, light and power defines the photon properties, ray defines the origin and direction of the photon, light is an index
+to the light from which this light was emited and the power contains the flux of the photon. specular and diffuse
+define describe the path that the photons have taken prior to the call to \texttt{trace\_photon}
+
 Photons are traced much like a ray in traditional raytracing, first we calculate the closest intersection point of the photon
 once found the photon interacts with the surface of the object at the point of intersection this interaction can be specular 
-reflection , specular transmission, diffuse reflection or absorbtion, the decision is performed by sampling the reflectance
-properties of the surface. given thre specular reflection, transmission and diffuse reflectance coefficients
-$\rho_{s}, \rho_{t}, \rho_{d}$ of the object we can create a distribution of photon emittion paths (Figure~\ref{fig:rr_dist}) 
-we then take a uniform variable $\xi$ in the range [0, 1).
+reflection , transmission, diffuse reflection or absorbtion. Now that we have a point of intersection we must decide what
+to do with the photon, this is determined by the reflectance of the object at the point of intersection, if for instance the
+object reflectes fifty percent of light in the specular direction and the other fifty percent diffusely we could create two
+photons, one that is traced in the specular direction and another in a random direction sampled around the hemisphere in the
+direction of the surface normal, each with half of the power of the incoming photon.
+
+As noted by Jensen, this approach would work but can lead to photons with very low power, more of a concern is that this approach leads to an exponential number of
+photon interactions, as a result we use the monte-carlo method described in \todo{cite} that reflectes at most one photon
+per surface interaction with full power, to make this technique give the same answer as the previous method we make the
+decition based on the reflectivity of the surface by forming a cumulative distribution function.  
+Given the specular reflecive, transmissive and diffuse reflectance coefficents $\rho_{s}, \rho_{t}, \rho_{d}$
+of the object we can create a cumulative distribution of photon emittion paths (Figure~\ref{fig:rr_dist}) 
+we then take a uniform variable $\xi$ in the range from 0 to 1. As we are using rgb values to store reflectance properties the
+coeffients used to perform the sampling are the average of the three componenets, so as the distribution of the three
+colour bands is correct we must also perform scaling of the power parameter that we use in the next \texttt{trace\_photon}
+call, note that the scaling preserves the power of the photon it mearly redistributes it.
 
 \begin{figure}[h]
 \includegraphics{./images/russian_roulette_distribution.png}
@@ -30,16 +52,24 @@ we then take a uniform variable $\xi$ in the range [0, 1).
 \caption{Russian roulette distribution}
 \end{figure}
 
-If the photon intersects a surface with non-specular components the photon is stored in the photon map, in the multithreaded
-design this is implemented as writing the photon to the output queue to be handled by the processing thread, this will include
-flags to describe the path that the photon has taken so that the main thread can correctly insert the photon into one of the
-photon maps.
+If the photon intersects a surface with non-specular components the photon is written to the output queue, 
+the tracing thread will write the photon data that is to be stored in
+the photon map along with infomation that describes the path that the photon has taken, the power of the photon and the
+incident angle of the photon with the surface to a queue that will be read by the main thread.
+The desctiption of the path that the photon is described by flags passed to the photon tracing function,
+two flags are used to describe the path, a diffuse flag and a specular flag both are initially set to false if a diffuse
+surface is intersected the diffuse flag is set to true the same being true for specular intersections and the specular flag.
 
 For specular reflection and transmission a photon is created at the point of intersection that has normal in the reflected
 or transmitted direction, as noted by \todo{Jensen Ciration} storing photons at specular surfaces does not add any useful
 information for rendering as the probability of the photon being used in the radiance estimate is zero due to the
 delta function in specular BRDF's
 
+When creating the caustic photon map we are only concerned with those interactions with diffuse surfaces that have
+taken a path that contains at least one specular bounce and no diffuse bounces (\textbf{LS$^+$DE}), as a result \texttt{trace\_photon}
+has as input a flag that will indicate that any path that does not match this description should be discarded.
+
+\subsubsection{Participating Media}
 If the photon interacts with a participating medium the photon will begin a random walk inside the medium, this walk
 is determined by the properties of the medium, these being the scattering and absorbtion coefficient, the sum of which
 is called the extinction coefficient, at each point in the random walk the photon is stored and then can either be

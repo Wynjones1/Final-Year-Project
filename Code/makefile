@@ -30,15 +30,20 @@ endif
 ###################################
 #     Photon mapping defines.     #
 ###################################
-FAST_DIFFUSE      := 1
-CAUSTICS          := 0
+FAST_DIFFUSE      := 0
+CAUSTICS          := 1
 
+ifeq ($(PMAP), 1)
+
+	CFLAGS += -DPMAP
 ifeq ($(FAST_DIFFUSE), 1)
 	CFLAGS += -DFAST_DIFFUSE
 endif
 
 ifeq ($(CAUSTICS), 1)
 	CFLAGS += -DCAUSTICS
+endif
+
 endif
 
 #Set up the BUILD_MODE variable so that if the mode changes then
@@ -77,9 +82,6 @@ ifeq ($(PROFILE), 1)
 	CFLAGS += -pg -O3
 endif
 
-ifeq ($(PMAP), 1)
-	CFLAGS += -DPMAP
-endif
 
 ifeq ($(OUTPUT_PHOTON_MAP), 1)
 	CFLAGS += -DOUTPUT_PMAP
@@ -120,7 +122,7 @@ time: all
 
 clean:
 	@echo "Cleaning up."
-	@rm -rf *.bmp *.pmap *.mode $(OBJDIR) $(DEPDIR) raytracer
+	@rm -rf *.pmap *.mode $(OBJDIR) $(DEPDIR) raytracer
 
 log: all
 	./raytracer > log.txt

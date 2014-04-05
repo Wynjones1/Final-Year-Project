@@ -60,7 +60,6 @@ static int shoot_photon(scene_t *scene, int light, double power[3], bool caustic
 	ray.depth = g_config.photon_depth;
 	light_t **l = list_data(scene->lights);
 	light_generate_ray(l[light], &ray);
-	vector_normal(ray.normal, ray.normal);
 	return trace_photon(scene, &ray, light, power, false, false, caustics, output);
 
 }
@@ -156,7 +155,8 @@ static void gen_photon_map(scene_t *scene, int num_to_gen, bool caustic, struct 
 			}
 			else
 			{
-				list_push(out->global, &output.photon);
+				if(output.diffuse)
+					list_push(out->global, &output.photon);
 			}
 		}
 	}
@@ -188,7 +188,7 @@ struct pmap_data gen_photons(scene_t *scene, int num_photons)
 #if CAUSTICS
 	VERBOSE("Generating Caustic Photon Map.\n");
 	memset(emitted_count, 0x00, sizeof(int) * num_lights);
-	gen_photon_map(scene, g_config.photons / 10, true,  &out, emitted_count);
+	gen_photon_map(scene, g_config.photons, true,  &out, emitted_count);
 	scale_photons(out.caustic, emitted_count);
 #endif
 

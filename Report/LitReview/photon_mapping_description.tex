@@ -3,19 +3,27 @@ Photon mapping was first developed by Jensen \cite{Jensen95b} as an extension to
 tracing algorithm proposed by Whitted \cite{whitted79a} whereby a preprocessing step is added that
 creates a photon map of the scene.
 
-The photon mapping algorithm begins by emitting photons from each light source in the scence until
+The photon mapping algorithm begins by emitting photons from each light source in the scence,
+each photon contains a fraction of the power of the light that is proportianal to the number
+of photons that are emitted from the light source. Once emitted from the light source the
+photon is traced through the scene much like a ray is traced from the eye, 
 the photon is absorbed by a diffuse surface within the scene, each of the photons absorbed are stored within a photon map
 which is an efficient data structure that will store information about the photon such as the
 location of the absorbtion, the direction from which the photon was traveling and the photons
 energy. the photon map is a spatial structure as we will query the photon map for the photons
 within a location as such it is common to store the photon map in a kd-tree to allow an efficient
-nearest neighbour search.
+nearest neighbour search. Each photon emitted from the light source can be stored multiple times
+along its path in this way we can use the photon map to estimate the radiance from all light
+paths connecting the light and the eye.
 
 Different types of photon maps are used with different accuracies in order to
 improve the efficiency, for instance in \cite{Jensen96a} two photon maps are used, a global photon
 map and a caustic photon map, the caustic photon map contains photons that arrive at a location from
 either the specular reflections or refractions , this photon map is stored at a higher
 accuraracy as its data will be visulaised directly to produce the apperance of caustics in an image.
+Storing the caustic causing paths in a seperate photons not only makes the simulation of caustics
+more efficient it also reduces the variance in renderings as the desity from all other paths
+tend to vary more slowly \todo{cite}.
 
 The general photon map contains all other types of photons stores, such as direct and indirect
 illuminations and shadow photons as described in \cite{Jensen95c, Jensen96a} these shadow photons

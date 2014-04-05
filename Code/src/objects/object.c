@@ -1,4 +1,3 @@
-#include "object.h"
 #include "ray.h"
 #include "intersection.h"
 #include "vector.h"
@@ -42,7 +41,7 @@ void object_calculate_refracted_colour( object_t *object, scene_t *scene, inters
 	{
 		refracted_ray.depth = incident->depth - 1;
 		double t = maths_calculate_refracted_ray(incident->normal, info->normal, object->material.ior, refracted_ray.normal);
-		if(incident->depth != 10 && incident->depth != 9)
+		if(0)
 		{
 			double e = randf(0, 1.0);
 			if(e < t)
@@ -103,13 +102,33 @@ void calculate_diffuse_direct( object_t *object, scene_t *scene, ray_t *ray,
 	for(int i = 0; i < num_lights; i++)
 	{
 		light_calculate_radiance(lights[i], scene, info->point, info->normal, radiance);
-		radiance[0] /= PI;
-		radiance[1] /= PI;
-		radiance[2] /= PI;
 		vector_add(colour_out, radiance, colour_out);
 	}
 }
 
+void sample_hemi_above(object_t *object, scene_t *scene, intersection_t *info, double col[3], int i, int j, int num)
+{
+	ray_t ray;
+	ray.depth = 1;
+	sample_hemi_cosine_jitter(info->normal, ray.normal, i, j, num);
+	vector_copy(info->point , ray.origin);
+	intersection_t temp;
+	if(intersection_photon_scene(&ray, scene, &temp))
+	{
+		double inten[3] = {0, 0, 0};
+		double tex[3] = {0, 0, 0};
+		photon_map_estimate_radiance(scene->global, temp.point, ray.normal, inten);
+		object_calculate_texture_colour(temp.scene.object, &temp, tex);
+		inten[0] *= tex[0];
+		inten[1] *= tex[1];
+		inten[2] *= tex[2];
+		vector_add(col, inten, col);
+		inten[0] = 0.0;
+		inten[1] = 0.0;
+		inten[2] = 0.0;
+		vector_add(col, inten, col);
+	}
+}
 void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 									  intersection_t *info, double colour_out[3])
 {
@@ -118,18 +137,12 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 #if FAST_DIFFUSE
 	double inten[3] = {0, 0, 0};
 	photon_map_estimate_radiance(scene->global, info->point, ray->normal, inten);
-	colour_out[0] += inten[0] / PI;
-	colour_out[1] += inten[1] / PI;
-	colour_out[2] += inten[2] / PI;
+	colour_out[0] += inten[0];
+	colour_out[1] += inten[1];
+	colour_out[2] += inten[2];
 #else
-#if 1
 	double sample_col[3] = {0, 0, 0};
 	int num_samples = 10;
-	double x[3];
-
-	double basisx[3];
-	double basisy[3];
-	maths_basis(info->normal, basisy, basisy);
 
 	ray_t diffuse_ray;
 	vector_copy(info->point, diffuse_ray.origin);
@@ -138,30 +151,13 @@ void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 	{
 		for(int j = 0; j < num_samples; j++)
 		{
-			double inten[] = {0, 0, 0};
-			diffuse_ray.depth = ray->depth;
-			//Sample the BRDF (TODO: Add general BRDF computation)
-			sample_hemi_cosine(info->normal, diffuse_ray.normal);
-
-			intersection_t temp;
-			if(intersection_photon_scene(&diffuse_ray, scene, &temp))
-			{
-				double tex[3];
-				object_calculate_texture_colour(object, info, tex);
-				object_t *new_obj = temp.scene.object;
-				photon_map_estimate_radiance(scene->global, temp.point, temp.normal, inten);
-
-				sample_col[0] += (tex[0]) * inten[0] * vector_dot(info->normal, diffuse_ray.normal);
-				sample_col[1] += (tex[1]) * inten[1] * vector_dot(info->normal, diffuse_ray.normal);
-				sample_col[2] += (tex[2]) * inten[2] * vector_dot(info->normal, diffuse_ray.normal);
-			}
+			sample_hemi_above(object, scene, info, sample_col, i, j , num_samples);
 		}
 	}
 
 	colour_out[0] += sample_col[0] / (num_samples * num_samples);
 	colour_out[1] += sample_col[1] / (num_samples * num_samples);
 	colour_out[2] += sample_col[2] / (num_samples * num_samples);
-#endif
 #endif
 
 #endif
@@ -176,10 +172,7 @@ void calculate_diffuse_caustic( object_t *object, scene_t *scene, ray_t *ray,
 
 	//We are directly sampling the radiance due to caustics.
 	photon_map_estimate_radiance(scene->caustic, info->point, info->normal, inten);
-
-	colour_out[0] += inten[0] / PI;
-	colour_out[1] += inten[1] / PI;
-	colour_out[2] += inten[2] / PI;
+	vector_add(colour_out, inten, colour_out);
 #endif
 }
 
@@ -191,15 +184,13 @@ void object_calculate_diffuse_colour( object_t *object, scene_t *scene, intersec
 	memset(colour_out, 0x00, sizeof(double) * 3);
 	object_calculate_texture_colour(object, info, tex);
 
-#if !FAST_DIFFUSE
 	calculate_diffuse_direct(object,   scene, incident, info, colour_out);
-#endif
 	calculate_diffuse_indirect(object, scene, incident, info, colour_out);
 	calculate_diffuse_caustic(object,  scene, incident, info, colour_out);
 
-	colour_out[0] *= tex[0];
-	colour_out[1] *= tex[1];
-	colour_out[2] *= tex[2];
+	colour_out[0] *= tex[0] / PI;
+	colour_out[1] *= tex[1] / PI;
+	colour_out[2] *= tex[2] / PI;
 }
 
 static void default_shade_func(object_t *object, scene_t *scene, intersection_t *info)

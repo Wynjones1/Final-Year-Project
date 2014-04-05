@@ -1,2 +1,2 @@
-file ./data/ply/cornell_box_box_new.ply
+file ./data/ply/cornell_box_box.ply
 material ./data/materials/box.mat

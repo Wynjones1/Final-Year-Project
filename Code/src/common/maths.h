@@ -2,7 +2,7 @@
 #define MATHS_H
 #include <math.h>
 
-#define EPSILON     1e-12
+#define EPSILON     1e-10
 #define BIG_EPSILON 1e-1
 #define max(a, b) ( (a) > (b) ? (a) : (b))
 #define min(a, b) ( (a) < (b) ? (a) : (b))

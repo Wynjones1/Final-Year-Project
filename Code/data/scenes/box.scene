@@ -1,4 +1,6 @@
 mesh ./data/mesh/cornell_box_box.mesh
-sphere 0.3 0 -0.7 0 ./data/materials/diffuse_red.mat
-camera 0 0 2.0 0 0 -1 0 1 0
-light point 0 1 0 10 10 10
+mesh ./data/mesh/small_box.mesh
+mesh ./data/mesh/large_box.mesh
+camera 0 0 5 0 0 0 0 1 0 4
+#light point 0 0.95 0 40 40 40
+light area 0 0.99 0 0 -1 0 20 20 20 1.5 1.5

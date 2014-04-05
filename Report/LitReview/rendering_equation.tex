@@ -23,7 +23,8 @@ f_{r}(\omega_{i}, \omega_{o}) = \frac{\rho}{\pi}
 \end{equation}
 
 Where $\rho$ is the reflectivity of the surface, for physically based rendering this is a real
-number between zero and one.
+number between zero and one, the denominator in the expression ensures that the amount of
+energy reflected by the surface equals the amount incident on the surface.
 
 For the system that I am developing it is important to be able to specify the material of an
 object in the scene in a flexible manner, this will include a method of representing the BDRF of

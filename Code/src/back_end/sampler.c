@@ -103,51 +103,30 @@ void sample_sphere(double out[3])
 /* Sample uniformly from the hemishere */
 void sample_hemi_jitter(double n[3], double _x[3], double _y[3], int xsample, int ysample, double out[3])
 {
-
-	double Xi1 = randf(0, 1);
-	double Xi2 = randf(0, 1);
-
-	double  theta = acos(sqrt(1.0-Xi1));
-	double  phi = 2.0 * PI * Xi2;
-
-	double xs = sinf(theta) * cosf(phi);
-	double ys = cosf(theta);
-	double zs = sinf(theta) * sinf(phi);
-
-	double x[3];
-	double y[3];
-	double z[3];
-	double h[3];
-	vector_copy(n, y);
-	vector_copy(n, h);
-	if (fabs(h[0])<=fabs(h[1]) && fabs(h[0])<=fabs(h[2]))
-	{
-		h[0]= 1.0;
-	}
-	else if (fabs(h[1])<=fabs(h[0]) && fabs(h[1])<=fabs(h[2]))
-	{
-		h[1]= 1.0;
-	}
-	else
-	{
-		h[2]= 1.0;
-	}
-
-	vector_cross(h, y, x);
-	vector_normal(x, x);
-	vector_cross(x, y, z);
-	vector_normal(z, z);
-
-	for(int i = 0; i < 3; i++)
-	{
-		n[i] = xs * x[i] + ys * y[i] + zs * z[i];
-	}
-	vector_normal(n, n);
 }
 
 void sample_hemi_cosine_jitter(double normal[3], double out[3], int x, int y, int num_samples)
 {
-	double u0 = (x + randf(0, 1)) / num_samples;
-	double u1 = (x + randf(0, 1)) / num_samples;
+	//Map to 0, 1
+	double t0 = x + randf(0, 1);
+	double t1 = y + randf(0, 1);
+	double u0 = t0 / num_samples;
+	double u1 = t1 / num_samples;
 	sample_hemi_cosine_common(normal, out, u0, u1);
+}
+
+void sample_sphere_strat(int i, int j, int num, double out[3])
+{
+	//-1 to 1
+	double ij = i;
+	double jj = j;
+	ij += randf(0, 1);
+	jj += randf(0, 1);
+	double z = 2 * (ij / num) - 1.0;
+	//0 to 2PI
+	double t = 2 * PI * (jj / num);
+	double r = sqrt(1 - z * z);
+	out[0] = r * cosf(t);
+	out[1] = r * sinf(t);
+	out[2] = z;
 }

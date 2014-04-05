@@ -77,7 +77,7 @@ static int trace_diffuse(scene_t *scene, intersection_t *info, ray_t *ray, objec
 	double pref = (col[0] + col[1] + col[2]) / 3.0;
 
 	//Store the photon.
-	if(!specular_only || specular)
+	if(!specular_only || (specular && !diffuse))
 	{
 		store_photon(info, ray, light, power, specular, diffuse, output);
 		ret += 1;

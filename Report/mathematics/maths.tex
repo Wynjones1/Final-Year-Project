@@ -7,10 +7,12 @@ integrals, for all other coordinated standard carteisian coordinates will be use
 
 \missingfigure{Sperical Coordinates}
 
+\section{Solid angle}
+
 \section{Flux}
 The photon mapping algorithm is based around emitting photons from light sources, the unit of measurement of a photon is
-Radiant flux $\Phi$ the exact definition of flux is not relivant to the disscussion of this project but it is used extentivly
-as part of the derivation of the radiance estimate for the photon map in \todo{cite}
+Radiant flux $\Phi$ the exact definition of flux is not relivant to the disscussion, but is essentially a measurement
+of radiant energy with respect to time. \todo{cite}
 
 \section{Radiance}
 Radiance commonly referers to two quantities, incident radiance and exitance radiance, incident radiance being the radiance
@@ -53,9 +55,14 @@ surface where the reflected radiance is preportional to the cosine of the incomi
 we can gain a better estimate for the radiance.
 
 \todo{Motivations}
+\section{Rays}
 
 \section{Intersection Tests}
+In this project we represent the objects in the scene with implicit and explicity definition of surfaces, this includes
+triangle meshes and spheres, each of these objects in order to be used in the raytracing system a function that tests
+whether a given object in the scene intersects with a given ray.
 \subsection{Triangle}
+The intersection test used for triangle intersection tests in this project was derived by \todo{Cite}
 \subsection{Sphere}
 The intersection of a ray and a sphere is one of the simplest, it is essentially finding the root of a quadratic equation to
 find the ray parameter at the point of intersection, if no value can be foudn the ray does not intersect the sphere.
@@ -67,12 +74,5 @@ The algorithm is as follows, we begin at the root of the k-d tree, testing which
 is situated, we set this node as the near node, this will be the node that will be tested first. We calculate the ray parameter
 
 \todo{Expand}
-
-\section{Photon Mapping}
-In this section we will give a detailed description of the photon mapping algorithm.
-
-The photon mapping is seperated into two stages, preprocessing the photon map and raytracing utiliseing the information from the photon
-map. The preoprocessing stage is conceptually creating a data structure that approximates the light transfer of the scene, this is done
-by tracing photons from each of the light sources with a distribution consistent with the description of the scene.
 
 \section{Uniform Sampling}

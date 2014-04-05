@@ -1,10 +1,13 @@
-This section described the implementation aspects of the front end of the system. As the front end is primaraly responsible
-with the i/o of the system it is unlikely to be a bottleneck in the performance of the system, as a result little effort
-has been expended into optimising the front-end.
+As noted during the disscussion of the design of the system the front end of the system is respobsible for the processing
+the input from the user and relaying the data produced by the back-end back to the user. As this stage is primeraly responsible
+for performing input output operations it is unlikely to end up being a bottleneck in the operation of the syste, as a
+result the implementation has not been optimised to perform its role as efficiently as possible to allow more resources
+to be allocated to the development of the back-end.
 
 \subsection{Scene Input (1.5 pages)}
-The scene input is read into a data structure that is passed to the back-end, this structure is implemented as a C struct
-containing a list of all objects in the scene, a camera definition that defines how the eye rays are created.
+The scene input is read into a data structure that is passed to the back-end, this structure is implemented as a structure
+containing a list of all objects in the scene, a camera definition that defines how the eye rays are created and a list
+of light sources that provide the illumination in the scene.
 
 Mesh input to the scene allows for each of the meshes to have matrix operations applied to them, these trasformations
 are applied at the construction of the mesh prior to creating the kdtree of the mesh.
@@ -15,7 +18,7 @@ the main function, these input parameters need to be parsed and stored, this is 
 option in the argv list to find a valid option or pair of options in the case of a user inputed value for the option
 i.e. width of the output image.
 
-\begin{figure}
+\begin{figure}[h]
 \texttt{./raytracer -w 1000 -h 1000 -i ./data/scenes/cornell\_box.scene}
 \caption{Example command line.}
 \end{figure}

@@ -24,7 +24,7 @@ GLuint CreateBox(float *vertices, int n)
 void Render(SDL_Renderer *displayRenderer, GLuint list)
 {
 	static float angle;
-//	angle += 0.7;
+	angle += 0.7;
 	glLoadIdentity();
 	glTranslatef( -0.0f, 0.0f, -6.0f );
 	glRotatef(angle, 0.0, 1.0, 0.0);

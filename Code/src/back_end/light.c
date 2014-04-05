@@ -6,8 +6,8 @@
 #include "vector.h"
 #include "sampler.h"
 #include <string.h>
-static const int NUM_SAMPLES = 16;
-
+static const int NUM_SAMPLES = 25;
+	
 #define JITTER 0
 
 static double point_is_blocked(light_t *l, scene_t *scene, double point[3])
@@ -55,12 +55,11 @@ void point_generate_ray(light_t *l, ray_t *out)
 
 void area_generate_ray(light_t *l, ray_t *out)
 {
-	double x = randf(-l->width/2,l->width/2);
-	double y = randf(-l->height/2,l->height/2);
-	out->origin[0] = l->origin[0] + x;
-	out->origin[1] = l->origin[1];
-	out->origin[2] = l->origin[2] + y;
-
+	double u0 = randf(-0.5, 0.5);
+	double u1 = randf(-0.5, 0.5);
+	vector_copy(l->origin, out->origin);
+	out->origin[0] += l->width  * u0;
+	out->origin[2] += l->height * u1;
 	sample_hemi_cosine(l->normal, out->normal);
 }
 
@@ -72,13 +71,12 @@ void light_generate_ray(light_t *l, ray_t *out)
 			point_generate_ray(l, out);
 			break;
 		case light_type_area:
-			point_generate_ray(l, out);
+			area_generate_ray(l, out);
 			break;
 		case light_type_invalid:
 			ERROR("Invalid Light Type");
 			break;
 	}
-	memcpy(out->origin, l->origin, sizeof(double) * 3);
 }
 
 light_t *light_new(const char *input)
@@ -126,12 +124,13 @@ static void area_calculate_sample_radiance(light_t *l, scene_t *scene, double po
 	ray_t shadow_ray;
 	memcpy(shadow_ray.origin, sample_point, sizeof(double) * 3);
 	memcpy(shadow_ray.normal, to_point, sizeof(double) * 3);
+	double a = l->width * l->height;
 
 	if(dot > 0.0 && !intersection_ray_scene_before(&shadow_ray, scene, t))
 	{
-		radiance[0] = l->power[0] * pdot * dot * inv_t2 * inv_samples2;
-		radiance[1] = l->power[1] * pdot * dot * inv_t2 * inv_samples2;
-		radiance[2] = l->power[2] * pdot * dot * inv_t2 * inv_samples2;
+		radiance[0] = l->power[0] * pdot * dot * inv_t2 * inv_samples2 / a;
+		radiance[1] = l->power[1] * pdot * dot * inv_t2 * inv_samples2 / a;
+		radiance[2] = l->power[2] * pdot * dot * inv_t2 * inv_samples2 / a;
 	}
 	else
 	{

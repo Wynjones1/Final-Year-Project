@@ -1,0 +1,2 @@
+file ./data/ply/small_box.ply
+material ./data/material/diffuse_white.mat
