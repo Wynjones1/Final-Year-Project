@@ -14,7 +14,6 @@ void object_calculate_reflected_colour( object_t *object, scene_t *scene, inters
 	ray_t *ray = &info->incident;
 	if(ray->depth)
 	{
-		double surface_normal[3];
 		intersection_t temp;
 		ray_t new_ray;
 		new_ray.depth = ray->depth - 1;
@@ -122,10 +121,6 @@ void sample_hemi_above(object_t *object, scene_t *scene, intersection_t *info, d
 		inten[0] *= tex[0];
 		inten[1] *= tex[1];
 		inten[2] *= tex[2];
-		vector_add(col, inten, col);
-		inten[0] = 0.0;
-		inten[1] = 0.0;
-		inten[2] = 0.0;
 		vector_add(col, inten, col);
 	}
 }

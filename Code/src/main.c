@@ -19,9 +19,9 @@ int main(int argc, char **argv)
 
 #if GUI
 	gui_t *gui;
+	gui = gui_new(800, 800, g_config.width, g_config.height);
 	if(!g_config.trace_pixel)
 	{
-		gui = gui_new(800, 800, g_config.width, g_config.height);
 		gui_start(gui);
 		scene_register_pixel_update(scene, (pixel_update_func) gui_write, gui);
 	}
