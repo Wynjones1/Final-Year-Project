@@ -41,7 +41,7 @@ void object_calculate_refracted_colour( object_t *object, scene_t *scene, inters
 	{
 		refracted_ray.depth = incident->depth - 1;
 		double t = maths_calculate_refracted_ray(incident->normal, info->normal, object->material.ior, refracted_ray.normal);
-		if(0)
+		if(incident->depth < g_config.ray_depth - 3)
 		{
 			double e = randf(0, 1.0);
 			if(e < t)

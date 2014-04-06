@@ -18,10 +18,7 @@ of radiant energy with respect to time. \todo{cite}
 Radiance commonly referers to two quantities, incident radiance and exitance radiance, incident radiance being the radiance
 that fall on a surface, exitance radiance being radiance from a surface (either from reflection or emission)
 
-\section{The Rendering Equation}
-\missingfigure{rendering equation visual representation}
-
-\subsection{Path Notation}
+\section{Path Notation}
 The radiance estimate on the right hand side of the rendering equation is typically evaluated by a recursive call to the
 procedure that evaluates radiance at a point in the direction $\omega'$, as we perform more evaluation we create a path
 from the eye to the final destination of the ray, it is frequently convienient to refer to these paths by the interaction
@@ -48,6 +45,7 @@ E\left(g\left(X\right)\right) = \sum\limits_{x \in X} g\left(x\right)f_X\left(x\
 \end{equation}
 
 
+\subsection{Sampling}
 \section{Importance Sampling}
 Importance sampling is a statistical technique that allows us to concentrate computational effort when sampling a distribution
 to areas of the distribution that contribute most to the average, for instance sampling incident radiance at a point on a lambertian
@@ -75,4 +73,3 @@ is situated, we set this node as the near node, this will be the node that will 
 
 \todo{Expand}
 
-\section{Uniform Sampling}

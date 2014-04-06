@@ -34,9 +34,9 @@ static int intersection(sphere_t *object, ray_t *ray, intersection_t *info)
 		t0 = temp;
 	}
 
-	if(t1 < 0) return false;
+	if(t1 < EPSILON) return false;
 
-	if(t0 < 0)
+	if(t0 < EPSILON)
 	{
 		info->t = t1;
 	}

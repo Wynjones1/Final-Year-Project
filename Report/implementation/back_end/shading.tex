@@ -1,4 +1,7 @@
 \section{Shading}
+Once we have found a point of intersection we must now calculate the colour at that point, this will take into account the
+reflecance properties of the object and the photon map surrounding it, this will in effect be an evaulation of the rendering
+equation, which we will evaluate by spliting the equation into several components.
 
 \subsection{Direct Illumination}
 Direct illumination is the radiance contribution at a surface directly from the light sources in the scene, in path notation
@@ -12,6 +15,20 @@ direct illumination with raytraceing and the photon map can be seen in Figure~\r
 \begin{figure}
 \label{fig:direct_compare}
 \end{figure}
+
+The system currently supports two types of light, point lights and area light, we will first consider calculating the radiance
+from a point light as it is the simpler of the two cases.
+
+The radiance from a point light is constant for all points at the same distance from the origin of the light, the radiance at
+a point in the scene is given by Equation~\ref{fig:point_light_radiance}, where the function V is the visibility function, that
+is if the point of intersection cannot see the point light it will not contribute the radinace at that point, this will cause
+the appearance of shadows in the render.
+
+In the case of area lights calculating the radiance at a point is more complicated, we must calculate the preportion of the
+area of the light that is visible at the point of intersection, to do this we sample a number of shadow rays that evaluate the
+visibility function across the area of the light.
+
+\missingfigure[figheight=1cm]{point light radiance}
 
 \subsubsection{Texture Mapping}
 Performing texture mapping requires the ability to query the texture coordinates at a point of intersection, for mesh objects this

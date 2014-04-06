@@ -5,12 +5,16 @@ result the implementation has not been optimised to perform its role as efficien
 to be allocated to the development of the back-end.
 
 \subsection{Scene Input (1.5 pages)}
-The scene input is read into a data structure that is passed to the back-end, this structure is implemented as a structure
-containing a list of all objects in the scene, a camera definition that defines how the eye rays are created and a list
-of light sources that provide the illumination in the scene.
+Scene input begins by reading from a file pointed to by the user and if not given a default file defined in the source
+code, this file is a list of all objects in the scene (see Appendix \todo{Add appendix} for a full descritption.) each
+object described is created and stored in structure (see Figure~\ref{fig:scene_define}) each of the objects in the
+file may be completly specified from the scene file such as lights and cameras while other objects such as meshes
+and spheres may require other files to be read containing data such as material properties and vertex information.
 
-Mesh input to the scene allows for each of the meshes to have matrix operations applied to them, these trasformations
-are applied at the construction of the mesh prior to creating the kdtree of the mesh.
+\subsubsection{Mesh Input}
+If a mesh is specified in the scene file the vertex information will be read from a ply file, this data is just a list
+of vertices, normals texture coordinated and triangle indices, this structure is not conducive to efficient intersection
+tests, as a result a k-d tree is created before storing the mesh in the scene. \todo{Add desctiption of k-d construction}
 
 \subsection{Command Line (0.1 pages)}
 Users are able to input command line arguments to the system, these are received by C programs in the input parameters of
@@ -74,7 +78,7 @@ gui running.
 
 \begin{figure}[h]
 \centering
-\includegraphics[scale=0.3]{./images/gui_screenshot.png}
+\includegraphics[scale=0.24]{./images/gui_screenshot.png}
 \label{fig:gui_screenshot}
 \caption{Screenshot of render in progress}
 \end{figure}

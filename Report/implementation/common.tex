@@ -1,0 +1,13 @@
+In this section I will briefly discuss some data structures that are used as part of the system that cannot
+be catagorised as being in the front or the back end.
+
+Due to the small standard library provided by C many features that are commonly found in more high level languages are not
+found in C, for this project we need three such data structures, lists queues and vectors.
+
+\subsection{Lists}
+\subsection{Queue}
+During the photon mapping stage of the back end we need to coordinate a number of threads that is dependant on runtime inputs,
+the problems that we faced during the development were distribution of work and coolation of the results of each thread,
+the solution that we decided upon in both cases was to use a thread-safe queue implementation.
+
+\subsection{Vectors}

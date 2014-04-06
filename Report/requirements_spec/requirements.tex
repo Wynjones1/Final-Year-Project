@@ -29,6 +29,10 @@
 	{
 		As this is the focus of the project it is a key requirment of the final product.
 	}
+
+	\req{Must support diffuse and specular reflectance properties}
+
+	\req{Must support generic scene objects}
 \end{enumerate}
 
 \subsection{Non Functional Requirements}
@@ -42,12 +46,15 @@
 	{
 		Due to hardware availability this is less strong of a requirement than 2.1
 	}
+	\req{Should support user configuration from the command line}
+	{
+		Users should be able to configure the render parameters without recompiling.
+	}
 	\req{Should perform synthesis in a reasonable time}
 	{
 		The use of algorithms and acceleration structures that lower rendering times
 		should be used where possible.
 	}
-
 	\req{GUI should be responsive to user interaction}{}
 	\req{Results must be consisten across runs}
 	{
@@ -59,4 +66,5 @@
 		Users should not be expected to read the source code in order to create
 		a scene for the program.
 	}
+	\req{Software design must be modular with clear seperation of concerns}
 \end{enumerate}
