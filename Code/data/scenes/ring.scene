@@ -1,5 +1,5 @@
 mesh ./data/mesh/plane.mesh
 mesh ./data/mesh/ring.mesh
 camera 0 -0.4 3 0 0 0 0 1 0 2
-#light point 0.3 -0.9 0 100 100 100
-light area 0 0.9 0    0 -1 0      1 1 1      0.4 0.4
+light point 0.3 -0.9 0 100 100 100
+#light area 0 0.9 0    0 -1 0      1 1 1      0.4 0.4

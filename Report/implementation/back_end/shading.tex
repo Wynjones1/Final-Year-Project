@@ -5,6 +5,36 @@ equation, which we will evaluate by spliting the equation into several component
 specular reflection and transmission which we evaluate using raytracing and diffuse interreflection and caustcs which will
 use the photon map to estimate the radiance.
 
+Recall from Chapter \todo{cite} the rendering equation is given in terms of incoming and outcoming radiance, omitting
+emitted radiance we can rewrite the rendering equation with each of the components seperated \todo{cite}.
+
+\begin{align*}
+L_{r}(x, \omega) =&
+			\int_{\Omega}
+				f_{r}(x, \omega, \omega')
+				L(x,\omega,\omega')_{i,l}
+				(\omega \cdot n)d\omega'
+			+\\
+		&	\int_{\Omega}
+				f_{r,S}(x, \omega, \omega')
+				(
+				L(x,\omega,\omega')_{i,d}
+				+
+				L(x,\omega,\omega')_{i,c}
+				)
+				(\omega \cdot n)d\omega'
+			+\\
+		&	\int_{\Omega}
+				f_{r,D}(x, \omega, \omega')
+				L(x,\omega,\omega')_{i,c}
+				(\omega \cdot n)d\omega'
+			+\\
+		&	\int_{\Omega}
+				f_{r,D}(x, \omega, \omega')
+				L(x,\omega,\omega')_{i,d}
+				(\omega \cdot n)d\omega'
+\end{align*}
+
 \subsection{Direct Illumination}
 Direct illumination is the radiance contribution at a surface directly from the light sources in the scene, in path notation
 this is \textbf{LDE} this term is responsible for the majority of detail in the scene, as a result we use raytracing to calcualte
@@ -93,8 +123,6 @@ R_s(\theta)=R_0 + \left(1 + R_0\right)\left(1 - \cos\theta\right)^5
 As with other aspects of the system where multiple rays can be spawned from a surface interaction (in this case one reflected and one refracted ray)
 we use russian roulette in order to determine if we reflect or refract.
 
-\subsection{Nearest Neighbour Search}
-\todo{psuedocode}
 
 \subsection{Diffuse Interreflection}
 Diffuse interrefection is the contribution that occurs from photons that have been bounced from a diffuse surface at least once
@@ -106,6 +134,9 @@ In order for the final gather to produce a correct estimate of the radiance we n
 are performing distributed raytracing this is a trivial addition. When calcualting the radiance for the final gather it has been shown \todo{cite}
 that if the distance of the final gather point is lower than some threshold perfoming an additional diffuse bounce reduces errors at geometry
 such as sharp corners where the radiance estimate can be inaccurate due to accounting for photons not truly at the surface.
+
+\subsection{Nearest Neighbour Search}
+\todo{psuedocode}
 
 \begin{figure}
 \centering

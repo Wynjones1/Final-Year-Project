@@ -1,8 +1,12 @@
-\section{Object System}
 In order to meet requirement \todo(find requirement to ref) the system needs to be able support arbitrary objects descriptions
 that can be traced in the scene, this is implementatied as a structure that contains function pointers that perform functions
 that must be supported by all raytracable objects and the data related to the individual object.
+By encapsulating the data and the functions performed by the object it is possible to create algorithms on objects in the
+abstract such that the details of the object can be ignored, for instance calculating a reflected ray at a point if intersection
+is a function of only the surface normal at that point, wheither it is a triangle mesh or sphere the same ray will be calculated,
+a full list of the functions that need to be defines is given in Figure~\ref{fig:object_funcs}
 
+\begin{figure}[h]
 \begin{description}
 \item[int  (*intersection\_func)(object\_t *o, ray\_t *ray, intersection\_t *info)] \hfill \\
 	Tests if the input ray intersectes with the object, returns the result and any other information is stored in the input variable info
@@ -13,25 +17,59 @@ that must be supported by all raytracable objects and the data related to the in
 \item[void (*tex\_func)(object\_t *o, intersection\_t *info, double *tex)] \hfill \\
 	Returns 2-d texture coordinates in tex of the object at the point of intersection info.
 \item[void (*delete\_func)(object\_t *o)] \hfill \\
-	Frees any memory used by the object and any other resources.
+	Frees any memory and other resources used by the object.
 \item[void (*shade\_func)( object\_t *object, scene\_t *scene, intersection\_t *info)] \hfill \\
 	Returns the colour at the surface of the object at the intersection point defined in info the result is stored in info.
 \end{description}
+\label{fig:object_funcs}
+\caption{Functional Definition of an Object}
+\end{figure}
 
-By encapsulating the data and the functions performed by the object it is possible to create algorithms on objects in the
-abstract such that the details of the object can be ignored, for instance calculating a reflected ray at a point if intersection
-is a function of only the surface normal at that point, wheither it is a triangle mesh or sphere the same ray will be calculated.
+
+We will now attempt to give an overview of the implementation of the objects currently used within the system.
+
+\subsection{Sphere}
+The sphere primitive is defined implicitly as an origin point and distance from the origin, including a sphere primitive is
+a natural choice as many of the operations that we need to perform such as intersection tests and finding the normal at the
+point of intersection is much simpler for spheres that most other surfaces allowing us to use this primitive for testing
+changes while being confident that any errors that we find are not within the object definition of the sphere, the same cannot
+be said for a mesh where the optimised intersection test used is fairly complex and contains more scope for implementational errors.
+
+\subsubsection{Intersection test}
+Given that we define a ray and a sphere in a parametric form it is intuitive to solve the intersection of these objects implicity,
+given a ray defined $\vec{o} + t \vec{d}$ and the equation for a sphere $x ^ 2 + y ^ 2 + z ^ 2 - r ^ 2 = 0$
 
 \subsection{Mesh}
-\subsection{Sphere}
+The mesh primitive in the system is defined as a collection of vertices connected into triangles through a list of triangles,
+additionally surface normals and texture coordinates can be specified in the input file (see section \todo{find section})
 
-\subsection{Participating Media}
-
-\subsection{K-D Tree Construction}
+\subsubsection{K-D Tree Construction}
 In order to satisy requirement TODO:Add the requirement bruteforce methods for raytracing are not acceptable, in order to reduce
 to number of intersection tests that are performed I have decided to use the kdtree for the accelleration structure. The
 construction of the kdtree is performed during the initialiseation of the triangle meshes as it is a static data structure, due
 to it being a static data structure their is an advantage to performing more extensive computation in the construction in
-order to create a higher quality of kdtree. TODO:Add sah and analysis. The construction of the tree is 
+order to create a higher quality of kdtree. TODO:Add sah and analysis. We begin the contruction of the kd-tree with all
+triangles in a single list, we then calculate an axis and position on that axis to seperate the triangles, this is calculated
+by \todo{add SAH or average if not implemented} we then sort each of the triangles into two child lists, if a triangle is
+to the left of the splitting plane it will be placed in the left childs triagnle list and visa-versa for the right, if the
+triangle spans the split plane it will be added to both lists, we then call the tree building function recursivly on the
+left and right child and delete the list for this node, we terminate when a list contains less than a threshold number
+of triangles in its bucket or a maximum depth is reached, or if all triangles are placed in a single node.
+
+\subsubsection{Intersection test}
+
 
 \subsection{Material Properties}
+Each object has associated with it a material property that defines the reflectance properties of the material.
+The system currenlty suports diffuse and pure specular components each being defined as a three floating point
+values for red, green and blue compnonets respectivly, texture mapping is also supported for the diffuse component,
+for specular transmission an index of refraction is defined that determins the direction of refracted rays through the
+material. We also store the average values for these components explicitly as they are frequentlty used when performing
+russian roulette to evaluate integrals during photon map construction and raytracing as will be seen in section \todo{Add section}
+
+\subsubsection{Participating Media}
+Materials can also be set to being a participating media, in this case we have four coefficitnes, the scattering and
+absorption coefficient which will determin how light interacts with the object internally derived from these values
+are the extinction coefficient and albedo we will demonstrate their useage in section \todo{section}.
+
+

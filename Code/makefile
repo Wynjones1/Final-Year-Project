@@ -31,7 +31,7 @@ endif
 #     Photon mapping defines.     #
 ###################################
 FAST_DIFFUSE      := 0
-CAUSTICS          := 1
+CAUSTICS          := 0
 
 ifeq ($(PMAP), 1)
 
