@@ -1,6 +1,6 @@
 mesh ./data/mesh/cornell_box_box.mesh
-#sphere 0.30 -0.5 -0.70 -0.3 ./data/materials/mirror.mat
-#sphere 0.30 0.5 -0.7 0 ./data/materials/glass.mat
+sphere 0.30 -0.5 -0.70 -0.3 ./data/materials/mirror.mat
+sphere 0.30 0.5 -0.7 0 ./data/materials/glass.mat
 camera 0 0 5 0 0 0 0 1 0 4
 light point 0 0.95 0 40 40 40
 #light area 0 0.95 0 0 -1 0 7 7 7 1 1

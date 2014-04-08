@@ -1,2 +1,2 @@
-file ./data/ply/sponza_small.ply
-material ./data/materials/diffuse_white.mat
+file ./data/ply/sponza.ply
+material ./data/materials/diffuse_grey.mat
