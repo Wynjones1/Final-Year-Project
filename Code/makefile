@@ -11,6 +11,7 @@ PMAP              := 1
 OUTPUT_PHOTON_MAP := 1
 VERBOSE           := 1
 SANITIZE          := 0
+SPECULAR          := 1
 
 CFLAGS += -DSINGLE_THREAD
 
@@ -27,11 +28,15 @@ ifeq ($(ASM), 1)
 	CFLAGS += -S
 endif
 
+ifeq ($(SPECULAR), 1)
+	CFALGS += -DSPECULAR
+endif
+
 ###################################
 #     Photon mapping defines.     #
 ###################################
 FAST_DIFFUSE      := 0
-CAUSTICS          := 0
+CAUSTICS          := 1
 
 ifeq ($(PMAP), 1)
 
@@ -54,7 +59,7 @@ ifeq ($(DEBUG), 1)
 	CFLAGS += -Wno-unused-function
 	BUILD_MODE = debug_mode
 else ifeq ($(REL), 1)
-	CFLAGS += -DNDEBUG -O3 -Werror
+	CFLAGS += -DNDEBUG -O3
 	BUILD_MODE = release_mode
 else ifeq ($(RELDEBUG), 1)
 	CFLAGS += -O3 -Werror -g

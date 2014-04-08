@@ -42,6 +42,7 @@ int           photon_map_nearest_n(photon_map_t *map, double *v, int n, double r
 int           photon_map_nearest_n_bf(photon_map_t *map, double *v, int n, double radius,photon_dist_key_t *out);
 
 void          photon_map_estimate_radiance(photon_map_t *map, double x[3], double n[3], double radiance[3]);
+void          photon_map_estimate_radiance_filter(photon_map_t *map, double x[3], double n[3], double radiance[3]);
 void          photon_map_estimate_radiance_volume(photon_map_t *map, double x[3], double n[3], double radiance[3]);
 
 photon_map_t *photon_map_balance(list_t *photons);

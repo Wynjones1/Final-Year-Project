@@ -116,7 +116,16 @@ void sample_hemi_above(object_t *object, scene_t *scene, intersection_t *info, d
 	{
 		double inten[3] = {0, 0, 0};
 		double tex[3] = {0, 0, 0};
-		photon_map_estimate_radiance(scene->global, temp.point, ray.normal, inten);
+#if 0
+		if(temp.t < 0.1)
+		{
+			calculate_diffuse_indirect(temp.scene.object, scene, &ray, &temp, inten);
+		}
+		else
+#endif
+		{
+			photon_map_estimate_radiance(scene->global, temp.point, ray.normal, inten);
+		}
 		object_calculate_texture_colour(temp.scene.object, &temp, tex);
 		inten[0] *= tex[0];
 		inten[1] *= tex[1];
@@ -166,7 +175,8 @@ void calculate_diffuse_caustic( object_t *object, scene_t *scene, ray_t *ray,
 	double inten[] = {0, 0, 0};
 
 	//We are directly sampling the radiance due to caustics.
-	photon_map_estimate_radiance(scene->caustic, info->point, info->normal, inten);
+	photon_map_estimate_radiance_filter(scene->caustic, info->point, info->normal, inten);
+	//photon_map_estimate_radiance(scene->caustic, info->point, info->normal, inten);
 	vector_add(colour_out, inten, colour_out);
 #endif
 }

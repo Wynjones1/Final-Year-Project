@@ -1,3 +1,2 @@
-file ./data/ply/tex_plane.ply
-colour 1.0 0.0 0.0
-texture ./data/tga/colour_grid.tga
+file ./data/ply/plane.ply
+material ./data/materials/colour_grid.mat

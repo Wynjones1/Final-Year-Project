@@ -9,18 +9,18 @@
 
 struct kdtree_node
 {
-	struct kdtree_node *children;
-	int     depth;
+	char    leaf  : 1;
+	char    depth : 7;
 	double  split;
-	int     axis;
+	char    axis;
+	struct kdtree_node *children;
+	list_t             *indices;
 #if DEBUG
 	uint64_t id;
 	double min[3];
 	double max[3];
 	struct kdtree_node *parent;
-	bool   leaf;
 #endif
-	list_t *indices;
 };
 
 typedef struct kdtree_node kdtree_node_t;
