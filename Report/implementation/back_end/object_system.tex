@@ -57,6 +57,18 @@ left and right child and delete the list for this node, we terminate when a list
 of triangles in its bucket or a maximum depth is reached, or if all triangles are placed in a single node.
 
 \subsubsection{Intersection test}
+Given the k-d tree that we have constructed for a mesh we can now describe an efficient top-down intersection algorithm,
+we begin at the root of the k-d tree, given that the tree has been split along an axis we can calculate which of the
+child voxels are closer to the ray by calculating the values of intersection for the two voxel, if the ray origin is
+within a voxel it is set to be the near voxel and the other child the far, otherwise we compare the t values for the
+voxel intersection. Once we know which voxel to traverse, if the ray exits the near voxel before crossing the splitting
+plane we do not need to test the far voxel as we cannot intersect any geometry in that voxel, we perform this procedure
+recursibly on the near and possibly far voxel until we reach a leaf node, we then test all triangles in the index list,
+if we find an intersection we record the t parameter for the intersection and check the rest of the list, if an intersection
+if found we can return the intersection point and discard any other voxels that we were going to check as they cannot
+have an intersection closer. There is a subtle point that must be noted, when we are checking for that intersection of
+a triangle in a list if the intersection point is found to be more that the exit point of the voxel then we do not
+record this intersection as the triangle spans voxels and we need to check for closer intersection.
 
 
 \subsection{Material Properties}

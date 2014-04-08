@@ -11,3 +11,6 @@ clean:
 	rm -f diss.dvi diss.aux diss.bbl diss.log diss.lof diss.lot diss.toc diss.blg diss.pdf diss.out diss_defs.aux
 
 run: all
+
+wc:
+	pdftotext diss.pdf -layout - | wc -w

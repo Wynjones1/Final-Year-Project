@@ -110,6 +110,70 @@ this allows us to store the photon map in an array with the location of the chil
 for a photon in position $i$ the children of the photon can be found at the $(2i + 1)^{th}$ and $(2i + 2)^{th}$
 location for the left and right tree respectivly.
 
+\begin{algorithm}
+\begin{algorithmic}
+\caption{Balanced K-D tree construction}
+\Function{balance}{photons, index, max\_index}
+\If
+{
+photons.size \textgreater 1
+}
+{
+
+	axis $\gets$ \Call{select\_axis}{photons}
+
+	left, median, right $\gets$ \Call{partition\_around\_median}{photons, axis}
+
+	left\_index  $\gets$ 2 * index + 1
+
+	right\_index $\gets$ 2 * index + 2
+
+	\If{left\_index \textless max\_index}
+	{
+
+		left $\gets$ \Call{balance}{left, left\_index,max\_index}
+	}
+	\EndIf
+
+	\If{right\_index \textless max\_index}
+	{
+
+		right $\gets$ \Call{balance}{right, right\_index, max\_index}
+	}
+	\EndIf
+
+	\Return{left + median + right}
+}
+\Else
+{
+
+	\Return{photons}
+}
+\EndIf
+\EndFunction
+%\State colour $\gets$ scene.sky\_colour
+%\For{object $\in$ scene}
+%
+%	new\_record $\gets$ intersects(ray, object)
+%
+%	\If{new\_record.hit \textbf{and} new\_record.t $\textless$ record.t}
+%
+%	record $\gets$ new\_record
+%
+%	\EndIf
+%
+%\EndFor
+%
+%\If{record.hit}
+%
+%	colour $\gets$ shade(scene, record)
+%\EndIf
+%
+%\Return colour
+
+\end{algorithmic}
+\end{algorithm}
+
 \missingfigure{KDBalance Algorithm}
 \todo{Add the median of median algorithm here}
 
@@ -119,7 +183,7 @@ location for the left and right tree respectivly.
 \caption{Left balanced tree and its memory layout}
 \end{figure}
 
-\subsection{Selection Statistic}
+\subsubsection{Selection Statistic}
 During the balancing procedure we need to partition the tree such that half the elements are less than the median
 this can be seen as finding the $i/2^{th}$ largest element in the list, this can be performed in linear time by using
 the median of medians algorithm \todo{cite}. Below is a comparison for the runnning time of the balancing procedure for
