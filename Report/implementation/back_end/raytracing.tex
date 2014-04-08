@@ -5,8 +5,17 @@ that it processes each sample per pixel is offset inside the pixel to perform an
 can be seen in images. In order to improve the appearence of the image we also perform jittering on the samples this reduces
 certain artifacts such as banding. \todo{Make sure the banding comment is correct and if so find a reference for it}
 
-\missingfigure{anti-aliasing}
-
+\begin{figure}[h]
+\centering
+\begin{subfigure}[b]{0.4\textwidth}
+	\includegraphics[width=\textwidth]{./images/renders/no-aa.png}
+	\caption{1 ray per pixel}
+\end{subfigure}
+\begin{subfigure}[b]{0.4\textwidth}
+	\includegraphics[width=\textwidth]{./images/renders/aa.png}
+	\caption{25 rays per pixel}
+\end{subfigure}
+\end{figure}
 \subsection{Intersection Tests (0.5 pages)}
 
 Intersection tests are another vital part of any raytracer. a number of intersection tests are needed, I will not include

@@ -9,6 +9,10 @@
 #include "kdtree.h"
 #include "config.h"
 
+#define SKY_DEFAULT_SKY_R 0.1328
+#define SKY_DEFAULT_SKY_G 0.1328
+#define SKY_DEFAULT_SKY_B 1.0
+
 typedef struct photon_map photon_map_t;
 
 struct scene
@@ -20,6 +24,7 @@ struct scene
 	photon_map_t *global;
 	photon_map_t *caustic;
 	photon_map_t *volume;
+	double        sky[3];
 };
 
 typedef void (*pixel_update_func)(void *data, int x, int y, uint32_t rgb);

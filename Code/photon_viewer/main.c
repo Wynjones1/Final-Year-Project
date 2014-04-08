@@ -61,7 +61,7 @@ void MainLoop(SDL_Renderer *r, int n, float *points)
 int main(int argc, char *argv[])
 {
 	int num = 0;
-	char *filename = "../photon_map1.pmap";
+	char *filename = "../photon_map0.pmap";
 	float *points = reader_points(filename, &num);
 	SDL_Renderer *render = initGL();
 	MainLoop(render, num, points);

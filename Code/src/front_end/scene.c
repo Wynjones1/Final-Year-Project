@@ -70,6 +70,10 @@ scene_t *scene_read(const char *filename)
 		out->camera = camera_default();
 	}
 
+	out->sky[0] = SKY_DEFAULT_SKY_R;
+	out->sky[1] = SKY_DEFAULT_SKY_G;
+	out->sky[2] = SKY_DEFAULT_SKY_B;
+
 	fclose(fp);
 	VERBOSE("Reading scene: %s\n", filename);
 	VERBOSE("Object count:  %d\n", list_size(out->objects));

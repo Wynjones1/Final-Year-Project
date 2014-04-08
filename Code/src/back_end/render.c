@@ -40,9 +40,7 @@ static void process_initial_ray(scene_t *scene, ray_t *ray, double *colour_out)
 	}
 	else
 	{
-		colour_out[0] += 0.1328;
-		colour_out[1] += 0.1328;
-		colour_out[2] += 1.0;
+		vector_copy(scene->sky, colour_out);
 	}
 }
 

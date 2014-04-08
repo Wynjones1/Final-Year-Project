@@ -114,9 +114,10 @@ FILE *open_file(const char *filename, const char *mode, const char *file, int li
 uint32_t convert_double_rgb_to_24bit(double *colour)
 {
 	uint32_t out = 0;
-	out |= (uint8_t)(max(0, min(255, (255 * colour[0])))) << 16;
-	out |= (uint8_t)(max(0, min(255, (255 * colour[1])))) << 8;
-	out |= (uint8_t)(max(0, min(255, (255 * colour[2]))));
+	double norm = max(1.0, max(colour[0], max(colour[1], colour[2])));
+	out |= (uint8_t)(max(0, min(255, (255 * colour[0] / norm)))) << 16;
+	out |= (uint8_t)(max(0, min(255, (255 * colour[1] / norm)))) << 8;
+	out |= (uint8_t)(max(0, min(255, (255 * colour[2] / norm))));
 	return out;
 }
 

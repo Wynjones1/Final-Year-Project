@@ -7,6 +7,25 @@
 #include <stdlib.h>
 #include "projection.h"
 
+void sub_image(void *_data, int x, int y, uint32_t data)
+{
+	static bmp_t *bmp;
+	if(!bmp)
+	{
+		bmp = bmp_init("sub_image.bmp", 20, 20);
+	}
+	int subx = 45;
+	int suby = 10;
+	int w = 20;
+	int h = 20;
+	if(x - subx < w && x - subx > 0)
+	{
+		if(y - suby < w && y - suby > 0)
+		{
+			bmp_write(bmp, x - subx, y - suby, data);
+		}
+	}
+}
 
 int main(int argc, char **argv)
 {
@@ -29,6 +48,7 @@ int main(int argc, char **argv)
 
 	bmp_t *bmp = bmp_init(g_config.output_filename, g_config.width, g_config.height);
 	scene_register_pixel_update(scene, (pixel_update_func) bmp_write, bmp);
+	scene_register_pixel_update(scene, sub_image, NULL);
 
 	render(scene);
 

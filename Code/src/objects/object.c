@@ -24,8 +24,9 @@ void object_calculate_reflected_colour( object_t *object, scene_t *scene, inters
 		{
 			vector_copy(temp.scene.colour, info->scene.colour);
 		}
-		else {
-			memset(info->scene.colour, 0x00, sizeof(double) * 3);
+		else
+		{
+			vector_copy(scene->sky, info->scene.colour);
 		}
 	}
 }
@@ -202,6 +203,7 @@ static void default_shade_func(object_t *object, scene_t *scene, intersection_t 
 {
 	double eps = randf(0.0, 1.0);
 	material_t *mat = &object->material;
+	double out[3] = {0,0,0};
 	if(eps < mat->av_diff)
 	{
 		object_calculate_diffuse_colour(object, scene, info);
