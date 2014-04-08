@@ -137,7 +137,7 @@ static void pmedia_shade(object_t *object, scene_t *scene, intersection_t *info)
 {
 	//Step through the participating media.
 	ray_t new_ray;
-	new_ray.depth = info->incident.depth - 1;
+	new_ray.depth = info->incident.depth + 1;
 	vector_copy(info->incident.normal, new_ray.normal);
 	vector_copy(info->point, new_ray.origin);
 	intersection_t temp;

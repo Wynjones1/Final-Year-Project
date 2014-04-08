@@ -31,7 +31,7 @@ static scene_t        *scene;
 static void process_initial_ray(scene_t *scene, ray_t *ray, double *colour_out)
 {
 	intersection_t info;
-	ray->depth   = g_config.ray_depth;
+	ray->depth   = 0;
 	if(intersection_ray_scene(ray, scene, &info))
 	{
 		colour_out[0] += info.scene.colour[0];

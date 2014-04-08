@@ -7,7 +7,7 @@ INCLUDEDIRS       := -I./src/front_end -I./src/back_end -I./src/objects -I./src/
 CFLAGS            := --std=$(STD) -Wall -D__STDC_FORMAT_MACROS -D_USE_MATH_DEFINES=1 $(INCLUDEDIRS)
 LIBS              := -lm -lpthread 
 GUI               := 1
-PMAP              := 0
+PMAP              := 1
 OUTPUT_PHOTON_MAP := 1
 VERBOSE           := 1
 SANITIZE          := 0
@@ -36,7 +36,7 @@ endif
 #     Photon mapping defines.     #
 ###################################
 FAST_DIFFUSE      := 0
-CAUSTICS          := 0
+CAUSTICS          := 1
 
 ifeq ($(PMAP), 1)
 
@@ -59,7 +59,7 @@ ifeq ($(DEBUG), 1)
 	CFLAGS += -Wno-unused-function
 	BUILD_MODE = debug_mode
 else ifeq ($(REL), 1)
-	CFLAGS += -DNDEBUG -O3
+	CFLAGS += -DNDEBUG -O3 -g
 	BUILD_MODE = release_mode
 else ifeq ($(RELDEBUG), 1)
 	CFLAGS += -O3 -Werror -g

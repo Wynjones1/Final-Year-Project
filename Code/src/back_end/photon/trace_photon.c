@@ -8,7 +8,7 @@ static int trace_reflected(scene_t *scene, intersection_t *info, ray_t *ray, obj
 						   double power[3], bool diffuse, bool specular_only, queue_t *output)
 {
 	ray_t reflected_ray;
-	reflected_ray.depth = ray->depth - 1;
+	reflected_ray.depth = ray->depth + 1;
 	vector_copy(info->point, reflected_ray.origin);
 	maths_calculate_reflected_ray(ray->normal, info->normal, reflected_ray.normal);
 	//Scale the power of the photon.
@@ -24,7 +24,7 @@ static int trace_refracted(scene_t *scene, intersection_t *info, ray_t *ray, obj
 						   double power[3], bool diffuse, bool specular_only, queue_t *output)
 {
 	ray_t refracted_ray;
-	refracted_ray.depth = ray->depth - 1;
+	refracted_ray.depth = ray->depth + 1;
 	material_t *mat = &o->material;
 	vector_copy(info->point, refracted_ray.origin);
 	double t = maths_calculate_refracted_ray(ray->normal, info->normal, mat->ior, refracted_ray.normal);
@@ -86,7 +86,7 @@ static int trace_diffuse(scene_t *scene, intersection_t *info, ray_t *ray, objec
 	ray_t diffuse_ray;
 	vector_copy(info->point, diffuse_ray.origin);
 	sample_hemi_cosine(info->normal, diffuse_ray.normal);
-	diffuse_ray.depth = ray->depth - 1;
+	diffuse_ray.depth = ray->depth + 1;
 	double temp_col[3];
 	memcpy(temp_col, power, sizeof(double) * 3);
 	temp_col[0] *= col[0] / pref;
@@ -152,7 +152,7 @@ static int trace_pmedia(scene_t *scene, intersection_t *info, ray_t *ray, object
 						   double power[3], bool specular, bool diffuse, bool specular_only, queue_t *output)
 {
 	ray_t new;
-	new.depth = ray->depth - 1;
+	new.depth = ray->depth + 1;
 	vector_copy(ray->normal, new.normal);
 	vector_copy(info->point, new.origin);
 
@@ -186,7 +186,7 @@ int trace_photon(scene_t *scene, ray_t *ray, int light, double power[3], bool sp
 				 bool diffuse, bool specular_only, queue_t *output)
 {
 	int ret = 0;
-	if(ray->depth)
+	if(ray->depth < g_config.photon_depth)
 	{
 		intersection_t info;
 		if(intersection_photon_scene(ray,scene, &info))

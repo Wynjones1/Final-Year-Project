@@ -57,7 +57,7 @@ queue_t *output_queue;
 static int shoot_photon(scene_t *scene, int light, double power[3], bool caustics, queue_t *output)
 {
 	ray_t ray;
-	ray.depth = g_config.photon_depth;
+	ray.depth = 0;
 	light_t **l = list_data(scene->lights);
 	light_generate_ray(l[light], &ray);
 	return trace_photon(scene, &ray, light, power, false, false, caustics, output);

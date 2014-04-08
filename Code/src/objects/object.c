@@ -12,11 +12,11 @@
 void object_calculate_reflected_colour( object_t *object, scene_t *scene, intersection_t *info)
 {
 	ray_t *ray = &info->incident;
-	if(ray->depth)
+	if(ray->depth < g_config.ray_depth)
 	{
 		intersection_t temp;
 		ray_t new_ray;
-		new_ray.depth = ray->depth - 1;
+		new_ray.depth = ray->depth + 1;
 		vector_copy(info->point, new_ray.origin);
 		maths_calculate_reflected_ray(ray->normal, info->normal, new_ray.normal);
 
@@ -37,42 +37,23 @@ void object_calculate_refracted_colour( object_t *object, scene_t *scene, inters
 {
 	ray_t  refracted_ray;
 	ray_t *incident = &info->incident;
-	if(incident->depth)
+	if(incident->depth < g_config.ray_depth)
 	{
-		refracted_ray.depth = incident->depth - 1;
+		refracted_ray.depth = incident->depth + 1;
 		double t = maths_calculate_refracted_ray(incident->normal, info->normal, object->material.ior, refracted_ray.normal);
-		if(incident->depth < g_config.ray_depth - 3)
+		double e = randf(0, 1.0);
+		intersection_t refraction_info;
+		vector_copy(info->point, refracted_ray.origin);
+
+		double r[3] = {0, 0, 0};
+		if(intersection_ray_scene(&refracted_ray, scene, &refraction_info))
 		{
-			double e = randf(0, 1.0);
-			if(e < t)
-			{
-				intersection_t refraction_info;
-				vector_copy(info->point, refracted_ray.origin);
-
-				if(intersection_ray_scene(&refracted_ray, scene, &refraction_info))
-				{
-					vector_copy(refraction_info.scene.colour, info->scene.colour);
-				}
-			}
-			else
-			{
-				object_calculate_reflected_colour(object, scene, info);
-			}
+			vector_copy(refraction_info.scene.colour, r);
 		}
-		else
-		{
-			intersection_t refraction_info;
-			vector_copy(info->point, refracted_ray.origin);
-
-			intersection_ray_scene(&refracted_ray, scene, &refraction_info);
-
-			object_calculate_reflected_colour(object, scene, info);
-			for(int i = 0; i < 3; i++)
-			{
-				info->scene.colour[i] = (1 - t) * info->scene.colour[i] + t * refraction_info.scene.colour[i];
-			}
-		}
-
+		object_calculate_reflected_colour(object, scene, info);
+		info->scene.colour[0] = r[0] * t + (1 - t) * info->scene.colour[0];
+		info->scene.colour[1] = r[1] * t + (1 - t) * info->scene.colour[1];
+		info->scene.colour[2] = r[2] * t + (1 - t) * info->scene.colour[2];
 	}
 }
 
@@ -109,7 +90,7 @@ void calculate_diffuse_direct( object_t *object, scene_t *scene, ray_t *ray,
 void sample_hemi_above(object_t *object, scene_t *scene, intersection_t *info, double col[3], int i, int j, int num)
 {
 	ray_t ray;
-	ray.depth = 1;
+	ray.depth = 0;
 	sample_hemi_cosine_jitter(info->normal, ray.normal, i, j, num);
 	vector_copy(info->point , ray.origin);
 	intersection_t temp;
@@ -201,20 +182,42 @@ void object_calculate_diffuse_colour( object_t *object, scene_t *scene, intersec
 
 static void default_shade_func(object_t *object, scene_t *scene, intersection_t *info)
 {
-	double eps = randf(0.0, 1.0);
-	material_t *mat = &object->material;
-	double out[3] = {0,0,0};
-	if(eps < mat->av_diff)
+	if(info->incident.depth == 0)
 	{
-		object_calculate_diffuse_colour(object, scene, info);
+		double eps = randf(0.0, 1.0);
+		material_t *mat = &object->material;
+		double out[3] = {0,0,0};
+		if(mat->av_diff)
+		{
+			object_calculate_diffuse_colour(object, scene, info);
+		}
+		if(mat->av_refl)
+		{
+			object_calculate_reflected_colour(object, scene, info);
+		}
+		if(mat->av_refr)
+		{
+			object_calculate_refracted_colour(object, scene, info);
+		}
+		//else if(eps < mat->av_diff + mat->av_refl + mat->av_refr)
 	}
-	else if(eps < mat->av_diff + mat->av_refl)
+	else
 	{
-		object_calculate_reflected_colour(object, scene, info);
-	}
-	else if(eps < mat->av_diff + mat->av_refl + mat->av_refr)
-	{
-		object_calculate_refracted_colour(object, scene, info);
+		double eps = randf(0.0, 1.0);
+		material_t *mat = &object->material;
+		double out[3] = {0,0,0};
+		if(eps < mat->av_diff)
+		{
+			object_calculate_diffuse_colour(object, scene, info);
+		}
+		else if(eps < mat->av_diff + mat->av_refl)
+		{
+			object_calculate_reflected_colour(object, scene, info);
+		}
+		else if(eps < mat->av_diff + mat->av_refl + mat->av_refr)
+		{
+			object_calculate_refracted_colour(object, scene, info);
+		}
 	}
 }
 
