@@ -89,7 +89,24 @@ In the case of area lights calculating the radiance at a point is more complicat
 area of the light that is visible at the point of intersection, to do this we sample a number of shadow rays that evaluate the
 visibility function across the area of the light.
 
-\missingfigure[figheight=1cm]{point light radiance}
+\begin{figure}
+	\centering
+	\begin{subfigure}[c]{0.4\textwidth}
+	\includegraphics{./images/renders/refraction/render-schlick.png}
+	\end{subfigure}
+	\begin{subfigure}[b]{0.4\textwidth}
+	\begin{equation}
+	\centering
+		E(x) = \frac
+		{
+			\Phi_s \cos{\theta}
+		}
+		{
+			4 \pi r^2
+		}
+	\end{equation}
+	\end{subfigure}
+\end{figure}
 
 \subsubsection{Texture Mapping}
 Performing texture mapping requires the ability to query the texture coordinates at a point of intersection, for mesh objects this
@@ -111,7 +128,6 @@ index of the two materials and the incident angle, this is given by equation ~\r
 calculation, an approximation by Schlick \todo{cite} reduces the computational nessaccarry, this is given in Equation~\ref{eq:schlick}
 
 
-\missingfigure{Non, proper and schlick reflection}
 
 \begin{equation}
 \cos{\theta_t} = \sqrt{1 - \left(\frac{\eta_1}{\eta_2}\sin{\theta_i}\right)^2}
@@ -150,6 +166,22 @@ R_s(\theta)=R_0 + \left(1 + R_0\right)\left(1 - \cos\theta\right)^5
 As with other aspects of the system where multiple rays can be spawned from a surface interaction (in this case one reflected and one refracted ray)
 we use russian roulette in order to determine if we reflect or refract.
 
+\begin{figure}[h]
+
+\centering
+\begin{subfigure}[b]{0.3\textwidth}
+	\includegraphics[width=\textwidth]{./images/renders/refraction/no-reflection.png}
+	\caption{no fresnel reflection}
+\end{subfigure}
+\begin{subfigure}[b]{0.3\textwidth}
+	\includegraphics[width=\textwidth]{./images/renders/refraction/fresnel-reflection.png}
+	\caption{true fresnel reflection}
+\end{subfigure}
+\begin{subfigure}[b]{0.3\textwidth}
+	\includegraphics[width=\textwidth]{./images/renders/refraction/render-schlick.png}
+	\caption{schlick fresnel reflection}
+\end{subfigure}
+\end{figure}
 
 \subsection{Diffuse Interreflection}
 Diffuse interrefection is the contribution that occurs from photons that have been bounced from a diffuse surface at least once
@@ -176,5 +208,41 @@ with the photon map we are able to estimate the radiance directly from the caust
 caustic photons from all other photon paths we reduce the nose that is introduced by caustics in all other radiance
 estimates using the photon map. As caustics generally cause sharp visual effects using to few photons in the radiance
 estimate can cause unwanted bluring \todo{cite}, in order to reduce this we use a filter as part of the radiance estimate such
-that photons near the query point contribute more to the radiance estimate.
-\todo{expand and add the filter equation and a demonstration of the finter in use}
+that photons near the query point contribute more to the radiance estimate, Jensen suggests the use of one of two filters, the
+cone filter and the gaussian filter, each requiring a modification to the photon mapping radiance estimate.
+
+\subsubsection{Cone Filter}
+We use the cone filter by applying a weight $w_{pc}$ based upon the distance of the photon from the query point, this will
+cause photons that are closer to the point to contribute more to the radiance estimation.
+
+\begin{equation}
+w_{pc} = 1 - \frac{d_p}{k r}
+\end{equation}
+
+where $k$ is the filter parameter, $d_p$ the distance of the photon from the query point and $r$ the maximum radius of
+all photons found in the nearest neighbour search, the updated radiance estimate for the cone fileter is given by:
+
+\begin{equation}
+L_r(x, \vec{\omega}) \approx
+\frac
+{\sum\limits_{p=1}^N f_r(x, \vec{\omega}_p,\vec{\omega})\Delta \Phi_p(x,\vec{\omega}_p)w_{pc}}
+{(1 - \frac{2}{3k})\pi r ^2}
+\end{equation}
+
+the term $(1 - \frac{2}{3k})$ is a normalisation factor for the cone filter. \todo{citation}
+
+
+\begin{figure}[h]
+
+\centering
+\begin{subfigure}[b]{0.4\textwidth}
+	\includegraphics[width=\textwidth]{./images/renders/no-filter.png}
+	\caption{without the cone filter}
+\end{subfigure}
+\begin{subfigure}[b]{0.4\textwidth}
+	\includegraphics[width=\textwidth]{./images/renders/filter.png}
+	\caption{with the cone filter}
+\end{subfigure}
+\caption{Comparison with and without cone filter}
+
+\end{figure}

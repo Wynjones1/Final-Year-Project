@@ -1,4 +1,7 @@
 \section{Raytracing}
+We will now discuss the implemenation of the raytracer used in the system to find the intersection points and shading specular
+surfaces.
+
 \subsection{Pixel Sampling}
 As the raytracer is performing distribution raytracing each thread will perform multiple raytracing operations for each pixel
 that it processes each sample per pixel is offset inside the pixel to perform antialiasing, this reduces the sharp edges that
@@ -16,16 +19,6 @@ certain artifacts such as banding. \todo{Make sure the banding comment is correc
 	\caption{25 rays per pixel}
 \end{subfigure}
 \end{figure}
-\subsection{Intersection Tests (0.5 pages)}
-
-Intersection tests are another vital part of any raytracer. a number of intersection tests are needed, I will not include
-an extensive treatment of the intersection tests mearly a listing of the most notable used.
-
-\begin{description}
-\item[Triangle] Moller-Trumbore intersection test \cite{MolTru97}
-\item[AABB]
-\item[kD-tree] As described in TODO:
-\end{description}
 
 \subsubsection{Self Intersection}
 Due to the floating point errors in the calculation of intersection tests the point of intersection that is reported may be
