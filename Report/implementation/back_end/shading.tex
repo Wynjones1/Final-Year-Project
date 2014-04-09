@@ -12,26 +12,26 @@ emitted radiance we can rewrite the rendering equation with each of the componen
 L_{r}(x, \omega) =&
 			\int_{\Omega}
 				f_{r}(x, \omega, \omega')
-				L(x,\omega,\omega')_{i,l}
+				L_{i,l}(x,\omega,\omega')
 				(\omega \cdot n)d\omega'
 			+\\
 		&	\int_{\Omega}
 				f_{r,S}(x, \omega, \omega')
 				(
-				L(x,\omega,\omega')_{i,d}
+				L_{i,d}(x,\omega,\omega')
 				+
-				L(x,\omega,\omega')_{i,c}
+				L_{i,c}(x,\omega,\omega')
 				)
 				(\omega \cdot n)d\omega'
 			+\\
 		&	\int_{\Omega}
 				f_{r,D}(x, \omega, \omega')
-				L(x,\omega,\omega')_{i,c}
+				L_{i,c}(x,\omega,\omega')
 				(\omega \cdot n)d\omega'
 			+\\
 		&	\int_{\Omega}
 				f_{r,D}(x, \omega, \omega')
-				L(x,\omega,\omega')_{i,d}
+				L_{i,d}(x,\omega,\omega')
 				(\omega \cdot n)d\omega'
 \end{align*}
 
@@ -63,6 +63,13 @@ algorithm for k-d trees on the photon map.
 \end{algorithm}
 
 \subsection{Direct Illumination}
+\begin{equation}
+			\int_{\Omega}
+				f_{r}(x, \omega, \omega')
+				L(x,\omega,\omega')_{i,l}
+				(\omega \cdot n)d\omega'
+\end{equation}
+
 Direct illumination is the radiance contribution at a surface directly from the light sources in the scene, in path notation
 this is \textbf{LDE} this term is responsible for the majority of detail in the scene, as a result we use raytracing to calcualte
 the radiance from direct illumination, it is possible to calculate the radiance due to this term from the photon map but this
@@ -71,9 +78,21 @@ direct illumination with raytraceing and the photon map can be seen in Figure~\r
 the illumination calculated by both methods are largly simalar but there is significant variance in the apperance in the
 photon mapped image.
 
-\todo{Add}
-\missingfigure{Direct raytraced and photon mapped compare}
-\begin{figure}
+\begin{figure}[h]
+	\centering
+	\begin{subfigure}[c]{0.3\textwidth}
+	\includegraphics[width=\textwidth]{./images/renders/direct_photon_comp/photon_50000.png}
+	\caption{25,000 photons}
+	\end{subfigure}
+	\begin{subfigure}[c]{0.3\textwidth}
+	\includegraphics[width=\textwidth]{./images/renders/direct_photon_comp/photon.png}
+	\caption{500,000 photons}
+	\end{subfigure}
+	\begin{subfigure}[c]{0.3\textwidth}
+	\includegraphics[width=\textwidth]{./images/renders/direct_photon_comp/direct.png}
+	\caption{Raytraced}
+	\end{subfigure}
+	\caption{Comparison of the photon map radiance esitmate with direct illumination}
 \label{fig:direct_compare}
 \end{figure}
 
@@ -114,24 +133,30 @@ will interpolate the barycentric coordinates for the triangle of intersection, s
 spherical coordinates to generate u,v values.
 
 \subsection{Specular Reflection and Transmission}
+\begin{equation*}
+	\int_{\Omega}
+	f_{r,S}(x, \omega, \omega')
+	(
+		L_{i,d}(x,\omega,\omega')
+		+
+		L_{i,c}(x,\omega,\omega')
+	)
+	(\omega \cdot n)d\omega'
+\end{equation*}
 For specular surfaces we again use raytracing to evaluate the contribution, as mentioned previousely the BRDF for specular surfaces
 contains two delta functions (one for incoming ray and one for outgoing ray) as a result we cannot use the photon map to evaluate
 the contribution from specular surfaces, we will again use raytracing to evaluate this component by tracing an additional reflected
 or refracted ray, the equations used to calcualte these rays are given in Equations ~\ref{eq:reflections} and ~\ref{eq:refraction}
 
-\todo{Add the reflection and refraction equations}
-
-\subsubsection{Schlick Approximation}
-Transmissive surfaces reflect a proportion of the radiance incident at the surface as it passes from a material with a different
-index of refraction, this proportion is determined by the fresnell equation for dielectrics, which is a function of the refractive
-index of the two materials and the incident angle, this is given by equation ~\ref{eq:fresnel}, this is unfortuanattly an expensive
-calculation, an approximation by Schlick \todo{cite} reduces the computational nessaccarry, this is given in Equation~\ref{eq:schlick}
-
-
-
 \begin{equation}
 \cos{\theta_t} = \sqrt{1 - \left(\frac{\eta_1}{\eta_2}\sin{\theta_i}\right)^2}
 \end{equation}
+
+\todo{Add the reflection and refraction equations}
+\subsubsection{Fresnel Reflection}
+Transmissive surfaces reflect a proportion of the radiance incident at the surface as it passes from a material with a different
+index of refraction, this proportion is determined by the fresnell equation for dielectrics, which is a function of the refractive
+index of the two materials and the incident angle, this is given by equation ~\ref{eq:fresnel}
 
 \begin{equation}
 R_f(\theta)
@@ -158,16 +183,23 @@ R_f(\theta)
 \label{eq:fresnel}
 \end{equation}
 
+\subsubsection{Schlick Approximation}
+Calculating the fresnel term for each refracted ray calculation can be costly, we can howerver use an approximation of the fresnel term
+by Sclick this is given by:
+
 \begin{equation}
 R_s(\theta)=R_0 + \left(1 + R_0\right)\left(1 - \cos\theta\right)^5
 \label{eq:schlick}
 \end{equation}
 
+where $R_0$ is the fresnel reflectance value for a ray parallel to the surface normal which can be precomputed,
+this has been been shown to be up to 30\% faster than calculating the fresnel term for each refracted ray, Figure~\ref{fig:shlick-compare}
+demonstrates the affect of accounting for the fresnell term and also using the Schlick approximation.
+
 As with other aspects of the system where multiple rays can be spawned from a surface interaction (in this case one reflected and one refracted ray)
 we use russian roulette in order to determine if we reflect or refract.
 
 \begin{figure}[h]
-
 \centering
 \begin{subfigure}[b]{0.3\textwidth}
 	\includegraphics[width=\textwidth]{./images/renders/refraction/no-reflection.png}
@@ -181,9 +213,18 @@ we use russian roulette in order to determine if we reflect or refract.
 	\includegraphics[width=\textwidth]{./images/renders/refraction/render-schlick.png}
 	\caption{schlick fresnel reflection}
 \end{subfigure}
+\caption{Demonstration of Fresnell reflection and the Schlick approximation}
+\label{fig:shlick-compare}
 \end{figure}
 
 \subsection{Diffuse Interreflection}
+\begin{equation}
+		\int_{\Omega}
+			f_{r,D}(x, \omega, \omega')
+			L_{i,d}(x,\omega,\omega')
+			(\omega \cdot n)d\omega'
+\end{equation}
+
 Diffuse interrefection is the contribution that occurs from photons that have been bounced from a diffuse surface at least once
 $(\mathbf{LD(S|D)^+E})$ while it is possible to estimate the contribition to the radiance at an intersection point directly from the photon map this
 approach can cause visual artifacts due to variance in the estimate in order to reduce these artifacts we perfom a final gather
@@ -202,6 +243,12 @@ such as sharp corners where the radiance estimate can be inaccurate due to accou
 \end{figure}
 
 \subsection{Caustics}
+\begin{equation}
+		\int_{\Omega}
+			f_{r,D}(x, \omega, \omega')
+			L_{i,c}(x,\omega,\omega')
+			(\omega \cdot n)d\omega'
+\end{equation}
 Caustic light occures due to the focusing effect of curved specular surfaces, in other global illumination algorithms
 caustics have been hard to simulate \todo{cite} and often cause large amounts of noise in the final image \todo{cite}
 with the photon map we are able to estimate the radiance directly from the caustic photon map, as we have seperated the
