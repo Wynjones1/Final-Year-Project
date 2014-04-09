@@ -182,43 +182,36 @@ void object_calculate_diffuse_colour( object_t *object, scene_t *scene, intersec
 
 static void default_shade_func(object_t *object, scene_t *scene, intersection_t *info)
 {
-	if(info->incident.depth == 0)
+	double tex[3];
+	double temp[3];
+	double out[3] = {0,0,0};
+	object_calculate_texture_colour(object, info, tex);
+	double av_tex = (tex[0] + tex[1] + tex[2]) / 3.0;
+	material_t *mat = &object->material;
+
+	double eps = randf(0.0, 1.0);
+	if(eps <  mat->av_refl)
 	{
-		double eps = randf(0.0, 1.0);
-		material_t *mat = &object->material;
-		double out[3] = {0,0,0};
-		if(mat->av_diff)
-		{
-			object_calculate_diffuse_colour(object, scene, info);
-		}
-		if(mat->av_refl)
-		{
-			object_calculate_reflected_colour(object, scene, info);
-		}
-		if(mat->av_refr)
-		{
-			object_calculate_refracted_colour(object, scene, info);
-		}
-		//else if(eps < mat->av_diff + mat->av_refl + mat->av_refr)
+		object_calculate_reflected_colour(object, scene, info);
+		temp[0] = info->scene.colour[0] * mat->reflectivity[0] / mat->av_refl;
+		temp[1] = info->scene.colour[1] * mat->reflectivity[1] / mat->av_refl;
+		temp[2] = info->scene.colour[2] * mat->reflectivity[2] / mat->av_refl;
+		vector_add(out, temp, out);
 	}
-	else
+	else if(mat->av_refl + mat->av_refr)
 	{
-		double eps = randf(0.0, 1.0);
-		material_t *mat = &object->material;
-		double out[3] = {0,0,0};
-		if(eps < mat->av_diff)
-		{
-			object_calculate_diffuse_colour(object, scene, info);
-		}
-		else if(eps < mat->av_diff + mat->av_refl)
-		{
-			object_calculate_reflected_colour(object, scene, info);
-		}
-		else if(eps < mat->av_diff + mat->av_refl + mat->av_refr)
-		{
-			object_calculate_refracted_colour(object, scene, info);
-		}
+		object_calculate_refracted_colour(object, scene, info);
+		temp[0] = info->scene.colour[0] * mat->refractivity[0] / mat->av_refr;
+		temp[1] = info->scene.colour[1] * mat->refractivity[1] / mat->av_refr;
+		temp[2] = info->scene.colour[2] * mat->refractivity[2] / mat->av_refr;
+		vector_add(out, temp, out);
 	}
+	if(mat->av_diff)
+	{
+		object_calculate_diffuse_colour(object, scene, info);
+		vector_mult(info->scene.colour, tex, out);
+	}
+	vector_copy(out, info->scene.colour);
 }
 
 static int  default_intersection_func(object_t *o, ray_t *ray, intersection_t *info)

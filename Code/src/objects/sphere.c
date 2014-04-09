@@ -45,7 +45,9 @@ static int intersection(sphere_t *object, ray_t *ray, intersection_t *info)
 		info->t = t0;
 	}
 
-	vector_mult(info->t, ray->normal, info->point);
+	info->point[0] = ray->normal[0] * info->t;
+	info->point[1] = ray->normal[1] * info->t;
+	info->point[2] = ray->normal[2] * info->t;
 	vector_add(ray->origin, info->point, info->point);
 	return true;
 

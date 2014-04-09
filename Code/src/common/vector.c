@@ -47,11 +47,11 @@ INLINE void vector_sub(double *v1,double *v2,double *vout)
 	}
 }
 
-INLINE void vector_mult(double c,double *v1,double *vout)
+INLINE void vector_mult(double *v1,double *v2,double *vout)
 {
 	for(int i = 0;i < VECTOR_SIZE;i++)
 	{
-		vout[i] = v1[i] * c;
+		vout[i] = v1[i] * v2[i];
 	}
 }
 

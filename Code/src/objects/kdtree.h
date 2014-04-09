@@ -9,10 +9,10 @@
 
 struct kdtree_node
 {
-	char    leaf  : 1;
-	char    depth : 7;
-	double  split;
-	char    axis;
+	unsigned short      leaf  : 1;
+	unsigned short      depth : 7;
+	unsigned char       axis;
+	double              split;
 	struct kdtree_node *children;
 	list_t             *indices;
 #if DEBUG

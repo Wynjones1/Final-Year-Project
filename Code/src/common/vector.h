@@ -8,7 +8,7 @@ INLINE void    vector_print(double *vector);
 INLINE void    vector_fprint(FILE *fp, double *vector);
 INLINE void    vector_add(double * v1,double * v2,double * vout);
 INLINE void    vector_sub(double * v1,double * v2,double * vout);
-INLINE void    vector_mult(double c,double * v1,double * vout);
+INLINE void    vector_mult(double *v1,double * v2,double * vout);
 INLINE void    vector_div(double c,double * v1,double * vout);
 INLINE void    vector_cross(double * v1,double * v2,double * vout);
 INLINE double  vector_length(double * v1);
