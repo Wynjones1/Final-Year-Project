@@ -22,6 +22,18 @@ double fresnel(double n1, double n2, double cost)
 	return r0 + (1.0 - r0) * t * t * t * t * t;
 }
 
+double maths_calculate_reflectance(double normal[3], double incident[3], double n1, double n2)
+{
+	double n = n1 / n2;
+	double cosi = -vector_dot(normal, incident);
+	double sint2 = n * n * (1.0 - cosi * cosi);
+	if(sint2 > 1.0) return 1.0;
+	double cost = sqrt(1.0 - sint2);
+	double rorth = (n1 * cosi - n2 * cost) / (n1 * cosi + n2 * cost);
+	double rpar  = (n2 * cosi - n1 * cosi) / (n2 * cosi + n1 * cost);
+	return max(0.0, min(1.0,(rorth * rorth + rpar * rpar) / 2.0));
+}
+
 double maths_calculate_refracted_ray(double incident[3], double normal[3], double ior, double out[3])
 {
 	double cosi = -vector_dot(incident, normal);
@@ -48,7 +60,11 @@ double maths_calculate_refracted_ray(double incident[3], double normal[3], doubl
 	out[2] = nn * incident[2] + (nn * cosi - cost) * n[2];
 	if(n1 <= n2)
 	{
+#if 1
 		return 1.0 - fresnel(n1, n2, cosi);
+#else
+		return 1.0 - maths_calculate_reflectance(normal, incident, n1, n2);
+#endif
 	}
 	else
 	{
@@ -57,17 +73,6 @@ double maths_calculate_refracted_ray(double incident[3], double normal[3], doubl
 }
 
 
-double maths_calculate_reflectance(double normal[3], double incident[3], double n1, double n2)
-{
-	double n = n1 / n2;
-	double cosi = -vector_dot(normal, incident);
-	double sint2 = n * n * (1.0 - cosi * cosi);
-	if(sint2 > 1.0) return 1.0;
-	double cost = sqrt(1.0 - sint2);
-	double rorth = (n1 * cosi - n2 * cost) / (n1 * cosi + n2 * cost);
-	double rpar  = (n2 * cosi - n1 * cosi) / (n2 * cosi + n1 * cost);
-	return max(0.0, min(1.0,(rorth * rorth + rpar * rpar) / 2.0));
-}
 
 double maths_calculate_normal(double A[3], double B[3], double out[3])
 {
