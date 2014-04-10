@@ -1,0 +1,2 @@
+file ./data/ply/cornell_box_main.ply
+material ./data/materials/main.mat
