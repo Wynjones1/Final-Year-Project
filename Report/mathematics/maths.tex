@@ -12,7 +12,7 @@ integrals, for all other coordinated standard carteisian coordinates will be use
 \section{Flux}
 The photon mapping algorithm is based around emitting photons from light sources, the unit of measurement of a photon is
 Radiant flux $\Phi$ the exact definition of flux is not relivant to the disscussion, but is essentially a measurement
-of radiant energy with respect to time. \todo{cite}
+of radiant energy with respect to time \cite{JensenBook}.
 
 \section{Radiance}
 Radiance commonly referers to two quantities, incident radiance and exitance radiance, incident radiance being the radiance
@@ -37,7 +37,7 @@ to all paths \textbf{E(S\textbar D)*L}, raytracing evaluates all paths \textbf{E
 \section{Monte-Carlo Methods}
 The rendering equation describes the light transfer as an integral of all directions above the point being evaluated, this
 integral cannot be solved with a closed form solution, as a result we must approximate the value of the integral, to do this
-we use monte-carlo methods. \todo{Add a citation}. Monte carlo methods allow us to estimate the value of an integral at a point
+we use monte-carlo methods \cite{wood-monte-carlo}. Monte carlo methods allow us to estimate the value of an integral at a point
 by sampling the 
 
 \begin{equation}
@@ -55,21 +55,21 @@ we can gain a better estimate for the radiance.
 \todo{Motivations}
 \section{Rays}
 
-\section{Intersection Tests}
-In this project we represent the objects in the scene with implicit and explicity definition of surfaces, this includes
-triangle meshes and spheres, each of these objects in order to be used in the raytracing system a function that tests
-whether a given object in the scene intersects with a given ray.
-\subsection{Triangle}
-The intersection test used for triangle intersection tests in this project was derived by \todo{Cite}
-\subsection{Sphere}
-The intersection of a ray and a sphere is one of the simplest, it is essentially finding the root of a quadratic equation to
-find the ray parameter at the point of intersection, if no value can be foudn the ray does not intersect the sphere.
-\subsection{K-D Tree}
-In order to accelerate the intersection of meshes that contain many traingles we use a k-d tree to spacially divide the mesh,
-this structure facilitates an efficient intersection tests that calculates the path that the ray travels in order to perform
-a front to back tests, this allows for an early exit of the intersection test when an intersection is found in a partition.
-The algorithm is as follows, we begin at the root of the k-d tree, testing which side of the spliting plane the ray origin
-is situated, we set this node as the near node, this will be the node that will be tested first. We calculate the ray parameter
-
-\todo{Expand}
+%\section{Intersection Tests}
+%In this project we represent the objects in the scene with implicit and explicity definition of surfaces, this includes
+%triangle meshes and spheres, each of these objects in order to be used in the raytracing system a function that tests
+%whether a given object in the scene intersects with a given ray.
+%\subsection{Triangle}
+%The intersection test used for triangle intersection tests in this project was derived by \todo{Cite}
+%\subsection{Sphere}
+%The intersection of a ray and a sphere is one of the simplest, it is essentially finding the root of a quadratic equation to
+%find the ray parameter at the point of intersection, if no value can be foudn the ray does not intersect the sphere.
+%\subsection{K-D Tree}
+%In order to accelerate the intersection of meshes that contain many traingles we use a k-d tree to spacially divide the mesh,
+%this structure facilitates an efficient intersection tests that calculates the path that the ray travels in order to perform
+%a front to back tests, this allows for an early exit of the intersection test when an intersection is found in a partition.
+%The algorithm is as follows, we begin at the root of the k-d tree, testing which side of the spliting plane the ray origin
+%is situated, we set this node as the near node, this will be the node that will be tested first. We calculate the ray parameter
+%
+%\todo{Expand}
 

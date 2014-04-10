@@ -36,7 +36,7 @@ photons, one that is traced in the specular direction and another in a random di
 direction of the surface normal, each with half of the power of the incoming photon.
 
 As noted by Jensen, this approach would work but can lead to photons with very low power, more of a concern is that this approach leads to an exponential number of
-photon interactions, as a result we use the monte-carlo method described in \todo{cite} that reflectes at most one photon
+photon interactions, as a result we use the monte-carlo method described by Jensen \cite{JensenBook} that reflectes at most one photon
 per surface interaction with full power, to make this technique give the same answer as the previous method we make the
 decition based on the reflectivity of the surface by forming a cumulative distribution function.  
 Given the specular reflecive, transmissive and diffuse reflectance coefficents $\rho_{s}, \rho_{t}, \rho_{d}$
@@ -61,7 +61,7 @@ two flags are used to describe the path, a diffuse flag and a specular flag both
 surface is intersected the diffuse flag is set to true the same being true for specular intersections and the specular flag.
 
 For specular reflection and transmission a photon is created at the point of intersection that has normal in the reflected
-or transmitted direction, as noted by \todo{Jensen Ciration} storing photons at specular surfaces does not add any useful
+or transmitted direction, as noted by Jensen \cite{JensenBook} storing photons at specular surfaces does not add any useful
 information for rendering as the probability of the photon being used in the radiance estimate is zero due to the
 delta function in specular BRDF's
 
@@ -183,6 +183,7 @@ photons.size \textgreater 1
 \subsubsection{Selection Statistic}
 During the balancing procedure we need to partition the tree such that half the elements are less than the median
 this can be seen as finding the $i/2^{th}$ largest element in the list, this can be performed in linear time by using
-the median of medians algorithm \todo{cite}. Below is a comparison for the runnning time of the balancing procedure for
+the median of medians algorithm . Below is a comparison for the runnning time of the balancing procedure for
 the nieve selection algorithm and the median of medians algorithm. As we are left-balancing the tree we also cannot
 just take the median of the data, we must adjust the median such that the left half of the tree will fill before the right.
+\todo{expand and add psuedocode}

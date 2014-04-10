@@ -5,8 +5,8 @@ equation, which we will evaluate by spliting the equation into several component
 specular reflection and transmission which we evaluate using raytracing and diffuse interreflection and caustcs which will
 use the photon map to estimate the radiance.
 
-Recall from Chapter \todo{cite} the rendering equation is given in terms of incoming and outcoming radiance, omitting
-emitted radiance we can rewrite the rendering equation with each of the components seperated \todo{cite}.
+Recall from Chapter~\ref{chap:lit}  the rendering equation is given in terms of incoming and outcoming radiance, omitting
+emitted radiance we can rewrite the rendering equation with each of the components seperated \cite{JensenBook}
 
 \begin{align*}
 L_{r}(x, \omega) =&
@@ -34,6 +34,9 @@ L_{r}(x, \omega) =&
 				L_{i,d}(x,\omega,\omega')
 				(\omega \cdot n)d\omega'
 \end{align*}
+
+where $L_{i,c}$ is the irradiance due to \textbf{LS+D} paths, $L_{i,d}$ due to \textbf{L(S\textbar D)$^+$D} paths and $L_{i,l}$
+irradiance directly from light sources (\textbf{LD} paths).
 
 \subsection{Radiance Estimations}
 Before we discuss how we utilise the photon map to approximate the global illumination of a scene we must first discuss how
@@ -63,12 +66,12 @@ algorithm for k-d trees on the photon map.
 \end{algorithm}
 
 \subsection{Direct Illumination}
-\begin{equation}
+\begin{equation*}
 			\int_{\Omega}
 				f_{r}(x, \omega, \omega')
 				L(x,\omega,\omega')_{i,l}
 				(\omega \cdot n)d\omega'
-\end{equation}
+\end{equation*}
 
 Direct illumination is the radiance contribution at a surface directly from the light sources in the scene, in path notation
 this is \textbf{LDE} this term is responsible for the majority of detail in the scene, as a result we use raytracing to calcualte
@@ -76,7 +79,9 @@ the radiance from direct illumination, it is possible to calculate the radiance 
 approach leads to noise in the final image even when using a high number of photons in the radiance estimate, a comparison of
 direct illumination with raytraceing and the photon map can be seen in Figure~\ref{fig:direct_compare} it can be seen that
 the illumination calculated by both methods are largly simalar but there is significant variance in the apperance in the
-photon mapped image.
+photon mapped image, we can also see that areas close to corners have a lighter apperance, this is due to the use of a
+sphere to gather photons in the nearest neighbour search as a result photons that do not belong to a surface are used
+as part of the estimate.
 
 \begin{figure}[h]
 	\centering
@@ -130,7 +135,7 @@ visibility function across the area of the light.
 \subsubsection{Texture Mapping}
 Performing texture mapping requires the ability to query the texture coordinates at a point of intersection, for mesh objects this
 will interpolate the barycentric coordinates for the triangle of intersection, spheres use a spherical mapping that uses the
-spherical coordinates to generate u,v values.
+spherical coordinates to generate u,v values, we use linear sampling to calculate the colour from the texture.
 
 \subsection{Specular Reflection and Transmission}
 \begin{equation*}
@@ -218,12 +223,12 @@ we use russian roulette in order to determine if we reflect or refract.
 \end{figure}
 
 \subsection{Diffuse Interreflection}
-\begin{equation}
+\begin{equation*}
 		\int_{\Omega}
 			f_{r,D}(x, \omega, \omega')
 			L_{i,d}(x,\omega,\omega')
 			(\omega \cdot n)d\omega'
-\end{equation}
+\end{equation*}
 
 Diffuse interrefection is the contribution that occurs from photons that have been bounced from a diffuse surface at least once
 $(\mathbf{LD(S|D)^+E})$ while it is possible to estimate the contribition to the radiance at an intersection point directly from the photon map this
@@ -243,18 +248,18 @@ such as sharp corners where the radiance estimate can be inaccurate due to accou
 \end{figure}
 
 \subsection{Caustics}
-\begin{equation}
+\begin{equation*}
 		\int_{\Omega}
 			f_{r,D}(x, \omega, \omega')
 			L_{i,c}(x,\omega,\omega')
 			(\omega \cdot n)d\omega'
-\end{equation}
+\end{equation*}
 Caustic light occures due to the focusing effect of curved specular surfaces, in other global illumination algorithms
 caustics have been hard to simulate \todo{cite} and often cause large amounts of noise in the final image \todo{cite}
 with the photon map we are able to estimate the radiance directly from the caustic photon map, as we have seperated the
 caustic photons from all other photon paths we reduce the nose that is introduced by caustics in all other radiance
 estimates using the photon map. As caustics generally cause sharp visual effects using to few photons in the radiance
-estimate can cause unwanted bluring \todo{cite}, in order to reduce this we use a filter as part of the radiance estimate such
+estimate can cause unwanted bluring \cite{JensenBook}, in order to reduce this we use a filter as part of the radiance estimate such
 that photons near the query point contribute more to the radiance estimate, Jensen suggests the use of one of two filters, the
 cone filter and the gaussian filter, each requiring a modification to the photon mapping radiance estimate.
 

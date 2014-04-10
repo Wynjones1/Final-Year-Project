@@ -14,7 +14,7 @@ stage in the pipeline through a queue that acts as the inter-thread communicatio
 This block contains two stages, the photon emmition stage which traces photons through the scene and stores
 the point of absorbtion and the balancing stage which sorts the photons into a data structure (left balanced
 tree) that facilitated efficient storage and searching. The reason for the balancing stage is that the
-distriburtion of the photons in the map is unlikely to be optimal \todo{Cite jensen book} and as this is a
+distriburtion of the photons in the map is unlikely to be optimal \cite{JensenBook} and as this is a
 preprocessing step it is worth the time to perform the balancing to improve later stages.
 
 The construction of the photon map can be computationally expensive when a high number of photons are
@@ -50,7 +50,7 @@ as these are the paths that contribute the most to the focusing effect of causti
 As can be seen from Figure~\ref{fig:design_blocks} the raytracing module contains $n$ threads, each of these
 threads trace a subset of the pixels in the image and run independantly to each other, this is possible due
 to the inherent parrellism in the photon mapping algorithm. This stage in the system will perform raytracing
-as described in \todo{cite}, for each intersection found during the running of the system the photon
+as described by Shirley \cite{shirley-dist}, for each intersection found during the running of the system the photon
 maps created during previous stage will be used to estimate the radiance of the point in order to estimte the
 true illumination at the point factoring in the global effects.
 

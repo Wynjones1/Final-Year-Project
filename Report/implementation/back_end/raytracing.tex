@@ -47,7 +47,7 @@ that was intersected and as a result will need to record the barycentric coordin
 \State colour $\gets$ scene.sky\_colour
 \For{object $\in$ scene}
 
-	new\_record $\gets$ intersects(ray, object)
+	new\_record $\gets$ \Call{intersects}{ray, object}
 
 	\If{new\_record.hit \textbf{and} new\_record.t $\textless$ record.t}
 
@@ -59,7 +59,7 @@ that was intersected and as a result will need to record the barycentric coordin
 
 \If{record.hit}
 
-	colour $\gets$ shade(scene, record)
+	colour $\gets$ \Call{shade}{scene, record}
 \EndIf
 
 \Return colour
