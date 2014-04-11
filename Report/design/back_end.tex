@@ -71,9 +71,9 @@ the front end to be presented to the user.
 \subsubsection{Distribution Raytracing}
 Each of the raytracing threads performs distribution raytracing, this is a commonly used adjustment to the 
 raytracing algorithm that allows for simulation of fuzzy phenomena such as soft shadows and glossy reflection
-models, as described by Jensen \todo{cite} distribution raytracing can also be used to estimate the contribuiton
-of diffuse intereflection, at each intersection of the eye ray a diffuse refeltive \todo{this is only true of
-diffuse surfaces} ray is generated, this ray is then traced into the scene, at the intersection point of this ray
+models, as described by Jensen \cite{JensenBook} distribution raytracing can also be used to estimate the contribuiton
+of diffuse intereflection, at each intersection of the eye ray a diffuse refeltive 
+ ray is generated, this ray is then traced into the scene, at the intersection point of this ray
 we use the photon map to estimate the radiance leaving the surface in the direction of the original intersection
 point, as we are tracing multiple rays per pixel an estimate of the global illumination is found by averaging each
 of these reflective rays.

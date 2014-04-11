@@ -234,11 +234,9 @@ Diffuse interrefection is the contribution that occurs from photons that have be
 $(\mathbf{LD(S|D)^+E})$ while it is possible to estimate the contribition to the radiance at an intersection point directly from the photon map this
 approach can cause visual artifacts due to variance in the estimate in order to reduce these artifacts we perfom a final gather
 stage at the point of intersect that produces a diffuse ray that is traced into the scene until a non-specular object is intesected,
-we then perform the radiance estimagte at this point and use this information to estimate the radiance incident at the original point of intersection.
-In order for the final gather to produce a correct estimate of the radiance we need to perform this stage multiple times per pixel, as we
-are performing distributed raytracing this is a trivial addition. When calcualting the radiance for the final gather it has been shown \todo{cite}
-that if the distance of the final gather point is lower than some threshold perfoming an additional diffuse bounce reduces errors at geometry
-such as sharp corners where the radiance estimate can be inaccurate due to accounting for photons not truly at the surface.
+we then perform the radiance estimagte at this point and use this information to estimate the radiance incident at the original point of
+intersection.  In order for the final gather to produce a correct estimate of the radiance we need to perform this stage multiple times per pixel,
+as we are performing distributed raytracing this is a trivial addition.
 
 \begin{figure}
 \centering
@@ -254,8 +252,9 @@ such as sharp corners where the radiance estimate can be inaccurate due to accou
 			L_{i,c}(x,\omega,\omega')
 			(\omega \cdot n)d\omega'
 \end{equation*}
+
 Caustic light occures due to the focusing effect of curved specular surfaces, in other global illumination algorithms
-caustics have been hard to simulate \todo{cite} and often cause large amounts of noise in the final image \todo{cite}
+caustics have been hard to simulate \cite{Jensen96a} and often cause large amounts of noise in the final image
 with the photon map we are able to estimate the radiance directly from the caustic photon map, as we have seperated the
 caustic photons from all other photon paths we reduce the nose that is introduced by caustics in all other radiance
 estimates using the photon map. As caustics generally cause sharp visual effects using to few photons in the radiance

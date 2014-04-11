@@ -111,13 +111,24 @@ FILE *open_file(const char *filename, const char *mode, const char *file, int li
 	return fp;
 }
 
+double clamp(double in)
+{
+	return in < 0 ? 0 : in > 1 ? 1 : in;
+}
+
 uint32_t convert_double_rgb_to_24bit(double *colour)
 {
 	uint32_t out = 0;
+	#if 0
 	double norm = max(1.0, max(colour[0], max(colour[1], colour[2])));
 	out |= (uint8_t)(max(0, min(255, (255 * colour[0] / norm)))) << 16;
 	out |= (uint8_t)(max(0, min(255, (255 * colour[1] / norm)))) << 8;
 	out |= (uint8_t)(max(0, min(255, (255 * colour[2] / norm))));
+	#else
+	out |= (int)(pow(clamp(colour[0]), 1/2.2) * 255 + 0.5) << 16;
+	out |= (int)(pow(clamp(colour[1]), 1/2.2) * 255 + 0.5) << 8;
+	out |= (int)(pow(clamp(colour[2]), 1/2.2) * 255 + 0.5) << 0;
+	#endif
 	return out;
 }
 

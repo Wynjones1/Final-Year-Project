@@ -440,14 +440,6 @@ mesh_t *mesh_read(const char *filename)
 			ERROR("Invalid option reading in mesh :%s\n", filename);
 		}
 	}
-	for(int i = 0; i < 3; i++)
-	{
-		if(mesh->material.reflectivity[i] + mesh->material.refractivity[i] >= 1.0)
-		{
-			mesh->material.refractivity[i] = 1.0 - mesh->material.reflectivity[i];
-		}
-		mesh->material.diffuse[i] = 1.0 - (mesh->material.reflectivity[i] + mesh->material.refractivity[i]);
-	}
 	set_function_pointers(mesh);
 	fclose(fp);
 	transform(mesh);

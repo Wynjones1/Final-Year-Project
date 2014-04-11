@@ -1,4 +1,4 @@
-CC                := gcc
+CC                := clang
 OBJDIR            := obj/
 DEPDIR            := deps/
 SRCDIR            := src/
