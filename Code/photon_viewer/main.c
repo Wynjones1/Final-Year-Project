@@ -26,7 +26,11 @@ void Render(SDL_Renderer *displayRenderer, GLuint list)
 	static float angle;
 	angle += 0.7;
 	glLoadIdentity();
+#if 0
 	glTranslatef( -0.0f, -2.0f, -15.0f );
+#else
+	glTranslatef( -0.0f, -0.0f, -3.5f);
+#endif
 	glRotatef(angle, 0.0, 1.0, 0.0);
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glCallList(list);

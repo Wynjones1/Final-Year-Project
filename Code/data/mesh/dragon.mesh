@@ -1,2 +1,2 @@
 file ./data/ply/dragon.ply
-material ./data/materials/glass.mat
+material ./data/materials/diffuse_red.mat
