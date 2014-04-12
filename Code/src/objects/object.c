@@ -31,8 +31,6 @@ void object_calculate_reflected_colour( object_t *object, scene_t *scene, inters
 	}
 }
 
-
-
 void object_calculate_refracted_colour( object_t *object, scene_t *scene, intersection_t *info)
 {
 	ray_t  refracted_ray;
@@ -115,6 +113,7 @@ void sample_hemi_above(object_t *object, scene_t *scene, intersection_t *info, d
 		vector_add(col, inten, col);
 	}
 }
+
 void calculate_diffuse_indirect ( object_t *object, scene_t *scene, ray_t *ray,
 									  intersection_t *info, double colour_out[3])
 {
