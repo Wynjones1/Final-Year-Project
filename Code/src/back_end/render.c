@@ -132,7 +132,7 @@ void render(scene_t *scene_in)
 	photon_map_build(scene, g_config.photons);
 #endif
 
-	OUTPUT("Rendering.\n");
+	VERBOSE("Rendering.\n");
 
 	if(g_config.trace_pixel)
 	{
@@ -158,7 +158,7 @@ void render(scene_t *scene_in)
 		}
 
 		progress_bar(1, 1, 40);
-		OUTPUT("Render took %d seconds.\n", time(0) - start_time);
+		VERBOSE("Render took %d seconds.\n", time(0) - start_time);
 
 		//Wait for the threads to finish.
 		pthread_join(feed_thread, NULL);

@@ -6,10 +6,10 @@ STD               := gnu11
 INCLUDEDIRS       := -I./src/front_end -I./src/back_end -I./src/objects -I./src/objects/material -I./src/common/ -I./src/back_end/intersections/ -I ./src/back_end/photon/
 CFLAGS            := --std=$(STD) -Wall -D__STDC_FORMAT_MACROS -D_USE_MATH_DEFINES=1 $(INCLUDEDIRS)
 LIBS              := -lm -lpthread 
-GUI               := 1
+GUI               := 0
 PMAP              := 1
-OUTPUT_PHOTON_MAP := 1
-VERBOSE           := 1
+OUTPUT_PHOTON_MAP := 0
+VERBOSE           := 0
 SANITIZE          := 0
 SPECULAR          := 1
 
