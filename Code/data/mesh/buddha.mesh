@@ -1,2 +1,2 @@
 file ./data/ply/buddha.ply
-material ./data/materials/metal.mat
+material ./data/materials/glass.mat

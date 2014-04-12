@@ -53,7 +53,7 @@ int main(int argc, char **argv)
 	render(scene);
 
 	//Cleanup.
-	scene_delete(scene);
+//	scene_delete(scene);
 	bmp_delete(bmp);
 #if GUI
 	if(!g_config.trace_pixel)

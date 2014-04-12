@@ -1,12 +1,10 @@
-#sphere 0.1 -0.4 0.0 -0.4 ./data/materials/diffuse_white.mat
-#sphere 0.1 -0.2 0.0 -0.2 ./data/materials/diffuse_white.mat
-#sphere 0.1  0.0 0.0  0.0 ./data/materials/diffuse_white.mat
-#sphere 0.1  0.2 0.0  0.2 ./data/materials/diffuse_white.mat
-
-mesh ./data/mesh/cornell_box_box.mesh
-
-sphere 0.2  0.0 0.0  -0.4 ./data/materials/diffuse_red.mat
 sphere 10   0.0 0.0  0.0 ./data/materials/pmedia.mat
 
-camera 0 0 2 0 0 0 0 1 0 2
-light point 0 1 0 40 40 40
+mesh ./data/mesh/cornell_box_box_main.mesh
+mesh ./data/mesh/cornell_box_box_left.mesh
+mesh ./data/mesh/cornell_box_box_right.mesh
+sphere 0.30 -0.5 -0.70 -0.3 ./data/materials/mirror.mat
+sphere 0.30 0.5 -0.7 0 ./data/materials/glass.mat
+camera 0 0 5 0 0 0 0 1 0 4
+light point 0 0.999 0 30 30 30
+#light area 0 0.99 0 0 -1 0 7 7 7 2 2

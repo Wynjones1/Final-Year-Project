@@ -1,0 +1,2 @@
+file ./data/ply/honda.ply
+material ./data/materials/diffuse_white.mat

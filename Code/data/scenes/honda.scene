@@ -1,0 +1,4 @@
+mesh ./data/mesh/honda.mesh
+mesh ./data/mesh/plane.mesh
+camera -3 3 6 0 0 0 0 1 0 5
+light point 0 10 0 1000 1000 1000

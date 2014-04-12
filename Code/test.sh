@@ -9,8 +9,8 @@ function ctrl_c()
 
 rm -Rf out.txt
 
-xres=1000
-yres=1000
+xres=200
+yres=200
 
 rm -Rf out.txt
 echo $xres $yres >> out.txt

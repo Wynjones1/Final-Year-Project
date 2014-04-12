@@ -9,9 +9,15 @@
 #include "kdtree.h"
 #include "config.h"
 
+#if 0
 #define SKY_DEFAULT_SKY_R 0.1328
 #define SKY_DEFAULT_SKY_G 0.1328
 #define SKY_DEFAULT_SKY_B 1.0
+#else
+#define SKY_DEFAULT_SKY_R 0
+#define SKY_DEFAULT_SKY_G 0
+#define SKY_DEFAULT_SKY_B 0
+#endif
 
 typedef struct photon_map photon_map_t;
 
