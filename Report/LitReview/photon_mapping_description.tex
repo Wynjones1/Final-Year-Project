@@ -6,7 +6,7 @@ creates a photon map of the scene.
 The photon mapping algorithm begins by emitting photons from each light source in the scence,
 each photon contains a fraction of the power of the light that is proportianal to the number
 of photons that are emitted from the light source. Once emitted from the light source the
-photon is traced through the scene much like a ray is traced from the eye, 
+photon is traced through the scene much like a ray in raytracing, 
 the photon is absorbed by a diffuse surface within the scene, each of the photons absorbed are stored within a photon map
 which is an efficient data structure that will store information about the photon such as the
 location of the absorbtion, the direction from which the photon was traveling and the photons
@@ -16,8 +16,8 @@ nearest neighbour search. Each photon emitted from the light source can be store
 along its path in this way we can use the photon map to estimate the radiance from all light
 paths connecting the light and the eye.
 
-Different types of photon maps are used with different accuracies in order to
-improve the efficiency, for instance in \cite{Jensen96a} two photon maps are used, a global photon
+Multiple photon maps are used with different accuracies in order to
+improve the efficiency of the algorithm, for instance in \cite{Jensen96a} two photon maps are used, a global photon
 map and a caustic photon map, the caustic photon map contains photons that arrive at a location from
 either the specular reflections or refractions , this photon map is stored at a higher
 accuraracy as its data will be visulaised directly to produce the apperance of caustics in an image.
@@ -62,6 +62,4 @@ The density estimate given in \cite{Jensen96a} can produce poor results in the c
 areas that are close together but not flat, such as the corners of a room, in this case the
 estimate of the radiance will be too high as the photons lying on the other wall will contribute to
 the estimate, a solution to this is given in \cite{JensenBook}, where the search radius is flattened along
-an axis orthoganol to the normal of the surface. I am not sure if the computational cost of this
-is worth the effort as more photons can be emmited which will increase the photon density thus
-decreasing the search radius.
+an axis orthoganol to the normal of the surface.

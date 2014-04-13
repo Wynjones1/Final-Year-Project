@@ -8,52 +8,12 @@ integrals, for all other coordinated standard carteisian coordinates will be use
 \missingfigure{Sperical Coordinates}
 
 \section{Solid angle}
+\todo{Picture and explain why we use it and some nice citations from someone other than Jensen}
 
-\section{Flux}
-The photon mapping algorithm is based around emitting photons from light sources, the unit of measurement of a photon is
-Radiant flux $\Phi$ the exact definition of flux is not relivant to the disscussion, but is essentially a measurement
-of radiant energy with respect to time \cite{JensenBook}.
 
-\section{Radiance}
-Radiance commonly referers to two quantities, incident radiance and exitance radiance, incident radiance being the radiance
-that fall on a surface, exitance radiance being radiance from a surface (either from reflection or emission)
 
-\section{Path Notation}
-The radiance estimate on the right hand side of the rendering equation is typically evaluated by a recursive call to the
-procedure that evaluates radiance at a point in the direction $\omega'$, as we perform more evaluation we create a path
-from the eye to the final destination of the ray, it is frequently convienient to refer to these paths by the interaction
-that the ray has with surfaces along the path, we use a regular expression language to express these paths, tokens in the
-language include:
-\begin{description}
-\item[E] The eye or camera
-\item[D] A diffuse surface
-\item[S] A specular surface.
-\item[L] A light
-\end{description}
-
-Paths begin with the eye and end at a light, a full solution to the rendering equation will evaluate the radiance due
-to all paths \textbf{E(S\textbar D)*L}, raytracing evaluates all paths \textbf{ES*DL}
-
+\todo{Move}
 \section{Monte-Carlo Methods}
-The rendering equation describes the light transfer as an integral of all directions above the point being evaluated, this
-integral cannot be solved with a closed form solution, as a result we must approximate the value of the integral, to do this
-we use monte-carlo methods \cite{wood-monte-carlo}. Monte carlo methods allow us to estimate the value of an integral at a point
-by sampling the 
-
-\begin{equation}
-E\left(g\left(X\right)\right) = \sum\limits_{x \in X} g\left(x\right)f_X\left(x\right)
-\end{equation}
-
-
-\subsection{Sampling}
-\section{Importance Sampling}
-Importance sampling is a statistical technique that allows us to concentrate computational effort when sampling a distribution
-to areas of the distribution that contribute most to the average, for instance sampling incident radiance at a point on a lambertian
-surface where the reflected radiance is preportional to the cosine of the incoming direction, by using a cosine weighted distribution
-we can gain a better estimate for the radiance.
-
-\todo{Motivations}
-\section{Rays}
 
 %\section{Intersection Tests}
 %In this project we represent the objects in the scene with implicit and explicity definition of surfaces, this includes

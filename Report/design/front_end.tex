@@ -18,15 +18,14 @@ file that can be referenced by multiple objects. below is a list of the differen
 \item[.scene] Top level description of the scene
 \item[.mesh] Description of a mesh, including material and surface data.
 \item[.mat] Description of a objects surface properties.
-\item[.camera] Description of the camera in the scene.
 \end{description}
 
 \subsubsection{PLY mesh format}
-One aspect of the mesh input file is a filename that referes to a PLY polygon mesh, it was decided that using
+One aspect of the mesh input file is a filename that referes to a PLY polygonal mesh, it was decided that using
 a pre-existing file format for the input to system was benificial as it allowed for assets from 3D modeling
 utilities to be used to create the test scenes as they contain the required functionallity to export to PLY
 meshes. the choice of the PLY made because it is a human-readable format (a binary PLY format is available but
-not supported by the system) so as to fulfill requirement \todo{Add the requirement} that is also commonly used,
+not supported by the system) and we specify this to be a key requirement of the system, 
 using PLY also allowed for example meshed from the Stanford PLY reposotory which in turn provided a selection of
 relitivly complex models that could be used during the production and testing.
 
@@ -40,19 +39,19 @@ relitivly complex models that could be used during the production and testing.
 The program that is created must be able to take in more than one scene file to be useful, by having command
 line arguments this allows the scene file to be changed without recompiling the code, there are other options
 that are available including the number of threads that will be used to perform the raytracing and the
-resolution and name of the output file, this will allow for the system to be used in scripts etc. refer to
-Appendix\todo{Add the appendix} for full details of the command line options that are available.
+resolution and name of the output file, this will allow for the system to be used in scripts, refer to
+Appendix~\ref{chap:command-line-appendix} for full details of the command line options that are available.
 
 \subsection{Image Output}
-The image and gui block contains the code that will take the final pixel colours and presecnt them to the screen
-there will be two modes of operation, image output and GUI output. Image output will store the output image
-on the filesystem as a BMP file this allows the images to be saved.
+The image and gui block contains the code that will take the final pixel colours and present them to the screen
+there will be two modes of operation, image output and GUI output, image output saves the image to a file such
+as png or bmp.
 
 \subsection{GUI}
 In order to provide immediate feedback to the user it is nessaccarry to include a GUI in the system, this will
 be a simple window that will display the progress of the system as it creates the images, this is usefull
 for testing changes to a scene as it may be possible to see if the change has had the desired effect without
-finishing what may be a costly render.
+finishing what may be a costly render or to assure the user that a render is still running.
 
 \missingfigure{GUI Design Diagram}
 

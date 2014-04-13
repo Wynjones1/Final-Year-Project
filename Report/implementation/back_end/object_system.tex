@@ -1,4 +1,5 @@
-In order to meet requirement \todo(find requirement to ref) the system needs to be able support arbitrary objects descriptions
+\todo{rephrase this introduction to the section}
+In order to meet requirement \todo{find requirement to ref} the system needs to be able support arbitrary objects descriptions
 that can be traced in the scene, this is implementatied as a structure that contains function pointers that perform functions
 that must be supported by all raytracable objects and the data related to the individual object.
 By encapsulating the data and the functions performed by the object it is possible to create algorithms on objects in the
@@ -37,24 +38,56 @@ be said for a mesh where the optimised intersection test used is fairly complex 
 
 \subsubsection{Intersection test}
 Given that we define a ray and a sphere in a parametric form it is intuitive to solve the intersection of these objects implicity,
-given a ray defined $\vec{o} + t \vec{d}$ and the equation for a sphere $x ^ 2 + y ^ 2 + z ^ 2 - r ^ 2 = 0$
+given a ray defined $\vec{o} + t \vec{d}$ and the equation for a sphere $(p - c) \cdot (p - c) = r^2$ where p is a point on the the
+sphere, c the center of the sphere and r the radius of the sphere, combining these two equations we get:
+
+\begin{equation*}
+(\vec{o} + t\vec{d} -\vec{c}) \cdot (\vec{o} + t\vec{d} - \vec{c}) = r^2
+\end{equation*}
+
+expanding this gives us:
+
+\begin{equation*}
+(\vec{d} \cdot \vec{d})t^2 + 2(\vec{o} - \vec{c}) \cdot \vec{d}t + (\vec{o} - \vec{c}) \cdot (\vec{o} - \vec{c}) - r^2 = 0
+\end{equation*}
+
+this can be solved as a quadratic equation of the form $At^2 + Bt + C = 0$ where:
+
+\begin{align*}
+A &= \vec{d} \cdot \vec{d}\\
+B &= 2(\vec{o} - \vec{c}) \cdot \vec{d}\\
+C &= (\vec{o} - \vec{c}) \cdot (\vec{o} - \vec{c}) - r^2\\
+\end{align*}
+
+as this is a quadratic equation we have two possible solutions for t given by:
+
+\begin{align*}
+t_0 = \frac{- B - \sqrt{B^2 - 4AC}}{2A}
+,
+t_1 = \frac{- B + \sqrt{B^2 - 4AC}}{2A}
+\end{align*}
+
+for the case when $B^2 - 4AC < 0$ we have no real solutions and the ray does not intersect with the sphere, otherwise we
+take the smallest positive intersection value, if both values are negative we do not intersect the ray.
 
 \subsection{Mesh}
-The mesh primitive in the system is defined as a collection of vertices connected into triangles through a list of triangles,
-additionally surface normals and texture coordinates can be specified in the input file (see section \todo{find section})
+The mesh primitive is defined as a list of vertices and indices that define the triangles from the list of vertices, also
+stored are the surface normals for the triangles and if included the texture coordinates. We will not discuss the implementation
+for reading in the mesh in detail as it is a rather simple function that reads from a PLY file and extracts the data.
+
+\todo{Add the structure definition of the mesh type}
 
 \subsubsection{K-D Tree Construction}
-In order to satisy requirement TODO:Add the requirement bruteforce methods for raytracing are not acceptable, in order to reduce
-to number of intersection tests that are performed I have decided to use the kdtree for the accelleration structure. The
-construction of the kdtree is performed during the initialiseation of the triangle meshes as it is a static data structure, due
-to it being a static data structure their is an advantage to performing more extensive computation in the construction in
-order to create a higher quality of kdtree. TODO:Add sah and analysis. We begin the contruction of the kd-tree with all
+Intersecting a triangle mesh with a bruteforce method would be prohibitivly expensive for a mesh with many triangles, it
+is common then, to use a acceleration struction that reduces the number of intersection. The
+construction of the kdtree is performed during the initialiseation of the triangle meshes as it is a static data structure.
+We begin the contruction of the kd-tree with all
 triangles in a single list, we then calculate an axis and position on that axis to seperate the triangles, this is calculated
-by \todo{add SAH or average if not implemented} we then sort each of the triangles into two child lists, if a triangle is
-to the left of the splitting plane it will be placed in the left childs triagnle list and visa-versa for the right, if the
+by finding the median spread of the geometry in the voxel we then sort each of the triangles into two child lists, if a triangle is
+to the left of the splitting plane it will be placed in the left childs triangle list and visa-versa for the right, if the
 triangle spans the split plane it will be added to both lists, we then call the tree building function recursivly on the
 left and right child and delete the list for this node, we terminate when a list contains less than a threshold number
-of triangles in its bucket or a maximum depth is reached, or if all triangles are placed in a single node.
+of triangles in its bucket or a maximum depth is reached or if all triangles are placed in a single node.
 
 \subsubsection{Intersection test}
 Given the k-d tree that we have constructed for a mesh we can now describe an efficient top-down intersection algorithm,
@@ -70,6 +103,8 @@ have an intersection closer. There is a subtle point that must be noted, when we
 a triangle in a list if the intersection point is found to be more that the exit point of the voxel then we do not
 record this intersection as the triangle spans voxels and we need to check for closer intersection.
 
+\todo{Add a visual representation of the k-d tree intersection test, specifically the case where the triangle spans voxels}
+
 
 \subsection{Material Properties}
 Each object has associated with it a material property that defines the reflectance properties of the material.
@@ -77,11 +112,6 @@ The system currenlty suports diffuse and pure specular components each being def
 values for red, green and blue compnonets respectivly, texture mapping is also supported for the diffuse component,
 for specular transmission an index of refraction is defined that determins the direction of refracted rays through the
 material. We also store the average values for these components explicitly as they are frequentlty used when performing
-russian roulette to evaluate integrals during photon map construction and raytracing as will be seen in section \todo{Add section}
-
-\subsubsection{Participating Media}
-Materials can also be set to being a participating media, in this case we have four coefficitnes, the scattering and
-absorption coefficient which will determin how light interacts with the object internally derived from these values
-are the extinction coefficient and albedo we will demonstrate their useage in section \todo{section}.
-
-
+russian roulette to evaluate integrals during photon map construction and raytracing. Participating media require additional
+components for the scattering and absorption coefficients as discussed in the Literature Survey, these are also stored
+as rgb components, we also store derived properties, namely the extinction coefficent and albedo of the matrial.

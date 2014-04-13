@@ -1,4 +1,4 @@
-\section{Introduction}
+\label{chap:design}
 In this chapter we will discuss the design aspect of the project, this will include an overview of the
 architecture that we have decided upon and the rational behind it, we will then move to describe key components of
 the design and how they relate to the aims and goals of this project and any interesting problems that they
@@ -8,12 +8,11 @@ development plan that will be used to implement the system.
 \section{Architectural Overview}
 During the requirements analysis stage of this project it was clear that the project could be decomposed into
 two main sub-modules, a front-end that will perform the interaction with the user and the operating system and a
-back end that will process the user input in order to synthesis image this can be seen in 
-Figure~\ref{fig:design_blocks}, the design of the project is such that the concerns of input and data processing
-are seperated allowing for a cleaner design within each of the blocks. As we will be implementing the photon mapping
-algorithm it is also clear that the back-end will contain two stages, the photon map generation which will produce the
-photon maps that will in addition to the scene description from the front end be used to estimate the global illumination
-of the scene.
+back end that will process the user input in order to synthesis image, this can be seen in 
+Figure~\ref{fig:design_blocks}, further decomposition of the back end was decided from the definition of the
+photon mapping algrithm which is conceptually seperated into two stages, the photon emission stage and the raytracing stage, it
+would be natural then to subdivide the backend into seperate blocks that perform these steps, the first producing the photon
+maps and the second using this data along with the scene description from the front end to produce the output image.
 
 \begin{figure}
 \centering
@@ -28,3 +27,4 @@ of the scene.
 \input{design/back_end.tex}
 
 \section{Development Plan}
+\todo{Add development plan in brief detail}

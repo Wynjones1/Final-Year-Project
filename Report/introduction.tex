@@ -1,17 +1,17 @@
 \section{Aims}
-This project aims to create a program that will synthesis images using photon mapping to produce an accurate simulation of the
-light transfer of a scene. Creating realistic images is a key problem in computer graphics as the use of CGI within the
-entertainment industry has become common place and relied upon as a method for creating visual effects realism is often strived
-for. In addition to performing photon mapping I will also develop a new method for simulating laser light within a scene, this
-method will modify the photon mapping algorithm to facilitate this.
+This project amis to create a system that will synthesis images using the photon mapping algorithm to estimate the
+global illumination of a scene, in paticualar we aim to simulate lighting phenomena such as colour exchange between
+diffuse surfaces, caustics caused by specualar objects.
 
 \section{Global Illuminiation}
 As the use of computers has become more prevalant in everyday life so has its use in the arts, a leading area of research is
-computer generated imagery we the aim of producing images that appear to accuratly simulate the way in which light interacts
+computer generated imagery we the aim of producing images that simulate the way in which light interacts
 with the world, global illumination techniques aim to acheive this through simulation of the light transport equation, a true
-solution to this equation is computationally infeasable. \todo{add path tracer and why we need photon mapping}
+solution to this equation is frequently computationally infeasable, techniques have been developed that estimate the contribution
+due to indirect lighting that seek to reduce the computational cost that give a correct solution to the rendering equation at
+the limit, one such technique is photon mapping.
 
 \section{Structure}
-This document will begin with a description of the research surrounding my project that I have used to draw from. I will then move
-onto the requirements for the system thena description of the design and then the implementation of the system including
+This document will begin with a description of the research surrounding my project that I have used to draw from. I will then
+move onto the requirements for the system thena description of the design and then the implementation of the system including
 aspects of the implementation that were interesting or presented a paticular challange.

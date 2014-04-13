@@ -1,6 +1,6 @@
 \section{The BDRF}
 \label{sec:bdrf}
-Most global illumination systems need to describe the radiance from an object, this includes the
+Global illumination systems need to describe the radiance from an object, this includes the
 reflected radiance by an object from the scene.
 The bidirectinoal reflectance distribution function \cite{Nicodemus65}is a function that describes 
 the reflectance of a surface at point $x$ with respect to an outwards direction $\omega_{o}$, and 
@@ -31,19 +31,22 @@ object in the scene in a flexible manner, this will include a method of represen
 an object that can be easily configured.
 
 \section{The Rendering Equation}
-Central to most modern rendering systems is the rendering equation, the rendering equation is an
-approximation to the light transfer of a scene \cite{Kajiya86}. A frequency independant version of
-the rendering equation is given below.
+\label{sec:rendering_eq}
+First described by Kajiya the rendering equation is an
+forulation to the light transfer of a scene \cite{Kajiya86}. A frequency independant version of
+the rendering equation is given below:
 
 \begin{equation}
 L_{r}(x, \omega_{o}) = L_{e}(x, \omega_{o})
-					 + f(x)
+					 +
 					   \int_{\Omega}
 					 		f_{r}(x, \omega_{i}, \omega_{o})
+							L_i(x, \omega_{i})
 							(\omega_{i} \cdot n)d\omega_{i}
 \end{equation}
-Where $L_{r}$ is the radiance from the surface at point x, $L_{e}$ the emmited radiance from the
-surface and $f_{r}$ is the BDRF as described in section~\ref{sec:bdrf}.
+where $L_{r}$ is the radiance from the surface at point $x$  in the direction $\omega_o$ ,
+$L_{e}$ the emmited radiance from the surface and $f_{r}$
+is the BDRF of the surface at $x$ as described in section~\ref{sec:bdrf}.
 
 There have been many developments within computer graphics that attempt to find approximations
 to the rendering equation, radiosity \cite{Goral85}which attempts to find the solution by splitting 
@@ -62,3 +65,29 @@ number of rays emmited increases the image converges to the solution of the rend
 Understandind the motives of the rendering equation will be vital if I am to be sucsessfull in
 developing a photon mapping system, the solution that most rendering algorithms produce are an
 approximation to the rendering equation and as such will be the focus of my system.
+
+\subsection{Monte Carlo Methods}
+The rendering equation describes the light transfer as an integral of all directions above the point being evaluated, this
+integral cannot be solved with a closed form solution, as a result we must approximate the value of the integral, to do this
+we use monte-carlo methods \cite{wood-monte-carlo}. Monte carlo methods allow us to estimate the value of an integral at a point
+by sampling the 
+
+\begin{equation}
+E\left(g\left(X\right)\right) = \sum\limits_{x \in X} g\left(x\right)f_X\left(x\right)
+\end{equation}
+
+\subsection{Sampling}
+The integral introduced in Section~\ref{sec:rendering_eq} requires us to consider all incoming directions, using monte carlo
+methods we can approximate this integral, this required us to sample the upper hemisphere to generate the samples used
+in the monte carlo evalulation.
+
+\subsubsection{Importance Sampling}
+Importance sampling is a statistical technique that allows us to concentrate computational effort when sampling a distribution
+to areas of the distribution that contribute most to the average, for instance sampling incident radiance at a point on a lambertian
+surface where the reflected radiance is preportional to the cosine of the incoming direction, by using a cosine weighted distribution
+we can gain a better estimate for the radiance.
+
+\todo{Motivations}
+
+\section{Raytracing}
+\todo{Add basic description and maybe an algorithm}

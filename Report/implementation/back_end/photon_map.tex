@@ -1,11 +1,14 @@
 \section{Photon Map Generation}
-As thousands of photons can potentially be created it makes sense to utilise the hardware that the system is running on, this
-includes multiple cores, the photon emiition is as a result designed to run on multiple threads.
+We described in Chapter~\ref{chap:design} that the photon generation stage of the back end would run on multiple threads
+to utilise the computing power of the machine the system is being run on, this required certain descitions to be made to
+allow for the multiple threads to correclty distribute the power of the light sources into the scene.
 
 Each thread is responsible for producing a certain proportion of the photons in the scene, once a thread has processed all
 of these photons it will signal to the main thread that it has finished by sending a flag to the output queue the thread also
 updates a global light emission count include the photons that the thread emitted for each of the lights, a seperate count for
 each of the counts is kept as the processing of the threads may not happen at the same time.
+
+\todo{Add the structure definition}
 
 \subsection{Photon Emission}
 In order to trace photons into the scene we first need a method of creating photons, this is implemented in the light 
@@ -29,22 +32,24 @@ define describe the path that the photons have taken prior to the call to \textt
 
 Photons are traced much like a ray in traditional raytracing, first we calculate the closest intersection point of the photon
 once found the photon interacts with the surface of the object at the point of intersection this interaction can be specular 
-reflection , transmission, diffuse reflection or absorbtion. Now that we have a point of intersection we must decide what
-to do with the photon, this is determined by the reflectance of the object at the point of intersection, if for instance the
-object reflectes fifty percent of light in the specular direction and the other fifty percent diffusely we could create two
-photons, one that is traced in the specular direction and another in a random direction sampled around the hemisphere in the
-direction of the surface normal, each with half of the power of the incoming photon.
+reflection , transmission, diffuse reflection or absorbtion, at this point of intersection we must determine the path of the reflected
+photon, the power of this photon is determined by the reflectance of the surface i.e a photon with white light that interacts with
+a red surface will only reflect photons with power in the red component. Using the approach of scaling the photons will create a photon
+map that correctly describes the distribution of power in the scene, unfortunatally this can lead to many photons with low power as they
+are scaled at each interaction, it can also in the case of surfaces with both specualr and diffuse componenet lead to exponenetial number
+of photons being produced as we need to create a reflected photon for both paths scaled apporoaprealty, as a result of these considerations
 
-As noted by Jensen, this approach would work but can lead to photons with very low power, more of a concern is that this approach leads to an exponential number of
-photon interactions, as a result we use the monte-carlo method described by Jensen \cite{JensenBook} that reflectes at most one photon
-per surface interaction with full power, to make this technique give the same answer as the previous method we make the
-decition based on the reflectivity of the surface by forming a cumulative distribution function.  
+we have used a monte-carlo method that reflectes at most one photon
+per surface interaction with full power, we ensure the correct result in the photon map by only reflecting the photon
+with probability based on the reftance of the surface (i.e reflecting 50 full power photons as oppose to 100 full power photons)
+we sample the reflectance of the surface by forming a cumulative distribution funciton of the materials reflectance coefficients.
 Given the specular reflecive, transmissive and diffuse reflectance coefficents $\rho_{s}, \rho_{t}, \rho_{d}$
 of the object we can create a cumulative distribution of photon emittion paths (Figure~\ref{fig:rr_dist}) 
-we then take a uniform variable $\xi$ in the range from 0 to 1. As we are using rgb values to store reflectance properties the
+we then take a uniform variable $\xi$ between 0 and 1 if the variable is within the distribution we reflect a photon, otherwise
+the path of the photon is terminated. As we are using rgb values to store reflectance properties the
 coeffients used to perform the sampling are the average of the three componenets, so as the distribution of the three
 colour bands is correct we must also perform scaling of the power parameter that we use in the next \texttt{trace\_photon}
-call, note that the scaling preserves the power of the photon it mearly redistributes it.
+call, note that the scaling preserves the power of the photon and the reflectance properties of the surface.
 
 \begin{figure}[h]
 \includegraphics{./images/russian_roulette_distribution.png}
@@ -52,25 +57,19 @@ call, note that the scaling preserves the power of the photon it mearly redistri
 \caption{Russian roulette distribution}
 \end{figure}
 
-If the photon intersects a surface with non-specular components the photon is written to the output queue, 
-the tracing thread will write the photon data that is to be stored in
-the photon map along with infomation that describes the path that the photon has taken, the power of the photon and the
-incident angle of the photon with the surface to a queue that will be read by the main thread.
-The desctiption of the path that the photon is described by flags passed to the photon tracing function,
-two flags are used to describe the path, a diffuse flag and a specular flag both are initially set to false if a diffuse
-surface is intersected the diffuse flag is set to true the same being true for specular intersections and the specular flag.
-
-For specular reflection and transmission a photon is created at the point of intersection that has normal in the reflected
-or transmitted direction, as noted by Jensen \cite{JensenBook} storing photons at specular surfaces does not add any useful
-information for rendering as the probability of the photon being used in the radiance estimate is zero due to the
-delta function in specular BRDF's
+At each non-specular interaction the photons are written to the output queue to be processed, this includes
+the power of the photon, the incident angle of the photon to the surface and flags to indicate if the surface
+has interacted with a diffuse or specular surface prior to this interaction, we do not store photon interactions
+at specular surfaces as they do not provide us with information that can be used when estimating the radiance as
+the probability of an incoming photon contributing to the specular reflectance is zero due to the delta functions
+in the specular BRDF.
 
 When creating the caustic photon map we are only concerned with those interactions with diffuse surfaces that have
 taken a path that contains at least one specular bounce and no diffuse bounces (\textbf{LS$^+$DE}), as a result \texttt{trace\_photon}
 has as input a flag that will indicate that any path that does not match this description should be discarded.
 
 \subsubsection{Participating Media}
-If the photon interacts with a participating medium the photon will begin a random walk inside the medium, this walk
+If the photon interacts with a participating medium the photon will begin a random walk inside the medium, the path of this walk
 is determined by the properties of the medium, these being the scattering and absorbtion coefficient, the sum of which
 is called the extinction coefficient, at each point in the random walk the photon is stored and then can either be
 scattered or absorbed, the probability of being scattered is determined by the Albedo $\Lambda$
@@ -82,10 +81,10 @@ scattered or absorbed, the probability of being scattered is determined by the A
 %\caption{Participating Media Albedo}
 \end{equation}
 
-As discussed by Jensen \cite{JensenBook} the marching can be performed with a set distance and scaling of the photons at each
-step, a more efficient method is to importance sample the distance $\Delta x$ of the next interaction with 
+The marching can be performed with a set distance and scaling of the photons at each step based on the attenuation of
+light in participating media, a more efficient \cite{JensenBook} method is to importance sample the distance $\Delta x$ of the next interaction with 
 Equation~\ref{eq:volume_dist_importance}, the scattering of the photon continues until the photon is absorbed, intersects
-with an object in the medium or exits the medium.
+with an object in the medium or exits the medium. \todo{Expand the explination of this}
 
 \begin{equation}
 \Delta x = \frac{-log(\xi)}{\sigma_t(x)}
@@ -94,7 +93,7 @@ with an object in the medium or exits the medium.
 \end{equation}
 
 \subsection{Photon Processing}
-As each thread produces photons they write the photons to a queue, this queue is subsequently read by the main thread where
+The data from each photon emission thread is processed by a processing thread that reads the photons from the output queue
 the photons will be places into a list bases upon the path that the photon took, for purly specular paths the photons
 will be added to the caustinc photon map, for paths that end with an interaction with a participating media they will be
 added to the volume photon map, all other paths are added to the global photon map. Once all photons have been collected
@@ -119,27 +118,17 @@ location for the left and right tree respectivly.
 photons.size \textgreater 1
 }
 {
-
-	axis $\gets$ \Call{select\_axis}{photons}
-
-	left, median, right $\gets$ \Call{partition\_around\_median}{photons, axis}
-
-	left\_index  $\gets$ 2 * index + 1
-
-	right\_index $\gets$ 2 * index + 2
+	\State axis $\gets$ \Call{select\_axis}{photons}
+	\State left, median, right $\gets$ \Call{partition\_around\_median}{photons, axis}
+	\State left\_index  $\gets$ 2 * index + 1
+	\State right\_index $\gets$ 2 * index + 2
 
 	\If{left\_index \textless max\_index}
-	{
-
-		left $\gets$ \Call{balance}{left, left\_index,max\_index}
-	}
+		\State left $\gets$ \Call{balance}{left, left\_index,max\_index}
 	\EndIf
 
 	\If{right\_index \textless max\_index}
-	{
-
-		right $\gets$ \Call{balance}{right, right\_index, max\_index}
-	}
+		\State right $\gets$ \Call{balance}{right, right\_index, max\_index}
 	\EndIf
 
 	\Return{left + median + right}
@@ -176,8 +165,15 @@ photons.size \textgreater 1
 
 \begin{figure}
 \centering
-\includegraphics[scale=0.75]{./images/left-balanced-tree.png}
-\caption{Left balanced tree and its memory layout}
+\begin{subfigure}{0.4\textwidth}
+\includegraphics[scale=0.8]{./images/left-balanced-tree.png}
+\caption{}
+\end{subfigure}
+\begin{subfigure}{0.4\textwidth}
+\includegraphics[scale=0.8]{./images/non-left-balanced-tree.png}
+\caption{}
+\end{subfigure}
+\caption{(a) demonstrates a left balanced tree while (b) does not due to node F}
 \end{figure}
 
 \subsubsection{Selection Statistic}

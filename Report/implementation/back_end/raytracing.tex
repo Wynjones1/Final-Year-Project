@@ -1,24 +1,82 @@
 \section{Raytracing}
 We will now discuss the implemenation of the raytracer used in the system to find the intersection points and shading specular
-surfaces.
+surfaces. Multiple raytracing threads are created, these threads are passed a pointer to a queue that when read returns a
+pixel coordinate that the thread will trace, this queue is written by an additional thread that will write each pixel in the
+output image as space becomes available in the queue, the queue is of sufficient size so as the raytracing threads do not
+exhaust the thread. In order to signal to the raytracing thread that the render has finished a flag can be set with the pixel
+data that indicates that the thread should finish executing one finish signal is sent to each of the threads.
 
-\subsection{Pixel Sampling}
-As the raytracer is performing distribution raytracing each thread will perform multiple raytracing operations for each pixel
-that it processes each sample per pixel is offset inside the pixel to perform antialiasing, this reduces the sharp edges that
-can be seen in images. In order to improve the appearence of the image we also perform jittering on the samples this reduces
-certain artifacts such as banding. \todo{Make sure the banding comment is correct and if so find a reference for it}
+\begin{algorithm}
+\begin{algorithmic}
+\caption{Raytracing Main Thread}
+\For{ 0 to num\_threads}
+	\State \Call{start\_thread}{input\_queue, output\_queue}
+\EndFor
+
+\For{ 0 to num\_pixels}
+	\State pixel\_data $\gets$ \Call{queue\_read}{output\_queue}
+	\State \Call{update\_pixel}{pixel\_data}
+\EndFor
+
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+\begin{algorithmic}
+\caption{Raytracing Processing Thread}
+
+\State pixel\_data  $\gets$ \Call{queue\_read}{input\_queue}
+
+\While{pixel\_data.continue}
+	\State colour $\gets$ black
+	\For{each sample in pixel}
+		\State colour += \Call{trace\_pixel}{}
+	\EndFor
+	\State \Call{queue\_write}{output\_queue, pixel\_data.x, pixel\_data.y, colour}
+	\State pixel\_data  $\gets$ \Call{queue\_read}{input\_queue}
+\EndWhile
+
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Multisampling}
+For each pixel that a raytrace thread receives mulitple rays are traced through the scene in order to perform multisampling
+on the pixel, this allows us to remove aliasing in the final image and perform districution raytracing, we perform stratified
+sampling of the pixel area to calcualte the location of each of the sub-pixels.
 
 \begin{figure}[h]
 \centering
 \begin{subfigure}[b]{0.4\textwidth}
 	\includegraphics[width=\textwidth]{./images/renders/no-aa.png}
-	\caption{1 ray per pixel}
+	\caption{1 sample per pixel}
 \end{subfigure}
 \begin{subfigure}[b]{0.4\textwidth}
 	\includegraphics[width=\textwidth]{./images/renders/aa.png}
-	\caption{25 rays per pixel}
+	\caption{25 samples per pixel}
 \end{subfigure}
 \end{figure}
+
+\subsection{Scene Traversal}
+
+\todo{Add some detail here}
+
+\begin{algorithm}
+\begin{algorithmic}
+\caption{Scene Traversal Algorithm}
+\State colour   $\gets$ scene.sky\_colour
+\State record.t $\gets \infty$
+\For{object $\in$ scene}
+	\State new\_record $\gets$ \Call{intersects}{ray, object}
+	\If{new\_record.hit \textbf{and} new\_record.t $\textless$ record.t}
+	\State record $\gets$ new\_record
+	\EndIf
+\EndFor
+\If{record.hit}
+	\State colour $\gets$ \Call{shade}{scene, record}
+\EndIf
+\State \Return colour
+\end{algorithmic}
+\end{algorithm}
 
 \subsubsection{Self Intersection}
 Due to the floating point errors in the calculation of intersection tests the point of intersection that is reported may be
@@ -27,7 +85,7 @@ specular or shadow ray reports an intersection point close to the original inter
 the final render, to remedy this issue we use a small offset in the direction of the incident ray so that the origin of the
 new ray is slightly above the intersection point.
 
-\subsection{volume intersection}
+\subsubsection{Volume Intersection}
 Unlike intersection with all other object types the intersection with a participating media is non deterministic, this is
 due to the fact that the intersection of the ray is determined by the extinction coefficient which gives a probablilty
 of interaction, the depth of the interaction is calculated with equation \todo{add equation}, performing this non-deterministic
@@ -35,37 +93,11 @@ intersection test allows for objects within the medium to be interacted with whe
 
 \missingfigure{Non-deterministic intersection test}
 
-\subsection{Intersection Storage}
+\subsubsection{Intersection Storage}
 When raytracing the scene the intersection point of the ray needs to be calculated and stored, this will include data that
 is specific to an objects intersection, for example an intersection with a triangle mesh will need to record the trangle
 that was intersected and as a result will need to record the barycentric coordinate at the point of intersection.
 
-\subsection{Scene Traversal}
-\begin{algorithm}
-\begin{algorithmic}
-\caption{Scene Traversal Algorithm}
-\State colour $\gets$ scene.sky\_colour
-\For{object $\in$ scene}
-
-	new\_record $\gets$ \Call{intersects}{ray, object}
-
-	\If{new\_record.hit \textbf{and} new\_record.t $\textless$ record.t}
-
-	record $\gets$ new\_record
-
-	\EndIf
-
-\EndFor
-
-\If{record.hit}
-
-	colour $\gets$ \Call{shade}{scene, record}
-\EndIf
-
-\Return colour
-
-\end{algorithmic}
-\end{algorithm}
 
 \newpage
 \input{./implementation/back_end/shading.tex}

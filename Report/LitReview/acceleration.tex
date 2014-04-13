@@ -7,7 +7,7 @@ intersections. It may be worth an investigation the performance characteristics 
 data-structures within the system, this can easily be done by making the underlying implementation
 of the data-structure transparent to the rest of the system.
 
-\subsection{KD Trees}
+\subsection{K-D Trees}
 A kd-tree is a data structure that partitions space along split-planes which are axis aligned
 hyperplanes first preposed by Bently \cite{Bently75}.
 The use of kd-trees in rendering applications is common as they reduce the time
@@ -16,8 +16,8 @@ within the photon mapping algorithm for the radiance estimate as we need to perf
 neighbour search, Jensen uses this data structure within his implementation of the photon mapping
 algorithm in his book \cite{JensenBook}.
 
-\subsection{Building KD-Trees}
-Wald desribes an algorithm for building a kd-tree in $O(N log(N))$ \cite{Wald06}, as stated in his
+\subsubsection{Building K-D Trees}
+Wald desribes an algorithm for building a kd-tree with $O(N log(N))$ complexity \cite{Wald06}, as stated in his
 paper the desire for more and more complex scenes requires that attention should be make to the 
 building of the kd-tree as it can begin to take substantial amount of computing resources to
 perform. This paper is a good overview of techniques for building a kd-tree.
@@ -34,7 +34,7 @@ are still valid.
 \subsection{Nearest Neighbour search}
 In order to produce a radiance estimate for a location on a surface we need to be able to query to
 photon map in order to find the nearest n photons, the kd-tree is a good candidate for this search
-as it is possible to perform the search in $O(log(N))$. The algorithm was first proposed in the
+as it is possible to perform the search with $O(log(N))$ complexity. The algorithm was first proposed in the
 paper introducing kd-trees by Bently \cite{Bently75} although as noted by Bently in later versions of
 the paper a more clear explination of the algorithm is stated by Freidman et al. \cite{Freidman77}.
 

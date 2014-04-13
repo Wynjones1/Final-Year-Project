@@ -40,18 +40,18 @@ irradiance directly from light sources (\textbf{LD} paths).
 
 \subsection{Radiance Estimations}
 Before we discuss how we utilise the photon map to approximate the global illumination of a scene we must first discuss how
-we use the photon map to estimate the radiance at a point. Recall from Section \todo{find section} the radiance at a point
+we use the photon map to estimate the radiance at a point. Recall from Section~\ref{chap:lit} the radiance at a point
 of intersection can be estimated by,
 
 \begin{equation}
-L(x, \omega) = \sum\limits_{n = 1}^N f_r(x,\omega,\omega'_n) \frac{\Phi_n}{\pi r ^ 2}
+L(x, \omega) = \sum\limits_{n = 1}^N f_r(x,\omega,\omega'_n) \frac{\Delta\Phi_n}{\pi r ^ 2}
 \end{equation}
 
 where $f_r(x, \omega,\omega')$ is the BRDF for the surface, we will only use the photon map at diffuse surfaces, as the BRDF
 for these surfaces are a constant we can move this calculation out of the summation to give us the following.
 
 \begin{equation}
-L(x, \omega) = \frac{\rho_d}{\pi}\sum\limits_{n = 1}^N \frac{\Phi_n}{\pi r ^ 2}
+L(x, \omega) = \frac{\rho_d}{\pi}\sum\limits_{n = 1}^N \frac{\Delta\Phi_n}{\pi r ^ 2}
 \end{equation}
 
 It can be seen that we are now estimating the irradiance at the point of intersection, to use the photon map then, we need to
@@ -73,9 +73,10 @@ algorithm for k-d trees on the photon map.
 				(\omega \cdot n)d\omega'
 \end{equation*}
 
-Direct illumination is the radiance contribution at a surface directly from the light sources in the scene, in path notation
-this is \textbf{LDE} this term is responsible for the majority of detail in the scene, as a result we use raytracing to calcualte
-the radiance from direct illumination, it is possible to calculate the radiance due to this term from the photon map but this
+Direct illumination is the radiance contribution at a surface directly from the light sources in the scene
+(\textbf{LDE} in path notation) this term is responsible for fine details such as shadows in the scene, as a
+result we use raytracing to calcualte
+the radiance due to direct illumination, it is possible to calculate the radiance due to this term from the photon map but this
 approach leads to noise in the final image even when using a high number of photons in the radiance estimate, a comparison of
 direct illumination with raytraceing and the photon map can be seen in Figure~\ref{fig:direct_compare} it can be seen that
 the illumination calculated by both methods are largly simalar but there is significant variance in the apperance in the
@@ -131,6 +132,8 @@ visibility function across the area of the light.
 	\end{equation}
 	\end{subfigure}
 \end{figure}
+
+\missingfigure{Area light figure}
 
 \subsubsection{Texture Mapping}
 Performing texture mapping requires the ability to query the texture coordinates at a point of intersection, for mesh objects this
