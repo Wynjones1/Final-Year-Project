@@ -13,10 +13,30 @@ L(x, \omega) = \sum\limits_{i = 1}^N L_l(x, \omega_l')p(x, \omega_l', \omega)\si
 
 \subsection{Attenuation}
 As a ray travels through a medium the radiance can be reduced due to out-scattering and absortion, this can be calculated by evaluating
-the integral given in equation \todo{Add the equation}, as we are only considering homogeneous participating media this can be
-simplified as the properties being integrated are constant and a closed form solution is possible.
+the integral given in Equation~\eqref{eq:atten}, as we are only considering homogeneous participating media this can be
+simplified as the properties being integrated are constant and a closed form solution is possible, the attenuation for any participating media
+is given by:
 
-\missingfigure{Attenuation Equation}
+\begin{equation}
+	e^{-\tau(x, x + \Delta x)}
+\label{eq:e_atten}
+\end{equation}
+
+where $\tau$ is given by:
+
+\begin{equation}
+	\tau(x, x') = \int\limits_x^{x'} \sigma_t(t) dt
+\label{eq:atten}
+\end{equation}
+
+as $\sigma(t)$ is a constant for participating media we can evaluate this
+integral and use the result in Equation~\eqref{eq:e_atten}
+to give the attenation of the radiance along the distance $\Delta x$ as:
+
+\begin{equation*}
+	\tau(x, x + \Delta x) = \int\limits_x^{x + \Delta x} \sigma_t .  dt = \sigma_t \Delta x
+\label{eq:homo-attem}
+\end{equation*}
 
 \subsection{Direct Illumination}
 At each point in the ray march we also evaluate the contribution from each light in the scene due to single scattering, this is performed

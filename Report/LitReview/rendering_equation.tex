@@ -76,18 +76,18 @@ by sampling the
 E\left(g\left(X\right)\right) = \sum\limits_{x \in X} g\left(x\right)f_X\left(x\right)
 \end{equation}
 
-\subsection{Sampling}
-The integral introduced in Section~\ref{sec:rendering_eq} requires us to consider all incoming directions, using monte carlo
-methods we can approximate this integral, this required us to sample the upper hemisphere to generate the samples used
-in the monte carlo evalulation.
+%\subsection{Sampling}
+%The integral introduced in Section~\ref{sec:rendering_eq} requires us to consider all incoming directions, using monte carlo
+%methods we can approximate this integral, this required us to sample the upper hemisphere to generate the samples used
+%in the monte carlo evalulation.
+%
+%\subsubsection{Importance Sampling}
+%Importance sampling is a statistical technique that allows us to concentrate computational effort when sampling a distribution
+%to areas of the distribution that contribute most to the average, for instance sampling incident radiance at a point on a lambertian
+%surface where the reflected radiance is preportional to the cosine of the incoming direction, by using a cosine weighted distribution
+%we can gain a better estimate for the radiance.
 
-\subsubsection{Importance Sampling}
-Importance sampling is a statistical technique that allows us to concentrate computational effort when sampling a distribution
-to areas of the distribution that contribute most to the average, for instance sampling incident radiance at a point on a lambertian
-surface where the reflected radiance is preportional to the cosine of the incoming direction, by using a cosine weighted distribution
-we can gain a better estimate for the radiance.
-
-\todo{Motivations}
+\todo{Optional : re-add Importance sampling and extend it}
 
 \section{Raytracing}
 \todo{Add basic description and maybe an algorithm}

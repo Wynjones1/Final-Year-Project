@@ -53,8 +53,8 @@ call, note that the scaling preserves the power of the photon and the reflectanc
 
 \begin{figure}[h]
 \includegraphics{./images/russian_roulette_distribution.png}
-\label{fig:rr_dist}
 \caption{Russian roulette distribution}
+\label{fig:rr_dist}
 \end{figure}
 
 At each non-specular interaction the photons are written to the output queue to be processed, this includes
@@ -83,13 +83,12 @@ scattered or absorbed, the probability of being scattered is determined by the A
 
 The marching can be performed with a set distance and scaling of the photons at each step based on the attenuation of
 light in participating media, a more efficient \cite{JensenBook} method is to importance sample the distance $\Delta x$ of the next interaction with 
-Equation~\ref{eq:volume_dist_importance}, the scattering of the photon continues until the photon is absorbed, intersects
+Equation~\eqref{eq:volume_dist_importance}, the scattering of the photon continues until the photon is absorbed, intersects
 with an object in the medium or exits the medium. \todo{Expand the explination of this}
 
 \begin{equation}
+\label{eq:volume_dist_importance}
 \Delta x = \frac{-log(\xi)}{\sigma_t(x)}
-%\caption{Photon marching importance function}
-\label{eq:volum_dist_importance}
 \end{equation}
 
 \subsection{Photon Processing}
@@ -104,7 +103,7 @@ the light that emitted the photon. \todo{clean up}
 When performing radiance estimations with the photon map we will be performing nearest neighbour searches on points within
 the map, this requires the photon map to be arrainged in a manner such that this search can be performed efficiently.
 In order to do this we store the photon map in a left-balanced k-d tree. A left balanced tree is a tree structure where
-at each level of the tree the depth of the children differs by at most one, \todo{finish the explination of the LEFT balanced tree}
+at each level of the tree the depth of the children differs by at most one,
 this allows us to store the photon map in an array with the location of the children in the photon map known implicitly,
 for a photon in position $i$ the children of the photon can be found at the $(2i + 1)^{th}$ and $(2i + 2)^{th}$
 location for the left and right tree respectivly.
@@ -112,6 +111,8 @@ location for the left and right tree respectivly.
 \begin{algorithm}
 \begin{algorithmic}
 \caption{Balanced K-D tree construction}
+\label{alg:balance}
+\label{alg:balance}
 \Function{balance}{photons, index, max\_index}
 \If
 {
@@ -140,25 +141,6 @@ photons.size \textgreater 1
 }
 \EndIf
 \EndFunction
-%\State colour $\gets$ scene.sky\_colour
-%\For{object $\in$ scene}
-%
-%	new\_record $\gets$ intersects(ray, object)
-%
-%	\If{new\_record.hit \textbf{and} new\_record.t $\textless$ record.t}
-%
-%	record $\gets$ new\_record
-%
-%	\EndIf
-%
-%\EndFor
-%
-%\If{record.hit}
-%
-%	colour $\gets$ shade(scene, record)
-%\EndIf
-%
-%\Return colour
 
 \end{algorithmic}
 \end{algorithm}
@@ -173,13 +155,29 @@ photons.size \textgreater 1
 \includegraphics[scale=0.8]{./images/non-left-balanced-tree.png}
 \caption{}
 \end{subfigure}
-\caption{(a) demonstrates a left balanced tree while (b) does not due to node F}
+\caption{Left Balanced Tree}{(a) demonstrates a left balanced tree while (b) does not due to node F}
 \end{figure}
 
 \subsubsection{Selection Statistic}
-During the balancing procedure we need to partition the tree such that half the elements are less than the median
-this can be seen as finding the $i/2^{th}$ largest element in the list, this can be performed in linear time by using
-the median of medians algorithm . Below is a comparison for the runnning time of the balancing procedure for
-the nieve selection algorithm and the median of medians algorithm. As we are left-balancing the tree we also cannot
-just take the median of the data, we must adjust the median such that the left half of the tree will fill before the right.
-\todo{expand and add psuedocode}
+In Algorithm~\ref{alg:balance} we partition the photons around the median of the list of photons, in order for
+this partition to be stored in an array with no explicit node pointers we must choose the median position such
+that the tree will be left balanced \cite{baerentzen03}, Algorithm~\ref{alg:bal-median} describes the procedure nessacerry for this
+to be the case.
+
+\begin{algorithm}
+\caption{Balanced Median Calculation}
+\label{alg:bal-median}
+\begin{algorithmic}
+\State $n \gets 0$
+\While{$2^{n + 1} <= N$}
+	\State n $\gets$ n + 1
+\EndWhile
+\State $M \gets 2^n$
+\State $R \gets N - (M - 1)$
+\If{$R <= M / 2$}
+	\State \Return $(M - 2) / 2 + R$
+\Else
+	\State \Return $(M - 2) / 2 + M / 2$
+\EndIf
+\end{algorithmic}
+\end{algorithm}

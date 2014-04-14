@@ -5,7 +5,7 @@ software tools that were used throughout the implementation, then we will discus
 
 \section{Tools} 
 \subsection{Implementation Language (0.5 pages)}
-The implementation language that I have chosen is C, specifically C11. The choice of C is because it it the
+The implementation language that we have chosen is C, specifically C11. The choice of C is because it it the
 language that I am most familiar with, also it is a language that offers performance benifits as it is a compiled
 language, this is of great advantage for a photon mapper as we will regularly be dealing with data structures
 that contain thousands to millions of elements (such as the photon map.) In addition to being a compiled language
@@ -15,7 +15,7 @@ that is used by the program, which, when dealing with data structures as large a
 
 \subsection{Coding Style and Code Quality}
 With any piece of software it is important to impose restrictions on the way in which the code is written in order
-to reduce the effort that is needed to read the source. Some of conventions that I have used includes having a
+to reduce the effort that is needed to read the source. Some of conventions that we have used includes having a
 convention for any typedef such that a type can be easily deternimed (appeding \_t to the end of the typename),
 requiring that if a function is non-static that it begin with the name of the file or another prefix to prevent
 name clashing. Another convention that is used is the use of opaque pointers \cite{opaque-pointers} to data structures in order to
@@ -27,16 +27,10 @@ quality of the code being produced.
 
 Another issue that is present in writting code for C is that the memory is managed by the programmer, as a
 result it is common for errors such as memory leaks to occur, in order to reduce the risk of this in the project
-I have utilised several programs that can identify issues.
-
-\subsection{Compilers}
-
-\todo{This is to conversational}
-The first tool that I used was the compiler itself, there are several options available that will detect and report
-common error in C programs such as uninitialised variables.
+we have utilised several programs that can identify issues.
 
 \subsection{Valgrind}
-In order to detect memory related bugs I used Valgrind which is a program that will track all memory allocations
+In order to detect memory related bugs we used Valgrind which is a program that will track all memory allocations
 of a running program and is able to detect errors such as writes after a region of memory that has been allocated
 and lost pointers that result in memory leaks.
 
@@ -56,7 +50,7 @@ useful as the issue that was flaged and at first assumed to be impossible occure
 to be quite hard to find.
 
 \subsection{Source Control}
-In order to orginise the code that I have created I decided to use Git as a source control system for the project.
+In order to orginise the code that we have created we decided to use Git as a source control system for the project.
 Git has the concept of branches that allow development of seperate features concurrently in isolation and
 merged upon completion, incorperating branched into the development workflow proved to be a highly useful feature
 as it allows for work on a feature to continue even if another feature breaks parts of the system that would

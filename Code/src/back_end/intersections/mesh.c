@@ -7,7 +7,7 @@ int traverse(kdtree_node_t *tree, mesh_t *mesh,ray_t *ray, box_t box, intersecti
 
 int intersection_ray_mesh( ray_t *ray, mesh_t *mesh, intersection_t *info)
 {
-#if BRUTEFORCE
+#if BRUTEFORCE_TRIANGLE_INTERSECTION
 	intersection_t tri_info;
 	info->t = INFINITY;
 	info->type = intersection_type_mesh;

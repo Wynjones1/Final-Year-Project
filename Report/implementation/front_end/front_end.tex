@@ -16,7 +16,8 @@ and spheres may require other files to be read containing data such as material 
 \subsubsection{Mesh Input}
 If a mesh is specified in the scene file the vertex information will be read from a ply file, this data is just a list
 of vertices, normals texture coordinated and triangle indices, this structure is not conducive to efficient intersection
-tests, as a result a k-d tree is created before storing the mesh in the scene. \todo{Expand?}
+tests, as a result a k-d tree is created before storing the mesh in the scene, k-d tree construction will be discussed in
+Section~\ref{sec:obj_mesh}
 
 \subsection{Command Line}
 Users are able to input command line arguments to the system, these are received by C programs in the input parameters of
@@ -71,8 +72,9 @@ drawable surfaces, OpenGL support and user input, SDL is written in C and provid
 
 The surface that the image is displayed on is implemented as a OpenGL textured quad that spans the width and height of the screen.
 The callback function that is defined for the GUI writes each pixel value to a queue which will be read by the render mainloop,
-this mainloop will read the pixel data and update the appropreate location in the texture with that value, this is done until the
-queue is empty so as to reduce the number of opengl calls required to update the image. \todo{This could be a little bit clearer}
+this mainloop will read the pixel data and update the appropreate location in the texture with that value, in order to reduce the
+number of draw calls made by the GUI multiple pixels can be updated before each draw call, this is implemented by performing
+a non blocking read until we cannot read any pixels without blocking, we will then perform the draw call.
 
 In order to retain responsivness of the GUI while rendering it is desirable to run the GUI on a seperate thread, the GUI
 should also only redraw the screen when a pixel has updated its colour, this is to reduce the amount of processing that
@@ -83,6 +85,6 @@ gui running.
 \begin{figure}[h]
 \centering
 \includegraphics[scale=0.24]{./images/gui_screenshot.png}
-\label{fig:gui_screenshot}
 \caption{Screenshot of render in progress}
+\label{fig:gui_screenshot}
 \end{figure}

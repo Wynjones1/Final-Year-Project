@@ -1,4 +1,4 @@
-CC                := clang
+CC                := gcc
 OBJDIR            := obj/
 DEPDIR            := deps/
 SRCDIR            := src/
@@ -6,10 +6,20 @@ STD               := gnu11
 INCLUDEDIRS       := -I./src/front_end -I./src/back_end -I./src/objects -I./src/objects/material -I./src/common/ -I./src/back_end/intersections/ -I ./src/back_end/photon/
 CFLAGS            := --std=$(STD) -Wall -D__STDC_FORMAT_MACROS -D_USE_MATH_DEFINES=1 $(INCLUDEDIRS)
 LIBS              := -lm -lpthread 
-GUI               := 1
-PMAP              := 1
+
+ifndef GUI
+	GUI               := 1
+endif
+
+ifndef VERBOSE
+	VERBOSE           := 1
+endif
+
+ifndef PMAP
+	PMAP              := 0
+endif
+
 OUTPUT_PHOTON_MAP := 0
-VERBOSE           := 1
 SANITIZE          := 0
 SPECULAR          := 1
 
@@ -29,7 +39,11 @@ ifeq ($(ASM), 1)
 endif
 
 ifeq ($(SPECULAR), 1)
-	CFALGS += -DSPECULAR
+	CFLAGS += -DSPECULAR
+endif
+
+ifeq ($(BRUTEFORCE_TRIANGLE_INTERSECTION), 1)
+	CFLAGS += -DBRUTEFORCE_TRIANGLE_INTERSECTION
 endif
 
 ###################################

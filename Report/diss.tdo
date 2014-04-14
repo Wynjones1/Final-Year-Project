@@ -1,37 +1,23 @@
-\contentsline {todo}{Motivations}{5}{section*.9}
-\contentsline {todo}{Add basic description and maybe an algorithm}{5}{section*.10}
+\contentsline {todo}{Optional : re-add Importance sampling and extend it}{6}{section*.8}
+\contentsline {todo}{Add basic description and maybe an algorithm}{6}{section*.9}
 \contentsline {todo}{Figure: GUI Design Diagram}{19}{subsection.4.2.4}
 \contentsline {todo}{Figure: photon emission algorithm}{21}{subsection.4.3.1}
-\contentsline {todo}{Only mention the properties needed for pmedia}{24}{section*.19}
-\contentsline {todo}{Add development plan in brief detail}{24}{section*.20}
-\contentsline {todo}{This is to conversational}{26}{section*.21}
-\contentsline {todo}{Expand?}{29}{section*.24}
-\contentsline {todo}{This could be a little bit clearer}{31}{section*.29}
-\contentsline {todo}{rephrase this introduction to the section}{32}{section*.31}
-\contentsline {todo}{find requirement to ref}{32}{section*.32}
-\contentsline {todo}{Add the structure definition of the mesh type}{34}{section*.35}
-\contentsline {todo}{Add a visual representation of the k-d tree intersection test, specifically the case where the triangle spans voxels}{35}{section*.38}
-\contentsline {todo}{Add the structure definition}{36}{section*.39}
-\contentsline {todo}{Figure: random walk}{38}{section*.41}
-\contentsline {todo}{Expand the explination of this}{38}{section*.42}
-\contentsline {todo}{clean up}{39}{section*.43}
-\contentsline {todo}{finish the explination of the LEFT balanced tree}{39}{section*.44}
-\contentsline {todo}{expand and add psuedocode}{40}{section*.47}
-\contentsline {todo}{Add some detail here}{41}{section*.49}
-\contentsline {todo}{add equation}{43}{section*.52}
-\contentsline {todo}{Figure: Non-deterministic intersection test}{43}{section*.52}
+\contentsline {todo}{Add development plan in brief detail}{24}{section*.19}
+\contentsline {todo}{rephrase this introduction to the section}{32}{section*.27}
+\contentsline {todo}{find requirement to ref}{32}{section*.28}
+\contentsline {todo}{Add the structure definition of the mesh type}{34}{section*.31}
+\contentsline {todo}{Add a visual representation of the k-d tree intersection test, specifically the case where the triangle spans voxels}{35}{section*.34}
+\contentsline {todo}{Add the structure definition}{36}{section*.35}
+\contentsline {todo}{Figure: random walk}{38}{section*.37}
+\contentsline {todo}{Expand the explination of this}{38}{section*.38}
+\contentsline {todo}{clean up}{39}{section*.39}
+\contentsline {todo}{Add some detail here}{41}{section*.43}
+\contentsline {todo}{add equation}{43}{section*.46}
+\contentsline {todo}{Figure: Non-deterministic intersection test}{43}{section*.46}
 \contentsline {todo}{Figure: Area light figure}{46}{equation.5.8.5}
-\contentsline {todo}{Add the reflection and refraction equations}{47}{section*.57}
-\contentsline {todo}{Add the equation}{50}{section*.64}
-\contentsline {todo}{Figure: Attenuation Equation}{50}{section*.64}
-\contentsline {todo}{Figure: Performance Comparison}{52}{figure.caption.65}
-\contentsline {todo}{Reqs}{54}{section*.67}
-\contentsline {todo}{Design}{54}{section*.68}
-\contentsline {todo}{Figure: k-d performance graph}{55}{section.7.1}
-\contentsline {todo}{Figure: }{56}{section.7.2}
+\contentsline {todo}{Figure: Performance Comparison}{52}{figure.caption.58}
+\contentsline {todo}{Figure: }{55}{section.7.2}
 \contentsline {todo}{Figure: multicore graph}{56}{section.7.3}
-\contentsline {todo}{Figure: cornell box cubes}{56}{section.7.4}
-\contentsline {todo}{Figure: participating media low}{56}{figure.caption.70}
-\contentsline {todo}{Figure: participating media high}{59}{figure.caption.70}
-\contentsline {todo}{ref lit review}{61}{section*.71}
-\contentsline {todo}{Add something here}{61}{section*.72}
+\contentsline {todo}{Figure: participating media low}{60}{figure.caption.63}
+\contentsline {todo}{Figure: participating media high}{60}{figure.caption.63}
+\contentsline {todo}{Add something here}{62}{section*.64}

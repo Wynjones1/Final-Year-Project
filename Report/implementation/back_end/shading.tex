@@ -106,7 +106,7 @@ The system currently supports two types of light, point lights and area light, w
 from a point light as it is the simpler of the two cases.
 
 The radiance from a point light is constant for all points at the same distance from the origin of the light, the radiance at
-a point in the scene is given by Equation~\ref{fig:point_light_radiance}, where the function V is the visibility function, that
+a point in the scene is given by Equation~\eqref{eq:point_light_radiance}, where the function V is the visibility function, that
 is if the point of intersection cannot see the point light it will not contribute the radinace at that point, this will cause
 the appearance of shadows in the render.
 
@@ -117,19 +117,20 @@ visibility function across the area of the light.
 \begin{figure}
 	\centering
 	\begin{subfigure}[c]{0.4\textwidth}
-	\includegraphics{./images/renders/refraction/render-schlick.png}
+	TODO
 	\end{subfigure}
 	\begin{subfigure}[b]{0.4\textwidth}
-	\begin{equation}
-	\centering
-		E(x) = \frac
-		{
-			\Phi_s \cos{\theta}
-		}
-		{
-			4 \pi r^2
-		}
-	\end{equation}
+		\begin{equation}
+		\label{eq:point_light_radiance}
+		\centering
+			E(x) = \frac
+			{
+				\Phi_s \cos{\theta}
+			}
+			{
+				4 \pi r^2
+			}
+		\end{equation}
 	\end{subfigure}
 \end{figure}
 
@@ -154,13 +155,49 @@ spherical coordinates to generate u,v values, we use linear sampling to calculat
 For specular surfaces we again use raytracing to evaluate the contribution, as mentioned previousely the BRDF for specular surfaces
 contains two delta functions (one for incoming ray and one for outgoing ray) as a result we cannot use the photon map to evaluate
 the contribution from specular surfaces, we will again use raytracing to evaluate this component by tracing an additional reflected
-or refracted ray, the equations used to calcualte these rays are given in Equations ~\ref{eq:reflections} and ~\ref{eq:refraction}
+or refracted ray, the equations used to calculate these rays are given in Equations \eqref{eq:refl} and \eqref{eq:refr} where
+$\eta_1$ and $\eta_2$ are the refractive index of the medium we are leaving and entering respectivly.
 
 \begin{equation}
-\cos{\theta_t} = \sqrt{1 - \left(\frac{\eta_1}{\eta_2}\sin{\theta_i}\right)^2}
+\cos{\theta_i} = - \vec{i} \cdot \vec{n}
+\qquad\text{and}\qquad
+\sin^2\theta_t = \left(\frac{\eta_1}{\eta_2}\right)^2(1 - \cos^2\theta_i)
 \end{equation}
 
-\todo{Add the reflection and refraction equations}
+\begin{equation}
+\vec{r} = \vec{i} + 2 \cos{\theta_i} \vec{n}
+\label{eq:refl}
+\end{equation}
+
+\begin{equation}
+\vec{t} = \frac{\eta_1}{\eta_2} \vec{i} + \left(\frac{\eta_1}{\eta_2} \cos{\theta_i} - \sqrt{1 - \sin^2\theta_t}\right) \vec{n}
+\label{eq:refr}
+\end{equation}
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[auto]
+	\coordinate (m0) at (-2, 0) {};
+	\coordinate (m1) at (2, 0) {};
+
+	\coordinate (i) at (0, 0) {};
+	\coordinate (n) at (0, 2) {};
+	\coordinate (mn) at (0, -2) {};
+
+	\coordinate (inc) at (-2, 2) {};
+	\coordinate (refl) at (2,2) {};
+	\coordinate (refr) at (1.5, -2) {};
+
+	\draw[-] (m0) to node {} (m1);
+	\draw[->] (i) to node {$\vec{n}$} (n);
+	\draw[->] (i) to node {-$\vec{n}$} (mn);
+
+	\draw[->] (inc) to node {$\vec{i}$}  (i);
+	\draw[->] (i) to node      {$\vec{r}$} (refl);
+	\draw[->] (i) to node      {$\vec{t}$} (refr);
+\end{tikzpicture}
+\end{figure}
+
 \subsubsection{Fresnel Reflection}
 Transmissive surfaces reflect a proportion of the radiance incident at the surface as it passes from a material with a different
 index of refraction, this proportion is determined by the fresnell equation for dielectrics, which is a function of the refractive
@@ -193,7 +230,7 @@ R_f(\theta)
 
 \subsubsection{Schlick Approximation}
 Calculating the fresnel term for each refracted ray calculation can be costly, we can howerver use an approximation of the fresnel term
-by Sclick this is given by:
+by Schlick \cite{sc94} this is given by:
 
 \begin{equation}
 R_s(\theta)=R_0 + \left(1 + R_0\right)\left(1 - \cos\theta\right)^5
@@ -201,7 +238,7 @@ R_s(\theta)=R_0 + \left(1 + R_0\right)\left(1 - \cos\theta\right)^5
 \end{equation}
 
 where $R_0$ is the fresnel reflectance value for a ray parallel to the surface normal which can be precomputed,
-this has been been shown to be up to 30\% faster than calculating the fresnel term for each refracted ray, Figure~\ref{fig:shlick-compare}
+this has been been shown to be up to 30\% faster \cite{deGreve06} than calculating the fresnel term for each refracted ray, Figure~\ref{fig:shlick-compare}
 demonstrates the affect of accounting for the fresnell term and also using the Schlick approximation.
 
 As with other aspects of the system where multiple rays can be spawned from a surface interaction (in this case one reflected and one refracted ray)
@@ -211,15 +248,15 @@ we use russian roulette in order to determine if we reflect or refract.
 \centering
 \begin{subfigure}[b]{0.3\textwidth}
 	\includegraphics[width=\textwidth]{./images/renders/refraction/no-reflection.png}
-	\caption{no fresnel reflection}
+	\caption{no Fresnel reflection}
 \end{subfigure}
 \begin{subfigure}[b]{0.3\textwidth}
 	\includegraphics[width=\textwidth]{./images/renders/refraction/fresnel-reflection.png}
-	\caption{true fresnel reflection}
+	\caption{Fresnel reflection}
 \end{subfigure}
 \begin{subfigure}[b]{0.3\textwidth}
 	\includegraphics[width=\textwidth]{./images/renders/refraction/render-schlick.png}
-	\caption{schlick fresnel reflection}
+	\caption{Schlick reflection}
 \end{subfigure}
 \caption{Demonstration of Fresnell reflection and the Schlick approximation}
 \label{fig:shlick-compare}

@@ -75,14 +75,13 @@ ray is only dependant on the surface noraml at a point of intersection
 for this reason the system abstracts any object that can be intersected
 must implement certain functions, this is a form of object orentation.
 
-\subsection{Materials}
+\subsubsection{Materials}
 In order to determin the path of the photons that are emitted and determin the colour of the pixels when
 performing raytracing we require a description of the reflectance of the surface, we have decided to model
 perfect diffuse surfaces and perfect specular reflectance and tranmisstion, we store this information
-as coefficients $\sigma_d, \sigma_r, \sigma_t$, each of which contain a red, blue and gree component.
-
-\subsection{Participating Media}
-\todo{Only mention the properties needed for pmedia}
+as coefficients $\sigma_d, \sigma_r, \sigma_t$, each of which contain a red, blue and green components, 
+participating media also require two more coefficients, the absorption and scattering coefficient again
+with three colour components.
 
 \subsection{Shading}
 Each thread is responsible for performing that shading at the intersection of eye rays, for specular reflection

@@ -22,8 +22,8 @@ a full list of the functions that need to be defines is given in Figure~\ref{fig
 \item[void (*shade\_func)( object\_t *object, scene\_t *scene, intersection\_t *info)] \hfill \\
 	Returns the colour at the surface of the object at the intersection point defined in info the result is stored in info.
 \end{description}
-\label{fig:object_funcs}
 \caption{Functional Definition of an Object}
+\label{fig:object_funcs}
 \end{figure}
 
 
@@ -78,6 +78,7 @@ for reading in the mesh in detail as it is a rather simple function that reads f
 \todo{Add the structure definition of the mesh type}
 
 \subsubsection{K-D Tree Construction}
+\label{sec:obj_mesh}
 Intersecting a triangle mesh with a bruteforce method would be prohibitivly expensive for a mesh with many triangles, it
 is common then, to use a acceleration struction that reduces the number of intersection. The
 construction of the kdtree is performed during the initialiseation of the triangle meshes as it is a static data structure.
