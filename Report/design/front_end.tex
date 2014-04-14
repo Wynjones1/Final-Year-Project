@@ -51,9 +51,15 @@ as png or bmp.
 In order to provide immediate feedback to the user it is nessaccarry to include a GUI in the system, this will
 be a simple window that will display the progress of the system as it creates the images, this is usefull
 for testing changes to a scene as it may be possible to see if the change has had the desired effect without
-finishing what may be a costly render or to assure the user that a render is still running.
+finishing what may be a costly render or to assure the user that a render is still running, the block level
+design of the GUI can be found in Figure~\ref{fig:gui_design}.
 
-\missingfigure{GUI Design Diagram}
+\begin{figure}
+\centering
+\includegraphics[width=0.7\textwidth]{./images/gui_design.png}
+\caption{GUI design diagram}
+\label{fig:gui_design}
+\end{figure}
 
 \subsection{Console Output and Logging}
 In certain environments it is not possible to support a GUI (headless server) as a result the system includes

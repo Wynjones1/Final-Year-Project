@@ -8,8 +8,6 @@ of these photons it will signal to the main thread that it has finished by sendi
 updates a global light emission count include the photons that the thread emitted for each of the lights, a seperate count for
 each of the counts is kept as the processing of the threads may not happen at the same time.
 
-\todo{Add the structure definition}
-
 \subsection{Photon Emission}
 In order to trace photons into the scene we first need a method of creating photons, this is implemented in the light 
 defintion, each light object has a associated function that will produce a random photon from the light that is consitent with 
@@ -74,7 +72,12 @@ is determined by the properties of the medium, these being the scattering and ab
 is called the extinction coefficient, at each point in the random walk the photon is stored and then can either be
 scattered or absorbed, the probability of being scattered is determined by the Albedo $\Lambda$
 
-\missingfigure{random walk}
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{./images/random_walk.png}
+\caption{Random walk of photons through participating media}
+\label{fig:random_walk}
+\end{figure}
 
 \begin{equation}
 \Lambda = \frac{\sigma_s}{\sigma_e}

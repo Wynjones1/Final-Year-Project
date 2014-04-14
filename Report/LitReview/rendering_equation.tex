@@ -87,7 +87,12 @@ E\left(g\left(X\right)\right) = \sum\limits_{x \in X} g\left(x\right)f_X\left(x\
 %surface where the reflected radiance is preportional to the cosine of the incoming direction, by using a cosine weighted distribution
 %we can gain a better estimate for the radiance.
 
-\todo{Optional : re-add Importance sampling and extend it}
+%\todo{Optional : re-add Importance sampling and extend it}
 
 \section{Raytracing}
-\todo{Add basic description and maybe an algorithm}
+Raytracing is a technique with early developments by Appel \cite{Appel68} and improvements by Whitted \cite{whitted79a} that aims to produce images from scene descriptions that mimics the way
+in which light acts, ray are emitted from a virtual eye into a scene and the closest intersection with the ray in the scene is
+found, the algorithm then calculates the colour of the object at the point of intersection, this may include refractive or
+reflective materials that require additional rays to be traced through the scene, this is called recursive raytracing, certain effects can be simulated well with this technique such as shadows whic are formed by checking the visibility
+of the point of intersection with the light sources in the scene, if the light is blocked by an object in the scene
+the object does not receive light from that light source.

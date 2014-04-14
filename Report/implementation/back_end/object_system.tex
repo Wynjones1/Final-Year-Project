@@ -1,6 +1,5 @@
-\todo{rephrase this introduction to the section}
-In order to meet requirement \todo{find requirement to ref} the system needs to be able support arbitrary objects descriptions
-that can be traced in the scene, this is implementatied as a structure that contains function pointers that perform functions
+As discussed in the requirements and design sections we include in the system a generic description of the objects in the
+scene , this is implementatied as a structure that contains function pointers that perform functions
 that must be supported by all raytracable objects and the data related to the individual object.
 By encapsulating the data and the functions performed by the object it is possible to create algorithms on objects in the
 abstract such that the details of the object can be ignored, for instance calculating a reflected ray at a point if intersection
@@ -73,9 +72,8 @@ take the smallest positive intersection value, if both values are negative we do
 \subsection{Mesh}
 The mesh primitive is defined as a list of vertices and indices that define the triangles from the list of vertices, also
 stored are the surface normals for the triangles and if included the texture coordinates. We will not discuss the implementation
-for reading in the mesh in detail as it is a rather simple function that reads from a PLY file and extracts the data.
-
-\todo{Add the structure definition of the mesh type}
+for reading in the mesh in detail as it is a rather simple function that reads from a PLY file and extracts the data into the
+form as described during the discussion of the system design.
 
 \subsubsection{K-D Tree Construction}
 \label{sec:obj_mesh}
