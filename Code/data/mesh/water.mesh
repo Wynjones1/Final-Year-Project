@@ -1,2 +1,2 @@
 file ./data/ply/water.ply
-material ./data/materials/glass.mat
+material ./data/materials/water.mat
