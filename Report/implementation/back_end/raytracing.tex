@@ -57,8 +57,13 @@ sampling of the pixel area to calcualte the location of each of the sub-pixels.
 \end{figure}
 
 \subsection{Scene Traversal}
-
-\todo{Add some detail here}
+Each ray that is traced in the scene requires that we traverse the scene in order to find the closest intersection, in
+this system we store the objects as a list of pointers to there respective data, as a result of this the scene traversal
+algorithm is quite simple, we interate over each of the objects and test if the ray intersects, if not then we continue, if
+so we check the intesection $t$ parameter with that of the closest intersection found up to that point
+(initially set to $\infty$). If an intersection is found we then call the shade function of the intersecting objects in
+order to find the radiance value for this ray, otherwise we set the colour to a default sky colour found in the scene
+description.
 
 \begin{algorithm}
 \begin{algorithmic}
@@ -86,17 +91,18 @@ the final render, to remedy this issue we use a small offset in the direction of
 new ray is slightly above the intersection point.
 
 \subsubsection{Volume Intersection}
-Unlike intersection with all other object types the intersection with a participating media is non deterministic, this is
-due to the fact that the intersection of the ray is determined by the extinction coefficient which gives a probablilty
-of interaction, the depth of the interaction is calculated with equation \todo{add equation}, performing this non-deterministic
-intersection test allows for objects within the medium to be interacted with when performing ray-marching.
+Unlike intersection with all other object types the intersection with a participating media is non deterministic as the
+media represents a stochastic distribution of particals as a result an intersection test with the same ray may return
+a different intersection point if performed multiple times, this property allows us to perform multiple samples that
+will converge to the correct appearence of the participating media allowing affects such as objects embedded within
+the media to be visible but occluded by the media.
 
-\missingfigure{Non-deterministic intersection test}
-
-\subsubsection{Intersection Storage}
-When raytracing the scene the intersection point of the ray needs to be calculated and stored, this will include data that
-is specific to an objects intersection, for example an intersection with a triangle mesh will need to record the trangle
-that was intersected and as a result will need to record the barycentric coordinate at the point of intersection.
+\subsubsection{Intersection Records}
+Each intersection that is performed in the system gathers certain data that is needed by later stages of the system, for
+example an intersection with a triangle will not only return the $t$ parameter for the intersecting ray but also
+barycentric coordinates that can be used to interpolate properties of the triangle vertices across the surface of the
+triangle. In order to store this information a pointer to a intersection records is passed as a parameter for each
+intersection test, this intersection record is then used during the shading section of the raytracing algorithm.
 
 
 \newpage
