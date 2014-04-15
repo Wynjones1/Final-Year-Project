@@ -36,7 +36,6 @@ a red surface will only reflect photons with power in the red component. Using t
 map that correctly describes the distribution of power in the scene, unfortunatally this can lead to many photons with low power as they
 are scaled at each interaction, it can also in the case of surfaces with both specualr and diffuse componenet lead to exponenetial number
 of photons being produced as we need to create a reflected photon for both paths scaled apporoaprealty, as a result of these considerations
-
 we have used a monte-carlo method that reflectes at most one photon
 per surface interaction with full power, we ensure the correct result in the photon map by only reflecting the photon
 with probability based on the reftance of the surface (i.e reflecting 50 full power photons as oppose to 100 full power photons)
@@ -84,32 +83,35 @@ scattered or absorbed, the probability of being scattered is determined by the A
 %\caption{Participating Media Albedo}
 \end{equation}
 
-The marching can be performed with a set distance and scaling of the photons at each step based on the attenuation of
-light in participating media, a more efficient \cite{JensenBook} method is to importance sample the distance $\Delta x$ of the next interaction with 
-Equation~\eqref{eq:volume_dist_importance}, the scattering of the photon continues until the photon is absorbed, intersects
-with an object in the medium or exits the medium. \todo{Expand the explination of this}
+Each step in the random walk continues for a distance until the next interaction with the medium is calculated, this distance
+is calculated by importance samping the distance $\Delta x$ such that the expected distance is equal to that of the medium \cite{JensenBook},
+the distance is given by:
 
 \begin{equation}
 \label{eq:volume_dist_importance}
-\Delta x = \frac{-log(\xi)}{\sigma_t(x)}
+\Delta x = \frac{-log(\xi)}{\sigma_t}
 \end{equation}
 
-\subsection{Photon Processing}
-The data from each photon emission thread is processed by a processing thread that reads the photons from the output queue
-the photons will be places into a list bases upon the path that the photon took, for purly specular paths the photons
-will be added to the caustinc photon map, for paths that end with an interaction with a participating media they will be
-added to the volume photon map, all other paths are added to the global photon map. Once all photons have been collected
-into the lists the main thread iterates over the photons and adjusts the photon power by the number of photons emitted by
-the light that emitted the photon. \todo{clean up}
+where $\xi$ is a uniform random variable in the range [0, 1]. If a photon leaves a participating medium or intersects with an
+object in the medium it is treated as if it was not in the medium and is stored in the global photon map.
 
-\subsection{K-D Tree Balancing (1 page)}
+\subsection{Photon Processing}
+Each thread that traces the photons in the scene writes to a common queue, this queue is read by a single processing thread
+that clasifies the photons by the path of the photon and stores the photons in one of three lists, the global, caustic and
+volume photon list, this thread will continue to read photons from the queue until each of the threads have signaled that they
+have completed their portion of the photons, this signal is in the form of a flag that is passed in the same queue as the
+photon data. After all photons have been collected the power of the photons are scaled by the number of photons that were
+emmited (note this is not the number of photons in the list but the total number emmited) from the same light as the
+photon.
+
+\subsubsection{K-D Tree Balancing}
 When performing radiance estimations with the photon map we will be performing nearest neighbour searches on points within
 the map, this requires the photon map to be arrainged in a manner such that this search can be performed efficiently.
 In order to do this we store the photon map in a left-balanced k-d tree. A left balanced tree is a tree structure where
 at each level of the tree the depth of the children differs by at most one,
 this allows us to store the photon map in an array with the location of the children in the photon map known implicitly,
 for a photon in position $i$ the children of the photon can be found at the $(2i + 1)^{th}$ and $(2i + 2)^{th}$
-location for the left and right tree respectivly.
+location for the left and right tree respectivly, the next stage is two transform the photon lists into a k-d tree.
 
 \begin{algorithm}
 \begin{algorithmic}
