@@ -1,0 +1,42 @@
+\label{chap:lit}
+In this chapter we shall discuss background literature relating to the aims of this project as
+having a good understanding of the work of others and the motivations for their work will provide
+a basis for the work undertaken in the project.
+
+\section{Flux}
+The photon mapping algorithm is based around emitting photons from light sources, the unit of measurement of a photon is
+Radiant flux $\Phi$ is a measurement of radiant energy with respect to time \cite{JensenBook}, the SI unit of flux is the watt (W).
+Flux is a spectral phenomena with its energy being distributed in different wavelengths, in this project we will only consider
+three wavelengths red, green, and blue.
+
+\section{Radiance}
+Radiance commonly referers to two quantities, incident radiance and exitance radiance, incident radiance being the radiance
+that fall on a surface, exitance radiance being radiance from a surface (either from reflection or emission). Radiance
+is a measure of the radiant flux that falls within a given solid angle in a direction above a surface.
+
+\input{./LitReview/rendering_equation.tex}
+
+\section{Path Notation}
+The radiance estimate on the right hand side of the rendering equation is typically evaluated by a recursive call to the
+procedure that evaluates radiance at a point in the direction $\omega'$, as we perform more evaluation we create a path
+from the eye to the final destination of the ray, it is frequently convienient to refer to these paths by the interaction
+that the ray has with surfaces along the path, we use a regular expression language to express these paths, tokens in the
+language include:
+\begin{description}
+\item[E] The eye or camera
+\item[D] A diffuse surface
+\item[S] A specular surface.
+\item[L] A light
+\end{description}
+
+Paths begin with the eye and end at a light, a full solution to the rendering equation will evaluate the radiance due
+to all paths \textbf{E(S\textbar D)*L}, raytracing evaluates all paths \textbf{ES*DL}
+
+\input{./LitReview/raytracing.tex}
+\input{./LitReview/monte_carlo.tex}
+\input{./LitReview/photon_mapping_description.tex}
+\input{./LitReview/participating_media_description.tex}
+\input{./LitReview/volumetric_pm.tex}
+\input{./LitReview/advances.tex}
+\input{./LitReview/acceleration.tex}
+\input{./LitReview/irradiance_caching.tex}

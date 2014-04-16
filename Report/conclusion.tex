@@ -1,29 +1,52 @@
-of the project have been met, 
-
-\section{Assesment of Aims}
+We described in the introduction that the aim of this project was to produce a system that performed the photon mapping algorithm
+in order to create interesting images that simulate real-world phenomena, we described in the literature review the work that
+inspired and informed this projects as well as techniques that have aided us during the development of the system, these works
+allowed us to create a design that we feel we were able to implement faithfully and has resulted in a system that fulfil the
+aims of this project. We shall now briefly discuss the system and give some final thoughts.
 
 \section{Requirement Assessment}
+We feel that we have been able to fully satisfy most of the requirements that we set forth in Chapter~\ref{chap:reqs}, all
+functional requirements where met while most of the non-functional requirements were met, those that were not we feel
+that the exclusion of the requirement from the final product is not detrimental to the aims of the project, in particular
+we state in requirement 2.6 that the output of the system should be consistent across runs, this proved to be difficult to
+achieve as we are frequently dealing with stochastic phenomena and utilising multiple threads, as a result we were not
+able to satisfy this requirements. We also were unable to test the system on a Mac OSX system as we were unable to acquire
+suitable hardware although we feel due to the similarities in design of Linux and Max OSX (both UNIX derivatives) they system
+should work unaltered.
 
-\section{Devation from Plan}
-Through the course of the project the scope it was nessaccary to evaluate the scope and direction of the project, the intiial plan
-of the project was to include an alteration to the participating media phton mapping algorithm to increase the efficientcy of the
+\section{Deviation from Original Plan}
+Through the course of the project the scope it was necessary to evaluate the scope and direction of the project, the initial plan
+of the project was to include an alteration to the participating media photon mapping algorithm to increase the efficiency of the
 radiance estimate for certain light types (simulation of laser light) through the development of the project the complexity of
-implementing a system with participating media and details of the system not considered during the inital planning stages and
-investigating the suitability of the new approach in light of these details we decided to ommit the algorithm from the final product
+implementing a system with participating media and details of the system not considered during the initial planning stages and
+investigating the suitability of the new approach in light of these details we decided to omit the algorithm from the final product
 of this project.
 
-\section{Evaluation}
-It is recognised that performing the
-intersection test on each object is inefficient and that acceleration structures such as bounding volume heirachies would
-have served to increase the performance of the system, we feel that due to the constriainst of the project that this
-would give a smaller gain that conventraiting the effert of developme
+\section{Evaluation and Future Work}
+The system that has been produced delivers upon the description of this project, we have shown that we are able to produce images
+of a wide range of effects that are not possible with traditional ray-tracing and are able to do so in a time that is significantly
+lower than that of a solution such as path tracing. While the aims of the projects were met there are a few aspects of the project
+that we feel could have been improved, for instance we recognise that during the scene traversal performing the
+intersection test on each object is inefficient and that acceleration structures such as bounding volume hierarchies would
+have served to increase the performance of the system, it was however decided that given the time constraints of the project
+that development effort was better spent on accelerating aspects such as the intersection test for triangle meshes as this
+would provide us with a larger performance gain for the majority of scenes that we tested the system with which frequently contained
+a small number of objects with a high triangle count. From the testing we could see that performance of the threaded photon map
+generation was poor, we were not able to pinpoint the cause of this degradation of performance for thread counts of more than five.
 
-\section{Future Work}
-As with any project time constraints determin the number of features that can be reasonably be added, this includes algorithms that
-would make the system more efficient such as irradiance caching
+As with any project time constraints determine the number of features that can be reasonably be added, this includes algorithms that
+would make the system more efficient such as irradiance caching. We discussed in Chapter~\ref{chap:lit} advances in the photon mapping
+algorithm since its inception, we feel that it would make an interesting investigation to extend that current system to include
+some of these techniques. If we were to do this project again we feel that we would have conducted the investigation and development
+differently, specifically we would have performed the performance continuously throughout the development so at to catch issues such
+as the photon map generation early and perhaps could have rectified the issue. Given more time with the project we also would have
+liked to include a more general description of the BRDF so as more interesting materials such as brushed metals etc could be
+simulated.
 
 \section{Final Thoughts}
-As a conclution to my degree studies this project has taught me a great deal and serves as a document of the progression in my technical and
-non-technical skills, additionally the reasearch performed in preperation of the project and for the duration has showed my the
-how areas of seemingly unrelated fields can come together to create some of the results described in this project, from monte carlo methods
-first used during the Second World War as part of the allied efforts to construct the first neuclear weapon to \todo{Add something here}
+As a conclusion to my degree studies this project has taught me a great deal and serves as a document of the progression in my technical and
+non-technical skills, additionally the research performed in preparation of the project and for the duration has showed my the
+how areas of seemingly unrelated fields can come together to create some of the results described in this project, such as monte carlo methods
+first used during the Second World War as part of the allied efforts to construct the first nuclear weapon. Overall we feel that this
+project has been a success and that we have managed to do what we set out to do and are pleased with the results that we were able to
+achieve.

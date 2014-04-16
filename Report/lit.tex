@@ -5,20 +5,22 @@ a basis for the work undertaken in the project.
 
 \section{Flux}
 The photon mapping algorithm is based around emitting photons from light sources, the unit of measurement of a photon is
-Radiant flux $\Phi$ the exact definition of flux is not relivant to the disscussion, but is essentially a measurement
-of radiant energy with respect to time \cite{JensenBook}.
+Radiant flux $\Phi$ is a measurement of radiant energy with respect to time \cite{JensenBook}, the SI unit of flux is the watt (W).
+Flux is a spectral phenomena with its energy being distributed in different wavelengths, in this project we will only consider
+three wavelengths red, green, and blue.
 
 \section{Radiance}
-Radiance commonly referers to two quantities, incident radiance and exitance radiance, incident radiance being the radiance
-that fall on a surface, exitance radiance being radiance from a surface (either from reflection or emission)
-
+Radiance commonly refers to two quantities, incident radiance and exitance radiance, incident radiance being the radiance
+that fall on a surface, exitance radiance being radiance from a surface (either from reflection or emission). Radiance
+is a measure of the radiant flux that falls within a given solid angle in a direction above a surface. Radiance is commonly
+given the symbol $L_i$ for incident randiance and $L_o$ for exitance radiance.
 
 \input{./LitReview/rendering_equation.tex}
 
 \section{Path Notation}
 The radiance estimate on the right hand side of the rendering equation is typically evaluated by a recursive call to the
 procedure that evaluates radiance at a point in the direction $\omega'$, as we perform more evaluation we create a path
-from the eye to the final destination of the ray, it is frequently convienient to refer to these paths by the interaction
+from the eye to the final destination of the ray, it is frequently convenient to refer to these paths by the interaction
 that the ray has with surfaces along the path, we use a regular expression language to express these paths, tokens in the
 language include:
 \begin{description}
@@ -29,7 +31,7 @@ language include:
 \end{description}
 
 Paths begin with the eye and end at a light, a full solution to the rendering equation will evaluate the radiance due
-to all paths \textbf{E(S\textbar D)*L}, raytracing evaluates all paths \textbf{ES*DL}
+to all paths \textbf{E(S\textbar D)*L}, ray-tracing evaluates all paths \textbf{ES*DL}
 
 \input{./LitReview/raytracing.tex}
 \input{./LitReview/monte_carlo.tex}

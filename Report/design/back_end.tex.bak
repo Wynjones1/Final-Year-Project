@@ -1,0 +1,89 @@
+\section{Back End}
+The back-end contains the code that deals with processing scene data, this block is decomposed into
+two main blocks, the photon mapping block and the raytracing block, the photon mapping block is responsible
+for the preprocessing step that creates the photon maps used to estimate the radiance. The raytracing stage
+is responsible for computing the colour of each of the pixels in the output image, this will use the data
+that was read into from the front end and the photon maps that were created by the photon map module. The
+output of the raytracing block is sent to the front end which will use the data to present or save the final
+image. Both the photon map generation and raytracing stages have been designed as pipelines with data being passed
+between threads in a producer consumer pattern through thread-safe queues.
+
+\subsection{Photon Emmition and Photon Map Construction}
+We further decompose the photon map generation into two stages, the photon emmition stage which traces photons
+through the scene and stores the point of absorbtion and the balancing stage which sorts the photons into
+a data structure (left balanced tree) that facilitated efficient storage and searching.
+The reason for the balancing stage is that the distriburtion of the photons in the map is unlikely to be
+optimal \cite{JensenBook}.
+
+The construction of the photon map can be computationally expensive when a high number of photons are
+requested to be created, in order to improve the performance of this stage multiple threads are created
+that are responsible for emmitting a proportion of the photons in the final photon map, the number of threads will be
+set in the front end and is configurable by the user to suit the machine that the system is being run on.
+
+Each of the threads will trace a photon through the scene, at each diffuse interaction it will write the
+photon to the output queue, the photon will then be reflected to continue the photon map contruction.
+
+The next stage in the pipeline reads photons from the queue, this will continue until each of the threads
+has signalled that they have completed processing the photons, once all of the threads have been completed the
+the list of photons will be transftered into the photon map as a left balanced tree.
+
+\begin{figure}
+\centering
+\includegraphics{./images/photon_threading.png}
+\caption{Photon map generation}
+\label{fig:photon_generation}
+\end{figure}
+
+\subsubsection{Multiple Photon Maps}
+During the construction of the photon maps a choice must be made as to which of the photon maps the photon
+should be placed in, this requires additional information to be passed from the emmition thread, this information
+will describe the path that the photon has taken, this will in essence be an implementation of the path notation
+that is commonly used to describe the path of a photon, in this case all paths will be stored in the global photon
+map (\textbf{L(S\textbar D)$^+$D} in the path notation),only specular paths are stored in the caustic photon map
+as these are the paths that contribute the most to the focusing effect of caustics (\textbf{LS$^+$D}) note that
+we have no eye component as the photons are only traced to diffuse surfaces.
+
+
+\subsection{Raytracing}
+As can be seen from Figure~\ref{fig:design_blocks} the raytracing module contains $n$ threads, each of these
+threads trace a subset of the pixels in the image and run independantly to each other, this is possible due
+to the inherent parrellism in the photon mapping algorithm. This stage in the system will perform raytracing
+as described by Shirley \cite{shirley-dist}, for each intersection found during the running of the system the photon
+maps created during previous stage will be used to estimate the radiance of the point in order to estimte the
+true illumination at the point factoring in the global effects.
+
+\begin{figure}
+\centering
+\includegraphics{./images/pixel_threading.png}
+\caption{Raytracing architecture}
+\label{fig:pixel_generation}
+\end{figure}
+
+The architecture of the raytracing block shared many simalarities with that of the photon emittion stage,
+it is also a pipeline, there is a threads that inputs each pixel in the output image to a queue, this queue
+is in turn read by one of multiple threads that perform photon mapping for a ray emmited through the pixel,
+multiple rays are generated for each pixel performing distrubution raytracing, the colour of the pixel is
+then written to an output queue that will be read by the main thread in order to send the pixel values to
+the front end to be presented to the user.
+
+\subsection{Objects}
+Much of the raytracing algorithm that is performed on each of the
+objects in a scene is the same, for example finding a refracted
+ray is only dependant on the surface noraml at a point of intersection
+for this reason the system abstracts any object that can be intersected
+must implement certain functions, this is a form of object orentation.
+
+\subsubsection{Materials}
+In order to determin the path of the photons that are emitted and determin the colour of the pixels when
+performing raytracing we require a description of the reflectance of the surface, we have decided to model
+perfect diffuse surfaces and perfect specular reflectance and tranmisstion, we store this information
+as coefficients $\sigma_d, \sigma_r, \sigma_t$, each of which contain a red, blue and green components, 
+participating media also require two more coefficients, the absorption and scattering coefficient again
+with three colour components.
+
+\subsection{Shading}
+Each thread is responsible for performing that shading at the intersection of eye rays, for specular reflection
+and transmission this results in an additional raytrace be performed to determin the shading colour, for diffuse
+surfaces a direct illumination calculationn is performed, additionally the photon map is queried to determin
+the indirect lighting. For participating media, the radiance is calculated by performing by a ray-marching
+procedure.

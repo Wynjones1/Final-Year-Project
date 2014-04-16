@@ -1,12 +1,12 @@
 \section{Shading}
 Once we have found a point of intersection we must now calculate the colour at that point, this will take into account the
-reflecance properties of the object and the photon map surrounding it, this will in effect be an evaulation of the rendering
-equation, which we will evaluate by spliting the equation into several components, these components are direct illumination,
-specular reflection and transmission which we evaluate using raytracing and diffuse interreflection and caustcs which will
+reflectance properties of the object and the photon map surrounding it, this will in effect be an evaluation of the rendering
+equation, which we will evaluate by splitting the equation into several components, these components are direct illumination,
+specular reflection and transmission which we evaluate using ray-tracing and diffuse inter-reflection and caustics which will
 use the photon map to estimate the radiance.
 
-Recall from Chapter~\ref{chap:lit}  the rendering equation is given in terms of incoming and outcoming radiance, omitting
-emitted radiance we can rewrite the rendering equation with each of the components seperated \cite{JensenBook}
+Recall from Chapter~\ref{chap:lit}  the rendering equation is given in terms of incoming and outgoing radiance, omitting
+emitted radiance we can rewrite the rendering as the sum of seperate integrals representing different light paths in the scene. \cite{JensenBook}
 
 \begin{align*}
 L_{r}(x, \omega) =&
@@ -40,28 +40,54 @@ irradiance directly from light sources (\textbf{LD} paths).
 
 \subsection{Radiance Estimations}
 Before we discuss how we utilise the photon map to approximate the global illumination of a scene we must first discuss how
-we use the photon map to estimate the radiance at a point. Recall from Section~\ref{chap:lit} the radiance at a point
+we use the photon map to estimate the radiance at a point. Recall from Chapter~\ref{chap:lit} the radiance at a point
 of intersection can be estimated by,
 
 \begin{equation}
-L(x, \omega) = \sum\limits_{n = 1}^N f_r(x,\omega,\omega'_n) \frac{\Delta\Phi_n}{\pi r ^ 2}
+L(x, \omega) \approx \sum\limits_{n = 1}^N f_r(x,\omega,\omega'_n) \frac{\Delta\Phi_n}{\pi r ^ 2}
 \end{equation}
 
 where $f_r(x, \omega,\omega')$ is the BRDF for the surface, we will only use the photon map at diffuse surfaces, as the BRDF
 for these surfaces are a constant we can move this calculation out of the summation to give us the following.
 
 \begin{equation}
-L(x, \omega) = \frac{\rho_d}{\pi}\sum\limits_{n = 1}^N \frac{\Delta\Phi_n}{\pi r ^ 2}
+L(x, \omega) \approx \frac{\rho_d}{\pi}\sum\limits_{n = 1}^N \frac{\Delta\Phi_n}{\pi r ^ 2}
 \end{equation}
 
 It can be seen that we are now estimating the irradiance at the point of intersection, to use the photon map then, we need to
 find the N nearest photons to the point at which we are estimating the radiance, to do this we perform the nearest neighbour
-algorithm for k-d trees on the photon map.
+algorithm for k-d trees on the photon map. The algorithm begins at the root of the tree, we calculate the distance of the point
+to the split plane at this point in the tree, if the point is less than the split plane we recursively call the algorithm with
+the left tree else the right, if after the recursive call has returned the distance to the splitting plane is less than the
+search radius we recursively call the algorithm on the other child node
+this continues until we are at a leaf in the tree, at this point we calculate if the photon
+is within the search radius, if so we insert the photon into a list of photons, if we have already found the number of photons
+the photon that is furthest from the point is discarded.
 
 \begin{algorithm}
 \begin{algorithmic}
-\caption{K-D tree Nearest Neighbour algorithm}
-\State todo
+\caption{K-D tree N Nearest Neighbours algorithm}
+\Function{locate}{p}
+\State $n \gets $ number of photons
+\State $\delta \gets$ signed distance to splitting plane
+\State $r \gets $ distance to furthest photon found
+\If{$2p + 2 < n$}
+	\If{$\delta < 0$}
+		\State \Call{locate}{$2p + 1$}
+		\If{$\delta^2 < r^2$}
+			\State \Call{locate}{$2p + 2$}
+		\EndIf
+	\Else
+		\State \Call{locate}{$2p + 2$}
+		\If{$\delta^2 < r^2$}
+			\State \Call{locate}{$2p + 1$}
+		\EndIf
+	\EndIf
+	\If{$\delta^2 < r^2$}
+		\State Insert photon into list
+	\EndIf
+\EndIf
+\EndFunction
 \end{algorithmic}
 \end{algorithm}
 
@@ -75,12 +101,12 @@ algorithm for k-d trees on the photon map.
 
 Direct illumination is the radiance contribution at a surface directly from the light sources in the scene
 (\textbf{LDE} in path notation) this term is responsible for fine details such as shadows in the scene, as a
-result we use raytracing to calcualte
+result we use ray-tracing to calculate
 the radiance due to direct illumination, it is possible to calculate the radiance due to this term from the photon map but this
 approach leads to noise in the final image even when using a high number of photons in the radiance estimate, a comparison of
-direct illumination with raytraceing and the photon map can be seen in Figure~\ref{fig:direct_compare} it can be seen that
-the illumination calculated by both methods are largly simalar but there is significant variance in the apperance in the
-photon mapped image, we can also see that areas close to corners have a lighter apperance, this is due to the use of a
+direct illumination with ray-tracing and the photon map can be seen in Figure~\ref{fig:direct_compare} it can be seen that
+the illumination calculated by both methods are largely similar but there is significant variance in the appearance in the
+photon mapped image, we can also see that areas close to corners have a lighter appearance, this is due to the use of a
 sphere to gather photons in the nearest neighbour search as a result photons that do not belong to a surface are used
 as part of the estimate.
 
@@ -98,7 +124,7 @@ as part of the estimate.
 	\includegraphics[width=\textwidth]{./images/renders/direct_photon_comp/direct.png}
 	\caption{Raytraced}
 	\end{subfigure}
-	\caption{Comparison of the photon map radiance esitmate with direct illumination}
+	\caption{Comparison of the photon map radiance estimate with direct illumination}
 \label{fig:direct_compare}
 \end{figure}
 
@@ -107,32 +133,24 @@ from a point light as it is the simpler of the two cases.
 
 The radiance from a point light is constant for all points at the same distance from the origin of the light, the radiance at
 a point in the scene is given by Equation~\eqref{eq:point_light_radiance}, where the function V is the visibility function, that
-is if the point of intersection cannot see the point light it will not contribute the radinace at that point, this will cause
+is if the point of intersection cannot see the point light it will not contribute the radiance at that point, this will cause
 the appearance of shadows in the render.
 
-In the case of area lights calculating the radiance at a point is more complicated, we must calculate the preportion of the
-area of the light that is visible at the point of intersection, to do this we sample a number of shadow rays that evaluate the
-visibility function across the area of the light.
+\begin{equation}
+\label{eq:point_light_radiance}
+	E(x) = V(x, s) \frac
+	{
+		\Phi_s \cos{\theta}
+	}
+	{
+		4 \pi r^2
+	}
+\end{equation}
 
-\begin{figure}
-	\centering
-	\begin{subfigure}[c]{0.4\textwidth}
-	TODO
-	\end{subfigure}
-	\begin{subfigure}[b]{0.4\textwidth}
-		\begin{equation}
-		\label{eq:point_light_radiance}
-		\centering
-			E(x) = V(x, s) \frac
-			{
-				\Phi_s \cos{\theta}
-			}
-			{
-				4 \pi r^2
-			}
-		\end{equation}
-	\end{subfigure}
-\end{figure}
+In the case of area lights calculating the radiance at a point is more complicated, we must calculate the fraction of the
+area of the light that is visible at the point of intersection, to do this we sample a number of shadow rays that evaluate the
+visibility function across the area of the light, to do this we approximate the area light as $n \times n$ point lights.
+
 
 \missingfigure{Area light figure}
 
@@ -152,11 +170,11 @@ spherical coordinates to generate u,v values, we use linear sampling to calculat
 	)
 	(\omega \cdot n)d\omega'
 \end{equation*}
-For specular surfaces we again use raytracing to evaluate the contribution, as mentioned previousely the BRDF for specular surfaces
+For specular surfaces we again use ray-tracing to evaluate the contribution, as mentioned previously the BRDF for specular surfaces
 contains two delta functions (one for incoming ray and one for outgoing ray) as a result we cannot use the photon map to evaluate
-the contribution from specular surfaces, we will again use raytracing to evaluate this component by tracing an additional reflected
-or refracted ray, the equations used to calculate these rays are given in Equations \eqref{eq:refl} and \eqref{eq:refr} where
-$\eta_1$ and $\eta_2$ are the refractive index of the medium we are leaving and entering respectivly.
+the contribution from specular surfaces, we will again use ray-tracing to evaluate this component by tracing an additional reflected
+or refracted ray.The equations used to calculate these rays are given in Equations \eqref{eq:refl} and \eqref{eq:refr} where
+$\eta_1$ and $\eta_2$ are the refractive index of the medium we are leaving and entering respectively.
 
 \begin{equation}
 \cos{\theta_i} = - \vec{i} \cdot \vec{n}
@@ -200,7 +218,7 @@ $\eta_1$ and $\eta_2$ are the refractive index of the medium we are leaving and 
 
 \subsubsection{Fresnel Reflection}
 Transmissive surfaces reflect a proportion of the radiance incident at the surface as it passes from a material with a different
-index of refraction, this proportion is determined by the fresnell equation for dielectrics, which is a function of the refractive
+index of refraction, this proportion is determined by the Fresnel equation for dielectrics, which is a function of the refractive
 index of the two materials and the incident angle, this is given by equation ~\ref{eq:fresnel}
 
 \begin{equation}
@@ -229,7 +247,7 @@ R_f(\theta)
 \end{equation}
 
 \subsubsection{Schlick Approximation}
-Calculating the fresnel term for each refracted ray calculation can be costly, we can howerver use an approximation of the fresnel term
+Calculating the Fresnel term for each refracted ray calculation can be costly, we can however use an approximation of the Fresnel term
 by Schlick \cite{sc94} this is given by:
 
 \begin{equation}
@@ -237,12 +255,12 @@ R_s(\theta)=R_0 + \left(1 + R_0\right)\left(1 - \cos\theta\right)^5
 \label{eq:schlick}
 \end{equation}
 
-where $R_0$ is the fresnel reflectance value for a ray parallel to the surface normal which can be precomputed,
-this has been been shown to be up to 30\% faster \cite{deGreve06} than calculating the fresnel term for each refracted ray, Figure~\ref{fig:shlick-compare}
-demonstrates the affect of accounting for the fresnell term and also using the Schlick approximation.
+where $R_0$ is the Fresnel reflectance value for a ray parallel to the surface normal which can be precomputed,
+this has been been shown to be up to 30\% faster \cite{deGreve06} than calculating the Fresnel term for each refracted ray, Figure~\ref{fig:shlick-compare}
+demonstrates the affect of accounting for the Fresnel term and also using the Schlick approximation.
 
 As with other aspects of the system where multiple rays can be spawned from a surface interaction (in this case one reflected and one refracted ray)
-we use russian roulette in order to determine if we reflect or refract.
+we use Russian roulette in order to determine if we reflect or refract.
 
 \begin{figure}[h]
 \centering
@@ -271,12 +289,12 @@ we use russian roulette in order to determine if we reflect or refract.
 \end{equation*}
 
 Diffuse interrefection is the contribution that occurs from photons that have been bounced from a diffuse surface at least once
-$(\mathbf{LD(S|D)^+E})$ while it is possible to estimate the contribition to the radiance at an intersection point directly from the photon map this
-approach can cause visual artifacts due to variance in the estimate in order to reduce these artifacts we perfom a final gather
-stage at the point of intersect that produces a diffuse ray that is traced into the scene until a non-specular object is intesected,
-we then perform the radiance estimagte at this point and use this information to estimate the radiance incident at the original point of
-intersection.  In order for the final gather to produce a correct estimate of the radiance we need to perform this stage multiple times per pixel,
-as we are performing distributed raytracing this is a trivial addition.
+$(\mathbf{LD(S|D)^+E})$ while it is possible to estimate the contribution to the radiance at an intersection point directly from the photon map this
+approach can cause visual artefacts due to variance in the estimate. In order to reduce these artefacts we perform a final gather
+stage at the point of intersect that produces multiple diffuse ray that is traced into the scene until a non-specular object is intersected,
+we then perform the radiance estimate at this point and use this information to estimate the radiance incident at the original point of
+intersection.  In order for the final gather to produce a correct estimate of the radiance we need to perform this stage multiple times per pixel.
+As we are performing distributed ray-tracing this is a trivial addition.
 
 \begin{figure}
 \centering
@@ -293,14 +311,14 @@ as we are performing distributed raytracing this is a trivial addition.
 			(\omega \cdot n)d\omega'
 \end{equation*}
 
-Caustic light occures due to the focusing effect of curved specular surfaces, in other global illumination algorithms
+Caustics occur due to the focusing effect of curved specular surfaces, in other global illumination algorithms
 caustics have been hard to simulate \cite{Jensen96a} and often cause large amounts of noise in the final image
-with the photon map we are able to estimate the radiance directly from the caustic photon map, as we have seperated the
+with the photon map we are able to estimate the radiance directly from the caustic photon map, as we have separated the
 caustic photons from all other photon paths we reduce the nose that is introduced by caustics in all other radiance
 estimates using the photon map. As caustics generally cause sharp visual effects using to few photons in the radiance
-estimate can cause unwanted bluring \cite{JensenBook}, in order to reduce this we use a filter as part of the radiance estimate such
+estimate can cause unwanted blurring \cite{JensenBook}, in order to reduce this we use a filter as part of the radiance estimate such
 that photons near the query point contribute more to the radiance estimate, Jensen suggests the use of one of two filters, the
-cone filter and the gaussian filter, each requiring a modification to the photon mapping radiance estimate.
+cone filter and the Gaussian filter, each requiring a modification to the photon mapping radiance estimate.
 
 \subsubsection{Cone Filter}
 We use the cone filter by applying a weight $w_{pc}$ based upon the distance of the photon from the query point, this will
@@ -311,7 +329,7 @@ w_{pc} = 1 - \frac{d_p}{k r}
 \end{equation}
 
 where $k$ is the filter parameter, $d_p$ the distance of the photon from the query point and $r$ the maximum radius of
-all photons found in the nearest neighbour search, the updated radiance estimate for the cone fileter is given by:
+all photons found in the nearest neighbour search, the updated radiance estimate for the cone filter is given by:
 
 \begin{equation}
 L_r(x, \vec{\omega}) \approx

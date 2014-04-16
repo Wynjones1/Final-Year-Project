@@ -1,50 +1,51 @@
 \section{Photon Map Generation}
 We described in Chapter~\ref{chap:design} that the photon generation stage of the back end would run on multiple threads
-to utilise the computing power of the machine the system is being run on, this required certain descitions to be made to
-allow for the multiple threads to correclty distribute the power of the light sources into the scene.
+to utilise the computing power of the machine the system is being run on, this required certain decisions to be made to
+allow for the multiple threads to correctly distribute the power of the light sources into the scene.
 
 Each thread is responsible for producing a certain proportion of the photons in the scene, once a thread has processed all
 of these photons it will signal to the main thread that it has finished by sending a flag to the output queue the thread also
-updates a global light emission count include the photons that the thread emitted for each of the lights, a seperate count for
+updates a global light emission count include the photons that the thread emitted for each of the lights, a separate count for
 each of the counts is kept as the processing of the threads may not happen at the same time.
 
 \subsection{Photon Emission}
 In order to trace photons into the scene we first need a method of creating photons, this is implemented in the light 
-defintion, each light object has a associated function that will produce a random photon from the light that is consitent with 
-the type of light, for instance a point light will generate a photon with origin exactlu at the origin of the light source and
+definition, each light object has a associated function that will produce a random photon from the light that is consistent with 
+the type of light, for instance a point light will generate a photon with origin exactly at the origin of the light source and
 in a random direction, an area light produces a photon with origin on the area of the light with direction taken from a
 cosine weighted hemisphere distribution in the direction of the normal of the light. Each photon that is emitted from the
-light sources begin with the full power of the light source, this will be scaled by the number of emitted photons after
+light sources begin with the full power of the light source, this will be scaled by the number of emitted photons from
+that light after
 all photons have been gathered.
 
 \subsection{Photon Tracing}
 Once we have created a photon from a light source we now need to trace the photon through the scene and record the interactions
-of the photon until it is absorbed or leaves the scene, the function that performes this function is \texttt{trace\_photon} the
+of the photon until it is absorbed or leaves the scene, the function that performs this function is \texttt{trace\_photon} the
 declaration of this function is given below.
 
 \texttt{int trace\_photon(scene\_t *scene, ray\_t *ray, int light, double power[3], bool specular, bool diffuse, bool specular\_only};
 
 The parameters ray, light and power defines the photon properties, ray defines the origin and direction of the photon, light is an index
-to the light from which this light was emited and the power contains the flux of the photon. specular and diffuse
+to the light from which this light was emitted and the power contains the flux of the photon. specular and diffuse
 define describe the path that the photons have taken prior to the call to \texttt{trace\_photon}
 
-Photons are traced much like a ray in traditional raytracing, first we calculate the closest intersection point of the photon
-once found the photon interacts with the surface of the object at the point of intersection this interaction can be specular 
-reflection , transmission, diffuse reflection or absorbtion, at this point of intersection we must determine the path of the reflected
+Photons are traced much like a ray in traditional ray-tracing, first we calculate the closest intersection point of the photon
+. Once an intersection is found the photon interacts with the surface of the object, this interaction can be one of
+specular reflection , transmission, diffuse reflection or absorption, at this point we must determine the path of the reflected
 photon, the power of this photon is determined by the reflectance of the surface i.e a photon with white light that interacts with
 a red surface will only reflect photons with power in the red component. Using the approach of scaling the photons will create a photon
-map that correctly describes the distribution of power in the scene, unfortunatally this can lead to many photons with low power as they
-are scaled at each interaction, it can also in the case of surfaces with both specualr and diffuse componenet lead to exponenetial number
-of photons being produced as we need to create a reflected photon for both paths scaled apporoaprealty, as a result of these considerations
-we have used a monte-carlo method that reflectes at most one photon
-per surface interaction with full power, we ensure the correct result in the photon map by only reflecting the photon
-with probability based on the reftance of the surface (i.e reflecting 50 full power photons as oppose to 100 full power photons)
-we sample the reflectance of the surface by forming a cumulative distribution funciton of the materials reflectance coefficients.
-Given the specular reflecive, transmissive and diffuse reflectance coefficents $\rho_{s}, \rho_{t}, \rho_{d}$
-of the object we can create a cumulative distribution of photon emittion paths (Figure~\ref{fig:rr_dist}) 
+map that correctly describes the distribution of power in the scene, unfortunately this can lead to many photons with low power as they
+are scaled at each interaction, it can also in the case of surfaces with both specular and diffuse component lead to exponential number
+of photons being produced as we need to create a reflected photon for both paths scaled appropriately, as a result of these considerations
+we have used a monte-carlo method that reflects at most one photon
+per surface interaction with full power, we ensure the correct result in the photon map by reflecting the photon
+with probability based on the reflectance of the surface (i.e reflecting 50 full power photons as oppose to 100 half power photons)
+we sample the reflectance of the surface by forming a cumulative distribution function of the materials reflectance coefficients.
+Given the specular reflective, transmissive and diffuse reflectance coefficients $\rho_{s}, \rho_{t}, \rho_{d}$
+of the object we can create a cumulative distribution of photon emission paths (Figure~\ref{fig:rr_dist}) 
 we then take a uniform variable $\xi$ between 0 and 1 if the variable is within the distribution we reflect a photon, otherwise
 the path of the photon is terminated. As we are using rgb values to store reflectance properties the
-coeffients used to perform the sampling are the average of the three componenets, so as the distribution of the three
+coefficients used to perform the sampling are the average of the three components, so as the distribution of the three
 colour bands is correct we must also perform scaling of the power parameter that we use in the next \texttt{trace\_photon}
 call, note that the scaling preserves the power of the photon and the reflectance properties of the surface.
 
@@ -67,7 +68,7 @@ has as input a flag that will indicate that any path that does not match this de
 
 \subsubsection{Participating Media}
 If the photon interacts with a participating medium the photon will begin a random walk inside the medium, the path of this walk
-is determined by the properties of the medium, these being the scattering and absorbtion coefficient, the sum of which
+is determined by the properties of the medium, these being the scattering and absorption coefficient, the sum of which
 is called the extinction coefficient, at each point in the random walk the photon is stored and then can either be
 scattered or absorbed, the probability of being scattered is determined by the Albedo $\Lambda$
 
@@ -83,9 +84,10 @@ scattered or absorbed, the probability of being scattered is determined by the A
 %\caption{Participating Media Albedo}
 \end{equation}
 
-Each step in the random walk continues for a distance until the next interaction with the medium is calculated, this distance
-is calculated by importance samping the distance $\Delta x$ such that the expected distance is equal to that of the medium \cite{JensenBook},
-the distance is given by:
+Each step in the random walk continues for a distance until the next interaction with the medium occurs, the distance for
+the next probability if determined by the properties of the medium, the probability of photon travelling a distance $\Delta x$ is
+given by $1 - e^{-\Delta x}$ \cite{wood-monte-carlo}, we can importance sample this distribution to determine the distance for
+the next interaction \cite{JensenBook} which is given by:
 
 \begin{equation}
 \label{eq:volume_dist_importance}
@@ -97,21 +99,21 @@ object in the medium it is treated as if it was not in the medium and is stored 
 
 \subsection{Photon Processing}
 Each thread that traces the photons in the scene writes to a common queue, this queue is read by a single processing thread
-that clasifies the photons by the path of the photon and stores the photons in one of three lists, the global, caustic and
-volume photon list, this thread will continue to read photons from the queue until each of the threads have signaled that they
+that classifies the photons by the path of the photon and stores the photons in one of three lists, the global, caustic and
+volume photon list, this thread will continue to read photons from the queue until each of the threads have signalled that they
 have completed their portion of the photons, this signal is in the form of a flag that is passed in the same queue as the
 photon data. After all photons have been collected the power of the photons are scaled by the number of photons that were
-emmited (note this is not the number of photons in the list but the total number emmited) from the same light as the
+emitted (note this is not the number of photons in the list but the total number emitted) from the same light as the
 photon.
 
 \subsubsection{K-D Tree Balancing}
 When performing radiance estimations with the photon map we will be performing nearest neighbour searches on points within
-the map, this requires the photon map to be arrainged in a manner such that this search can be performed efficiently.
+the map, this requires the photon map to be arraigned in a manner such that this search can be performed efficiently.
 In order to do this we store the photon map in a left-balanced k-d tree. A left balanced tree is a tree structure where
 at each level of the tree the depth of the children differs by at most one,
 this allows us to store the photon map in an array with the location of the children in the photon map known implicitly,
 for a photon in position $i$ the children of the photon can be found at the $(2i + 1)^{th}$ and $(2i + 2)^{th}$
-location for the left and right tree respectivly, the next stage is two transform the photon lists into a k-d tree.
+location for the left and right tree respectively, the next stage is two transform the photon lists into a k-d tree.
 
 \begin{algorithm}
 \begin{algorithmic}
@@ -166,7 +168,7 @@ photons.size \textgreater 1
 \subsubsection{Selection Statistic}
 In Algorithm~\ref{alg:balance} we partition the photons around the median of the list of photons, in order for
 this partition to be stored in an array with no explicit node pointers we must choose the median position such
-that the tree will be left balanced \cite{baerentzen03}, Algorithm~\ref{alg:bal-median} describes the procedure nessacerry for this
+that the tree will be left balanced \cite{baerentzen03}, Algorithm~\ref{alg:bal-median} describes the procedure necessary for this
 to be the case.
 
 \begin{algorithm}

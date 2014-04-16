@@ -1,9 +1,9 @@
 As discussed in the requirements and design sections we include in the system a generic description of the objects in the
-scene , this is implementatied as a structure that contains function pointers that perform functions
+scene , this is implemented as a structure that contains function pointers that perform functions
 that must be supported by all raytracable objects and the data related to the individual object.
 By encapsulating the data and the functions performed by the object it is possible to create algorithms on objects in the
 abstract such that the details of the object can be ignored, for instance calculating a reflected ray at a point if intersection
-is a function of only the surface normal at that point, wheither it is a triangle mesh or sphere the same ray will be calculated,
+is a function of only the surface normal at that point, whether it is a triangle mesh or sphere the same ray will be calculated,
 a full list of the functions that need to be defines is given in Figure~\ref{fig:object_funcs}
 
 \begin{figure}[h]
@@ -33,12 +33,12 @@ The sphere primitive is defined implicitly as an origin point and distance from 
 a natural choice as many of the operations that we need to perform such as intersection tests and finding the normal at the
 point of intersection is much simpler for spheres that most other surfaces allowing us to use this primitive for testing
 changes while being confident that any errors that we find are not within the object definition of the sphere, the same cannot
-be said for a mesh where the optimised intersection test used is fairly complex and contains more scope for implementational errors.
+be said for a mesh where the optimised intersection test used is fairly complex and contains more scope for implementation errors.
 
 \subsubsection{Intersection test}
-Given that we define a ray and a sphere in a parametric form it is intuitive to solve the intersection of these objects implicity,
+Given that we define a ray and a sphere in a parametric form it is intuitive to solve the intersection of these objects implicitly,
 given a ray defined $\vec{o} + t \vec{d}$ and the equation for a sphere $(p - c) \cdot (p - c) = r^2$ where p is a point on the the
-sphere, c the center of the sphere and r the radius of the sphere, combining these two equations we get:
+sphere, c the centre of the sphere and r the radius of the sphere, combining these two equations we get:
 
 \begin{equation*}
 (\vec{o} + t\vec{d} -\vec{c}) \cdot (\vec{o} + t\vec{d} - \vec{c}) = r^2
@@ -77,25 +77,25 @@ form as described during the discussion of the system design.
 
 \subsubsection{K-D Tree Construction}
 \label{sec:obj_mesh}
-Intersecting a triangle mesh with a bruteforce method would be prohibitivly expensive for a mesh with many triangles, it
-is common then, to use a acceleration struction that reduces the number of intersection. The
-construction of the kdtree is performed during the initialiseation of the triangle meshes as it is a static data structure.
-We begin the contruction of the kd-tree with all
-triangles in a single list, we then calculate an axis and position on that axis to seperate the triangles, this is calculated
+Intersecting a triangle mesh with a brute force method would be prohibitively expensive for a mesh with many triangles, it
+is common then, to use a acceleration structure that reduces the number of intersection. The
+construction of the kdtree is performed during the initialisation of the triangle meshes as it is a static data structure.
+We begin the construction of the kd-tree with all
+triangles in a single list, we then calculate an axis and position on that axis to separate the triangles, this is calculated
 by finding the median spread of the geometry in the voxel we then sort each of the triangles into two child lists, if a triangle is
-to the left of the splitting plane it will be placed in the left childs triangle list and visa-versa for the right, if the
-triangle spans the split plane it will be added to both lists, we then call the tree building function recursivly on the
+to the left of the splitting plane it will be placed in the left child's triangle list and visa-versa for the right, if the
+triangle spans the split plane it will be added to both lists, we then call the tree building function recursively on the
 left and right child and delete the list for this node, we terminate when a list contains less than a threshold number
 of triangles in its bucket or a maximum depth is reached or if all triangles are placed in a single node.
 
 \subsubsection{Intersection test}
 Given the k-d tree that we have constructed for a mesh we can now describe an efficient top-down intersection algorithm,
-we begin at the root of the k-d tree, given that the tree has been split along an axis we can calculate which of the
+we begin at the root of the k-d tree. Given that the tree has been split along an axis we can calculate which of the
 child voxels are closer to the ray by calculating the values of intersection for the two voxel, if the ray origin is
 within a voxel it is set to be the near voxel and the other child the far, otherwise we compare the t values for the
 voxel intersection. Once we know which voxel to traverse, if the ray exits the near voxel before crossing the splitting
 plane we do not need to test the far voxel as we cannot intersect any geometry in that voxel, we perform this procedure
-recursibly on the near and possibly far voxel until we reach a leaf node, we then test all triangles in the index list,
+recursively on the near and possibly far voxel until we reach a leaf node, we then test all triangles in the index list,
 if we find an intersection we record the t parameter for the intersection and check the rest of the list, if an intersection
 if found we can return the intersection point and discard any other voxels that we were going to check as they cannot
 have an intersection closer. There is a subtle point that must be noted, when we are checking for that intersection of
@@ -104,10 +104,10 @@ record this intersection as the triangle spans voxels and we need to check for c
 
 \subsection{Material Properties}
 Each object has associated with it a material property that defines the reflectance properties of the material.
-The system currenlty suports diffuse and pure specular components each being defined as a three floating point
-values for red, green and blue compnonets respectivly, texture mapping is also supported for the diffuse component,
-for specular transmission an index of refraction is defined that determins the direction of refracted rays through the
-material. We also store the average values for these components explicitly as they are frequentlty used when performing
-russian roulette to evaluate integrals during photon map construction and raytracing. Participating media require additional
+The system currently supports diffuse and pure specular components each being defined as a three floating point
+values for red, green and blue components respectively, texture mapping is also supported for the diffuse component,
+for specular transmission an index of refraction is defined that determines the direction of refracted rays through the
+material. We also store the average values for these components explicitly as they are frequently used when performing
+Russian roulette to evaluate integrals during photon map construction and ray-tracing. Participating media require additional
 components for the scattering and absorption coefficients as discussed in the Literature Survey, these are also stored
-as rgb components, we also store derived properties, namely the extinction coefficent and albedo of the matrial.
+as rgb components, we also store derived properties, namely the extinction coefficient and albedo of the ma trial.

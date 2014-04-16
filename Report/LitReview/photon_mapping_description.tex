@@ -1,15 +1,15 @@
 \section{Photon mapping}
 Photon mapping was first developed by Jensen \cite{Jensen95b} as an extension to the traditional ray
-tracing algorithm proposed by Whitted \cite{whitted79a} whereby a preprocessing step is added that
+tracing algorithm proposed by Whitted \cite{whitted79a} whereby a prepossessing step is added that
 creates a photon map of the scene.
 
-The photon mapping algorithm begins by emitting photons from each light source in the scence,
-each photon contains a fraction of the power of the light that is proportianal to the number
+The photon mapping algorithm begins by emitting photons from each light source in the scene,
+each photon contains a fraction of the power of the light that is proportional to the number
 of photons that are emitted from the light source. Once emitted from the light source the
-photon is traced through the scene much like a ray in raytracing, 
+photon is traced through the scene much like a ray in ray-tracing, 
 the photon is absorbed by a diffuse surface within the scene, each of the photons absorbed are stored within a photon map
 which is an efficient data structure that will store information about the photon such as the
-location of the absorbtion, the direction from which the photon was traveling and the photons
+location of the absorption, the direction from which the photon was travelling and the photons
 energy. the photon map is a spatial structure as we will query the photon map for the photons
 within a location as such it is common to store the photon map in a kd-tree to allow an efficient
 nearest neighbour search. Each photon emitted from the light source can be stored multiple times
@@ -20,9 +20,9 @@ Multiple photon maps are used with different accuracies in order to
 improve the efficiency of the algorithm, for instance in \cite{Jensen96a} two photon maps are used, a global photon
 map and a caustic photon map, the caustic photon map contains photons that arrive at a location from
 either the specular reflections or refractions , this photon map is stored at a higher
-accuraracy as its data will be visulaised directly to produce the apperance of caustics in an image.
-Storing the caustic causing paths in a seperate photons not only makes the simulation of caustics
-more efficient it also reduces the variance in renderings as the desity from all other paths
+accuracy as its data will be visualised directly to produce the appearance of caustics in an image.
+Storing the caustic causing paths in a separate photons not only makes the simulation of caustics
+more efficient it also reduces the variance in renderings as the density from all other paths
 tend to vary more slowly \cite{JensenBook}.
 
 The general photon map contains all other types of photons stores, such as direct and indirect
@@ -30,14 +30,14 @@ illuminations and shadow photons as described in \cite{Jensen95c,Jensen96a} thes
 allow for the number of shadow rays to be reduced as we do not need to shoot shadow rays if the
 photon search returns only shadow photons.
 
-The second stage in the photon mapping algorithm is the raytracing stage, this state is simalar
-to the algorithm in \cite{whitted79a} but we now have the data stored within the photon map to make
+The second stage in the photon mapping algorithm is the ray-tracing stage, this state is similar
+to the algorithm described in the section above but we now have the data stored within the photon map to make
 use of. Rays are shot from the eye into the scene until an intersection is found, we then use
-the propertiyes of object hit and the photon maps to calculate the colour set for the pixel, this
-is done by estimating the radiance at the point of intersection, a nearest neighbor search is
-performed on the photon map cetererd at the point of intersection, the radius of the search is
+the properties of object hit and the photon maps to calculate the colour set for the pixel, this
+is done by estimating the radiance at the point of intersection, a nearest neighbour search is
+performed on the photon map centred at the point of intersection, the radius of the search is
 increased until the number of photons has reached a predetermined number $n$, the estimate of the
-radiance is then given by the sum of the radiances of the photons within the search.
+radiance is then given by the sum of the radiance's of the photons within the search.
 
 \begin{equation}
 \label{eq:radiance_disk_estimate}
@@ -56,10 +56,10 @@ f_{r}(x,\vec{\omega}_{p}', \vec{\omega})
 
 The radiance is estimates as the density of a disk of radius $r$, this estimate is used as it is
 assumed that the photons within the search will lie on the surface of the object and locally 
-relitivly flat, this is accounted for by the division of $\pi r^2$ term in equation~\ref{eq:radiance_disk_estimate}.
+relatively flat, this is accounted for by the division of $\pi r^2$ term in equation~\ref{eq:radiance_disk_estimate}.
 
 The density estimate given in \cite{Jensen96a} can produce poor results in the case of geometry with
 areas that are close together but not flat, such as the corners of a room, in this case the
 estimate of the radiance will be too high as the photons lying on the other wall will contribute to
 the estimate, a solution to this is given in \cite{JensenBook}, where the search radius is flattened along
-an axis orthoganol to the normal of the surface.
+an axis orthogonal to the normal of the surface.

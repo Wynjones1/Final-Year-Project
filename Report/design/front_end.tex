@@ -1,9 +1,9 @@
 \section{Front End}
 The front end of the system deals with the input and output of the system, this will manipulate and process
-the input into a form that can be used by the backend to perform the synthesis, seperating the front and backend
+the input into a form that can be used by the back-end to perform the synthesis, separating the front and back-end
 allows the i/o and the synthesis to be modified with no modification required for the other block,
-for intance the output could be an BMP image or a surface within a gui, the details of the conversion are
-irrelevent to the back-end, only that the data passed to it is in a format that is understood.
+for instance the output could be an BMP image or a surface within a GUI, the details of the conversion are
+irrelevant to the back-end, only that the data passed to it is in a format that is understood.
 
 \subsection{Scene Input}
 The scene input takes in a description of a scene that is to be rendered from a file, this scene description
@@ -12,7 +12,6 @@ objects are also described by a file that is listed in the scene file. Each of t
 that are human readable, this allows the files to be easily modified. Each of these configuration files allows
 for attributes to be reused such as a material describing a mirrored surface can be defined in a single material
 file that can be referenced by multiple objects. below is a list of the different scene files that are defined
-(details of each of the files can be found in the appendix).
 
 \begin{description}
 \item[.scene] Top level description of the scene
@@ -21,13 +20,13 @@ file that can be referenced by multiple objects. below is a list of the differen
 \end{description}
 
 \subsubsection{PLY mesh format}
-One aspect of the mesh input file is a filename that referes to a PLY polygonal mesh, it was decided that using
-a pre-existing file format for the input to system was benificial as it allowed for assets from 3D modeling
-utilities to be used to create the test scenes as they contain the required functionallity to export to PLY
+One aspect of the mesh input file is a file-name that refers to a PLY polygonal mesh, it was decided that using
+a pre-existing file format for the input to system was beneficial as it allowed for assets from 3D modelling
+utilities to be used to create the test scenes as they contain the required functionality to export to PLY
 meshes. the choice of the PLY made because it is a human-readable format (a binary PLY format is available but
 not supported by the system) and we specify this to be a key requirement of the system, 
-using PLY also allowed for example meshed from the Stanford PLY reposotory which in turn provided a selection of
-relitivly complex models that could be used during the production and testing.
+using PLY also allowed for example meshed from the Stanford PLY repository which in turn provided a selection of
+relatively complex models that could be used during the production and testing.
 
 \begin{figure}
 \lstinputlisting[language=C]{../Code/data/scenes/cornell_box.scene}
@@ -38,18 +37,17 @@ relitivly complex models that could be used during the production and testing.
 \subsection{Command Line Arguments}
 The program that is created must be able to take in more than one scene file to be useful, by having command
 line arguments this allows the scene file to be changed without recompiling the code, there are other options
-that are available including the number of threads that will be used to perform the raytracing and the
-resolution and name of the output file, this will allow for the system to be used in scripts, refer to
-Appendix~\ref{chap:command-line-appendix} for full details of the command line options that are available.
+that are available including the number of threads that will be used to perform the ray-tracing and the
+resolution and name of the output file, this will allow for the system to be used in scripts.
 
 \subsection{Image Output}
-The image and gui block contains the code that will take the final pixel colours and present them to the screen
+The image and GUI block contains the code that will take the final pixel colours and present them to the screen
 there will be two modes of operation, image output and GUI output, image output saves the image to a file such
 as png or bmp.
 
 \subsection{GUI}
-In order to provide immediate feedback to the user it is nessaccarry to include a GUI in the system, this will
-be a simple window that will display the progress of the system as it creates the images, this is usefull
+In order to provide immediate feedback to the user it is necessary to include a GUI in the system, this will
+be a simple window that will display the progress of the system as it creates the images, this is useful
 for testing changes to a scene as it may be possible to see if the change has had the desired effect without
 finishing what may be a costly render or to assure the user that a render is still running, the block level
 design of the GUI can be found in Figure~\ref{fig:gui_design}.
@@ -63,6 +61,6 @@ design of the GUI can be found in Figure~\ref{fig:gui_design}.
 
 \subsection{Console Output and Logging}
 In certain environments it is not possible to support a GUI (headless server) as a result the system includes
-output on the console that inform the user of the progess of the render, this provides a visual disply of the
+output on the console that inform the user of the progress of the render, this provides a visual display of the
 progress at each stage in the rendering and also any warnings that can be used to debug issues that arise
 during the execution of the program.

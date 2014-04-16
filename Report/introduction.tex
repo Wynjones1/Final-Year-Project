@@ -1,17 +1,23 @@
-\section{Aims}
-This project amis to create a system that will synthesis images using the photon mapping algorithm to estimate the
-global illumination of a scene, in paticualar we aim to simulate lighting phenomena such as colour exchange between
-diffuse surfaces, caustics caused by specualar objects.
+Computer graphics is a sub field of Computer Science that has obvious appeal, that of creating interesting images with computers. Throughout
+this century and the latter half of the last researchers have strived to develop algorithms that simulate how the real world works
+and use these algorithms to produce images that are visually appealing and that appear to be in some way realistic.
 
-\section{Global Illuminiation}
-As the use of computers has become more prevalant in everyday life so has its use in the arts, a leading area of research is
+\section{Global Illumination}
+As the use of computers has become more prevalent in everyday life so has its use in the arts, a leading area of research is
 computer generated imagery we the aim of producing images that simulate the way in which light interacts
-with the world, global illumination techniques aim to acheive this through simulation of the light transport equation, a true
-solution to this equation is frequently computationally infeasable, techniques have been developed that estimate the contribution
+with the world, global illumination techniques aim to achieve this through evaluation of the light transport equation of a scene. A true
+solution to this equation is computationally unfeasible as a result techniques have been developed that estimate the contribution
 due to indirect lighting that seek to reduce the computational cost that give a correct solution to the rendering equation at
-the limit, one such technique is photon mapping.
+the limit, one such technique is photon mapping, this is the focus of this project.
+
+\section{Aims}
+This project aims to create a system that will synthesis images using the photon mapping algorithm to estimate the
+global illumination of a scene, in particular we aim to simulate lighting phenomena such as colour exchange between
+diffuse surfaces, caustics caused by secular objects. We aim to create a system that is by some measure efficient
+and that is easy to use.
 
 \section{Structure}
-This document will begin with a description of the research surrounding my project that I have used to draw from. I will then
-move onto the requirements for the system thena description of the design and then the implementation of the system including
-aspects of the implementation that were interesting or presented a paticular challange.
+This document will begin with a description of the research surrounding my project that we have used to draw from. We will then
+move onto the requirements for the system then a description of the design and then the implementation of the system including
+aspects of the implementation that were interesting or presented a particular challenge. Finally we shall provide a brief description
+of the testing performed on the system.

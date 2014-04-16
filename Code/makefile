@@ -16,7 +16,7 @@ ifndef VERBOSE
 endif
 
 ifndef PMAP
-	PMAP              := 1
+	PMAP              := 0
 endif
 
 OUTPUT_PHOTON_MAP := 0

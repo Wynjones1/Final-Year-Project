@@ -1,0 +1,24 @@
+In this section I will briefly discuss some data structures that are used as part of the system that cannot
+be catagorised as being in the front or the back end.
+
+Due to the small standard library provided by C many features that are commonly found in more high level languages are not
+found in C, for this project we need three such data structures, lists queues and vectors.
+
+\subsection{Lists}
+As we don't know how many objects and lights are in the scene and number of photons stored in the photon maps depends on the
+lights and geometry in the scene, as a result we have implemented a list data structure that allows for the size of the list
+to increase as elements are added to the list. The implementation of this data structure is quite simple, a list stores
+a pointer to an array in memory, the size of the elements in the array, the number of elements in the array and the capacity of the
+array. If an item is added to the list and the capacity is two low the capacity if doubled by calling the function \texttt{realloc}
+
+\subsection{Queue}
+During the implementation of the system we frequently required to coordinate between multiple threads for example during
+photon emission and raytracing, the solution that we decided upon in both cases was to use a thread-safe queue implementation, this is implemented as a
+fixed size circular buffer, two pointers are stored to the front and back of the queue, as items are read from the queue to
+front of the queue is decreased and writing to the queue increases the back pointer.
+
+\subsection{Vectors}
+Some of the most common operations that are performed during photon mapping and raytracing are vector operations. We provide a simple
+implementation of vectors in this system as facilitate operations such as vector addition, substraction, dot and cross product and so on, the
+implementation of these operations are not paticularly optimised although we were able to observe that our implementation was optimised
+by the compiler to utilise vectorisation instructions available for the architecture that we have tested the system on.

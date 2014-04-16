@@ -1,0 +1,46 @@
+\section{Acceleration Structures}
+In order to produce an image of a non-trivial scene accelerating structures are a nessesity, the
+amount of time to check intersections for each ray grows with order  $O(N^2)$ if each object is
+checked for an intersection. Some candidates for structures are, Octrees, KD Trees, BSP trees. All
+of these data structures are designed to decrease the amount of time spent checking for 
+intersections. It may be worth an investigation the performance characteristics of the various
+data-structures within the system, this can easily be done by making the underlying implementation
+of the data-structure transparent to the rest of the system.
+
+\subsection{K-D Trees}
+A kd-tree is a data structure that partitions space along split-planes which are axis aligned
+hyperplanes first preposed by Bently \cite{Bently75}.
+The use of kd-trees in rendering applications is common as they reduce the time
+required to find the intersection of a ray and an object within a kd-tree. kd-trees are also needed
+within the photon mapping algorithm for the radiance estimate as we need to perform a
+neighbour search, Jensen uses this data structure within his implementation of the photon mapping
+algorithm in his book \cite{JensenBook}.
+
+\subsubsection{Building K-D Trees}
+Wald desribes an algorithm for building a kd-tree with $O(N log(N))$ complexity \cite{Wald06}, as stated in his
+paper the desire for more and more complex scenes requires that attention should be make to the 
+building of the kd-tree as it can begin to take substantial amount of computing resources to
+perform. This paper is a good overview of techniques for building a kd-tree.
+
+\subsubsection{Surface Area Huristic}
+The Surface Area Huristic (SAH) is a technique often used in the building of kd-trees in order to
+decide upon the location of the split plane. First presented by MacDonald et al. \cite{MacDonald90}
+the SAH estimates the cost of splitting at a given point on a kd-tree, this is done by estimating the
+cost of traversing the structure and the probability of a ray intersecting the objects within the
+structure. The SAH does make some assumptions such as the cost of traversel etc, as noted in
+\cite{Wald06} some of these assumtions are not strictly correct but the result of using the SAH
+are still valid.
+
+\subsection{Nearest Neighbour search}
+In order to produce a radiance estimate for a location on a surface we need to be able to query to
+photon map in order to find the nearest n photons, the kd-tree is a good candidate for this search
+as it is possible to perform the search with $O(log(N))$ complexity. The algorithm was first proposed in the
+paper introducing kd-trees by Bently \cite{Bently75} although as noted by Bently in later versions of
+the paper a more clear explination of the algorithm is stated by Freidman et al. \cite{Freidman77}.
+
+\subsection{Ray KD-Tree Traversal}
+Devoting time to creating efficient traversal algorithms is vital for all applications that
+include raytracing as a large proportion of the running time will be used performing these
+intersection tests, Fussell \cite{Fussell88} describes an algorithm to perform this traversal that
+performs front to back search of the enclosing volumes allowing the closest intersection to be found
+efficiently.

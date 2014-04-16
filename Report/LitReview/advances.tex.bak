@@ -1,0 +1,40 @@
+\section{Photon mapping advances}
+Since the initial creation of the photon mapping algorithm in 1996 there have been many improvements
+and modifications to the photon mapping algorithm in order to increase the efficiency and the
+range of effects that can be visulised, in this section we shall summarise this work.
+
+\subsection{Reverse Photon Mapping}
+In order to speed up the photon mapping algorithm Havran et al. developed the reverse photon mapping
+algorithm, it is claimed in his paper that substantial speedups are possible by performing the
+raytracing stage before the photon mapping stage by accessing memory in a more coherent manner.
+
+\subsection{Progressive Photon Mapping}
+Progressive Photon Mapping \cite{Hachisuka08} is a reformulation of the photon mapping algorithm
+into a multipass solution to the rendering equation in which the raytracing stage is performed prior
+to the photon mapping stage in a simalar way to reverse photon mapping.
+
+In the traditional photon mapping algorithm the number of photons that are emitted into the scene
+are fixed, as such it is not possible to obtain an estimate of the radiance to an arbitrary
+precision, this can cause the estimate of the radiance to be blured. Progressive photon mapping
+attempts to solve this problem by performing more than one photon mapping pass. After each photon
+map stage the search radius at each pixel is reduced, this allows details to be refined through
+subsequent passes. In addition to the ability to refine the image quality the memory requirement to
+produce an image to a given precision is reduced as each photon map does not need to be stored in
+main memory.
+
+While this algorithm has been shown to be a useful addition to the traditional photon mapping
+algorithm it is much more complicated, we need to perform more than one photon mapping stage which
+require the radiance estimate to be recalculated multiple times.
+
+\subsection{Stochastic PPM}
+Stochatic Progressive Photon Mapping (SPPM) \cite{Hachisuka09} is a recently extension to PPM that
+is simalar in motivations as distributed raytracing, that is to be able to use the algorithm to
+produce phenomena such as depth of field, motion blur and glossy reflections. This method has been
+shown to converge to the correct solution for these phenomena and specular-diffuse-specular paths
+faster that normal PPM.
+
+\subsection{Dynamic Scenes}
+Although the photon mapping algorithm has traditionaly been used for static scenes there has
+recently been work towards modifiing the algorithm so that it can be used for dynamic scenes, the
+work of Weiss et al. \cite{Weiss12} in this paper it presents a method of rendering that uses
+information from previous frames of the scene in order to gain a speedup of the rendering process.

@@ -1,0 +1,35 @@
+In this chapter we will describe various mathematic concepts that are nessaccery in order to understand and implement photon mapping.
+
+\section{Spherical Coordinates}
+Spherical Coordinates describe a point with three values $r, \theta, \phi$, in this project we only consider coordinates with
+radius equal to one, that is points on a unit sphere, this is due to using spherical coordinates for evaluating hemispherical
+integrals, for all other coordinated standard carteisian coordinates will be used.
+
+\missingfigure{Sperical Coordinates}
+
+\section{Solid angle}
+\todo{Picture and explain why we use it and some nice citations from someone other than Jensen}
+
+
+
+\todo{Move}
+\section{Monte-Carlo Methods}
+
+%\section{Intersection Tests}
+%In this project we represent the objects in the scene with implicit and explicity definition of surfaces, this includes
+%triangle meshes and spheres, each of these objects in order to be used in the raytracing system a function that tests
+%whether a given object in the scene intersects with a given ray.
+%\subsection{Triangle}
+%The intersection test used for triangle intersection tests in this project was derived by \todo{Cite}
+%\subsection{Sphere}
+%The intersection of a ray and a sphere is one of the simplest, it is essentially finding the root of a quadratic equation to
+%find the ray parameter at the point of intersection, if no value can be foudn the ray does not intersect the sphere.
+%\subsection{K-D Tree}
+%In order to accelerate the intersection of meshes that contain many traingles we use a k-d tree to spacially divide the mesh,
+%this structure facilitates an efficient intersection tests that calculates the path that the ray travels in order to perform
+%a front to back tests, this allows for an early exit of the intersection test when an intersection is found in a partition.
+%The algorithm is as follows, we begin at the root of the k-d tree, testing which side of the spliting plane the ray origin
+%is situated, we set this node as the near node, this will be the node that will be tested first. We calculate the ray parameter
+%
+%\todo{Expand}
+

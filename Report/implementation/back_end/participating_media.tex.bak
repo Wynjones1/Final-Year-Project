@@ -1,0 +1,47 @@
+\section{Participating Media}
+In the case of a ray that intersects a participating media before intersecting a surface we need to calculate three components to
+the radiance along the path of the ray in the medium, these are single scattering direct illumination, multiple scattering (in-scattering)
+and attenuation (out-scattering)
+
+\subsection{Ray Marching}
+In order to evaluate the radiace from the participating media we perform a ray-march, this is an iterative operation that evaluates the
+radiance along the ray as it moves through the participating media.
+
+\begin{equation}
+L(x, \omega) = \sum\limits_{i = 1}^N L_l(x, \omega_l')p(x, \omega_l', \omega)\sigma_s(x)\Delta x + e^{- \sigma_t \Delta x} L (x + \omega \Delta x, \omega)
+\end{equation}
+
+\subsection{Attenuation}
+As a ray travels through a medium the radiance can be reduced due to out-scattering and absortion, this can be calculated by evaluating
+the integral given in Equation~\eqref{eq:atten}, as we are only considering homogeneous participating media this can be
+simplified as the properties being integrated are constant and a closed form solution is possible, the attenuation for any participating media
+is given by:
+
+\begin{equation}
+	e^{-\tau(x, x + \Delta x)}
+\label{eq:e_atten}
+\end{equation}
+
+where $\tau$ is given by:
+
+\begin{equation}
+	\tau(x, x') = \int\limits_x^{x'} \sigma_t(t) dt
+\label{eq:atten}
+\end{equation}
+
+as $\sigma(t)$ is a constant for participating media we can evaluate this
+integral and use the result in Equation~\eqref{eq:e_atten}
+to give the attenation of the radiance along the distance $\Delta x$ as:
+
+\begin{equation*}
+	\tau(x, x + \Delta x) = \int\limits_x^{x + \Delta x} \sigma_t .  dt = \sigma_t \Delta x
+\label{eq:homo-attem}
+\end{equation*}
+
+\subsection{Direct Illumination}
+At each point in the ray march we also evaluate the contribution from each light in the scene due to single scattering, this is performed
+by performing an additional ray march in the direction of the light and evalute the radiance arriving at the point on the ray.
+
+\subsection{Muliple Scattering}
+In order to evaluate the effect of multiple scattering within the participating media we use the photon map and the volume radiance estimate
+for the photon map, as with direct illumination we evaluate the in-scattering at distctreate points along the path of the ray.

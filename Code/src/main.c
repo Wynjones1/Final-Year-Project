@@ -20,7 +20,7 @@ void sub_image(void *_data, int x, int y, uint32_t data)
 	int h = 20;
 	if(x - subx < w && x - subx > 0)
 	{
-		if(y - suby < w && y - suby > 0)
+		if(y - suby < h && y - suby > 0)
 		{
 			bmp_write(bmp, x - subx, y - suby, data);
 		}

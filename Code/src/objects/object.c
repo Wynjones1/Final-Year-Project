@@ -39,7 +39,6 @@ void object_calculate_refracted_colour( object_t *object, scene_t *scene, inters
 	{
 		refracted_ray.depth = incident->depth + 1;
 		double t = maths_calculate_refracted_ray(incident->normal, info->normal, object->material.ior, refracted_ray.normal);
-		double e = randf(0, 1.0);
 		intersection_t refraction_info;
 		vector_copy(info->point, refracted_ray.origin);
 
@@ -185,7 +184,6 @@ static void default_shade_func(object_t *object, scene_t *scene, intersection_t 
 	double temp[3];
 	double out[3] = {0,0,0};
 	object_calculate_texture_colour(object, info, tex);
-	double av_tex = (tex[0] + tex[1] + tex[2]) / 3.0;
 	material_t *mat = &object->material;
 
 	double eps = randf(0.0, 1.0);
